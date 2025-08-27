@@ -182,3 +182,7 @@ project/target
 .worksheet
 
 .vscode/settings.json
+
+# Archivos propios
+*.ods
+*dmeyf-venv/
