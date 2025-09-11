@@ -1,0 +1,274 @@
+experimento: 4940_V2
+train:
+- 202101.0
+- 202102.0
+train_final:
+- 202101.0
+- 202102.0
+future: 202104.0
+semilla_kaggle: 314159.0
+cortes:
+- 6000.0
+- 6500.0
+- 7000.0
+- 7500.0
+- 8000.0
+- 8500.0
+- 9000.0
+- 9500.0
+- 10000.0
+- 10500.0
+- 11000.0
+- 11500.0
+- 12000.0
+- 12500.0
+- 13000.0
+- 13500.0
+- 14000.0
+- 14500.0
+- 15000.0
+- 15500.0
+- 16000.0
+- 16500.0
+- 17000.0
+- 17500.0
+- 18000.0
+- 18500.0
+- 19000.0
+trainingstrategy:
+  undersampling: 0.5
+hyperparametertuning:
+  xval_folds: 5.0
+  iteraciones: 50.0
+lgbm:
+  param_fijos:
+    boosting: gbdt
+    objective: binary
+    metric: auc
+    first_metric_only: no
+    boost_from_average: yes
+    feature_pre_filter: no
+    force_row_wise: yes
+    verbosity: -100.0
+    seed: 600011.0
+    max_depth: -1
+    min_gain_to_split: 0.0
+    min_sum_hessian_in_leaf: 0.001
+    lambda_l1: 0.0
+    lambda_l2: 0.0
+    max_bin: 31
+    bagging_fraction: 1.0
+    pos_bagging_fraction: 1.0
+    neg_bagging_fraction: 1.0
+    is_unbalance: no
+    scale_pos_weight: 1.0
+    drop_rate: 0.1
+    max_drop: 50.0
+    skip_drop: 0.5
+    extra_trees: no
+    num_iterations: 1200.0
+    learning_rate: 0.02
+    feature_fraction: 0.5
+    num_leaves: 750.0
+    min_data_in_leaf: 5000.0
+hypeparametertuning:
+  hs:
+    pars:
+      min_sum_hessian_in_leaf:
+        id: min_sum_hessian_in_leaf
+        type: numeric
+        len: 1
+        lower: 0.001
+        upper: 0.1
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      learning_rate:
+        id: learning_rate
+        type: numeric
+        len: 1
+        lower: 0.001
+        upper: 0.3
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      feature_fraction:
+        id: feature_fraction
+        type: numeric
+        len: 1
+        lower: 0.1
+        upper: 1.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      bagging_fraction:
+        id: bagging_fraction
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 1.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      lambda_l1:
+        id: lambda_l1
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 100.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      lambda_l2:
+        id: lambda_l2
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 100.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      min_gain_to_split:
+        id: min_gain_to_split
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 15.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      bagging_freq:
+        id: bagging_freq
+        type: integer
+        len: 1
+        lower: 1
+        upper: 10
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      num_iterations:
+        id: num_iterations
+        type: integer
+        len: 1
+        lower: 50
+        upper: 4000
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      max_depth:
+        id: max_depth
+        type: integer
+        len: 1
+        lower: -1
+        upper: 16
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      num_leaves:
+        id: num_leaves
+        type: integer
+        len: 1
+        lower: 1
+        upper: 2048
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      min_data_in_leaf:
+        id: min_data_in_leaf
+        type: integer
+        len: 1
+        lower: 1
+        upper: 8000
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+    forbidden: ~
+semilla_primigenia: 600011.0
+out:
+  lgbm:
+    mejores_hiperparametros:
+      min_sum_hessian_in_leaf: 0.0994928
+      learning_rate: 0.0454587
+      feature_fraction: 0.4430241
+      bagging_fraction: 0.7880072
+      lambda_l1: 1.264718
+      lambda_l2: 43.9539097
+      min_gain_to_split: 0.0569034
+      bagging_freq: 8
+      num_iterations: 1728
+      max_depth: 14
+      num_leaves: 253
+      min_data_in_leaf: 725
+    'y': 0.9397581
