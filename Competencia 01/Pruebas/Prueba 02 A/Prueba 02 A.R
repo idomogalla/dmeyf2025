@@ -65,16 +65,30 @@ main <- function() {
     PARAM <- list()
     PARAM$experimento <- "expC01_Prueba02A"
     PARAM$semilla_primigenia <- 200003
+
+    # ============================================================================
+    # CONFIGURACIÓN TEMPRANA DEL DIRECTORIO Y LOGGER
+    # ============================================================================
     
-    # Configurar logger
+    # Crear directorio del experimento ANTES de cargar datos
+    cat("Creando directorio del experimento...\n")
+    setwd("~/buckets/b1/exp/")
+    dir.create(PARAM$experimento, showWarnings=FALSE)
+    setwd(paste0("~/buckets/b1/exp/",PARAM$experimento))
+
+    # Configurar logger 
     log_file <- paste0("log_", PARAM$experimento, ".txt")
     log_appender(appender_tee(log_file))
     log_threshold(INFO)
+    
+    cat("Logger configurado. Los mensajes se guardarán en:", log_file, "\n")
+    cat("====================================================================\n\n")
     
     log_info("=================================================================")
     log_info("Inicio del experimento: {PARAM$experimento}")
     log_info("Fecha y hora: {format(Sys.time(), '%a %b %d %X %Y')}")
     log_info("=================================================================")
+    log_info("Directorio de trabajo: {getwd()}")
     
     # Training y future
     PARAM$train <- c(202101, 202102)
@@ -203,16 +217,21 @@ main <- function() {
     # Lectura del dataset
     # ============================================================================
     
-    log_info("Iniciando lectura del dataset...")
+    log_info("=================================================================")
+    log_info("Iniciando lectura del dataset desde ~/buckets/b1/datasets")
+    log_info("=================================================================")
     
     tryCatch({
       setwd("~/buckets/b1/datasets")
       dataset <- fread("./competencia_01.csv.gz", stringsAsFactors= TRUE)
-      log_info("Dataset cargado exitosamente. Dimensiones: {nrow(dataset)} filas x {ncol(dataset)} columnas")
     }, error = function(e) {
       log_error("ERROR al cargar el dataset: {e$message}")
       stop(e)
     })
+    
+    # Volver al directorio del experimento
+    setwd(paste0("~/buckets/b1/exp/",PARAM$experimento))
+    log_info("Dataset cargado correctamente.")
     
     # ============================================================================
     # Generación de lags
@@ -283,21 +302,7 @@ main <- function() {
       log_error("ERROR en preparación de datos: {e$message}")
       stop(e)
     })
-    
-    # ============================================================================
-    # Configuración de directorios
-    # ============================================================================
-    
-    tryCatch({
-      setwd("~/buckets/b1/exp/")
-      dir.create(PARAM$experimento, showWarnings=FALSE)
-      setwd(paste0("~/buckets/b1/exp/",PARAM$experimento))
-      log_info("Directorio de trabajo: {getwd()}")
-    }, error = function(e) {
-      log_error("ERROR al configurar directorios: {e$message}")
-      stop(e)
-    })
-    
+        
     # ============================================================================
     # Función de optimización
     # ============================================================================
