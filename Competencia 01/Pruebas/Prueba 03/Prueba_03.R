@@ -56,7 +56,7 @@ PARAM$lgbm$param_fijos <- list(
   feature_pre_filter = FALSE,
   force_row_wise = TRUE,
   verbosity = -100,
-  seed = PARAM$semilla_primigenia,
+  seed = 1,
   max_depth = -1L,
   min_gain_to_split = 0,
   min_sum_hessian_in_leaf = 0.001,
@@ -181,7 +181,7 @@ tryCatch({
         log_info(paste("Iteración BO -> AUC:", format(AUC, digits = 6), "|", format(Sys.time(), "%a %b %d %X %Y")))
         return(AUC)
     }
-#############
+
     # Lista para almacenar la tabla de predicción de cada modelo
     predicciones_ensemble <- list()
 
@@ -194,6 +194,7 @@ tryCatch({
 
         # Asigno la semilla actual al parámetro que usa el resto del script
         PARAM$semilla_primigenia <- semilla_actual
+        PARAM$lgbm$param_fijos$seed <- semilla_actual
         
         #--- Preparación de datos (undersampling) con la semilla actual ---
         dataset_train <- dataset[foto_mes %in% PARAM$train]
@@ -255,8 +256,12 @@ tryCatch({
 
         #--- Entrenamiento del modelo final para la semilla actual ---
         log_info(paste0("Iniciando entrenamiento del modelo final para la semilla ", semilla_actual, "."))
-        dtrain_final <- lgb.Dataset(data= data.matrix(dataset[foto_mes %in% PARAM$train_final, campos_buenos, with= FALSE]),
-                                    label= dataset[foto_mes %in% PARAM$train_final, clase01])
+        dataset_train_final <- dataset[foto_mes %in% PARAM$train_final]
+        dataset_train_final[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
+        dtrain_final <- lgb.Dataset(
+            data = data.matrix(dataset_train_final[, campos_buenos, with=FALSE]),
+            label = dataset_train_final[, clase01]
+        )
         
         param_final <- modifyList(PARAM$lgbm$param_fijos, mejores_hiperparametros)
         param_normalizado <- copy(param_final)
