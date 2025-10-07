@@ -36,7 +36,7 @@ rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
-PARAM$experimento <- "expC01_Prueba01"
+PARAM$experimento <- "expC01_Prueba04"
 PARAM$semilla_primigenia <- 200003
 PARAM$train <- c(202101, 202102)
 PARAM$train_final <- c(202101, 202102)
@@ -80,17 +80,22 @@ PARAM$lgbm$param_fijos <- list(
 )
 # Bordes de hiperparámetros para BO
 PARAM$hypeparametertuning$hs <- makeParamSet(
-  makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
-  makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
-  makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
-  makeIntegerParam("num_leaves", lower= 1L, upper= 2048L),
-  makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 8000L)
+    makeIntegerParam("num_leaves", lower= 10L, upper= 2048L),
+
+
+    makeIntegerParam("num_iterations", lower= 50L, upper= 2000L),
+    makeNumericParam("learning_rate", lower= 0.01, upper= 0.5),
+
+    makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
+
+    
+    makeIntegerParam("min_data_in_leaf", lower= 10L, upper= 5000L)
 )
-PARAM$hyperparametertuning$iteraciones <- 100
+PARAM$hyperparametertuning$iteraciones <- 80
 
 # ----- Configuración del Logger con Ruta Absoluta -----
 # 1. Definir la ruta absoluta del directorio del experimento
-dir_experimento <- paste0("F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/Pruebas/Prueba 01/")
+dir_experimento <- paste0("F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/Pruebas/Prueba 04/", PARAM$experimento)
 # 2. Crear el directorio si no existe (con recursive = TRUE por seguridad)
 dir.create(dir_experimento, showWarnings = FALSE, recursive = TRUE)
 # 3. Definir la ruta absoluta del archivo de log
@@ -138,8 +143,29 @@ tryCatch({
   dataset <- fread("./competencia_01.csv.gz", stringsAsFactors = TRUE)
   log_info("Dataset cargado correctamente.")
 
-  log_info("Inicio de Feature Engineering...")
+  log_info("Inicio de Feature Engineering")
+  dataset[, `:=`(
+      # Suma de consumos de tarjetas
+      mtarjetas_consumo = round(rowSums(.SD[, .(mtarjeta_visa_consumo, mtarjeta_master_consumo)], na.rm = TRUE), 1),
+      # Suma de beneficios/descuentos
+      mbeneficios = round(rowSums(.SD[, .(mcajeros_propios_descuentos, mtarjeta_visa_descuentos, mtarjeta_master_descuentos)], na.rm = TRUE), 1),
+      # Suma de ingresos
+      mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
+      # Diferencia: límite menos consumo para MasterCard
+      diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
+      # Diferencia: límite menos consumo para Visa
+      diff_visa_compra = round(Visa_mlimitecompra - Visa_mconsumospesos, 2)
+  )]
+
+  dataset[, `:=`(
+      # Diferencia: consumo total menos comisiones
+      diff_comisiones_consumo = round(mtarjetas_consumo - mcomisiones_mantenimiento, 2),
+      # Diferencia: beneficios totales menos comisiones
+      diff_comisiones_beneficios = round(mbeneficios - mcomisiones_mantenimiento, 2)
+  )]
+
   # Genero columnas Lags y Delta Lags de orden 1
+  log_info("Inicio de Feature Lags")
   cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
   cols_con_lag <- setdiff(names(dataset), cols_a_excluir)
   nombres_nuevas_cols_lag <- paste0(cols_con_lag, "_lag1")

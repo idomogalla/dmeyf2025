@@ -81,10 +81,10 @@ PARAM$lgbm$param_fijos <- list(
 # Bordes de hiperparámetros para BO
 PARAM$hypeparametertuning$hs <- makeParamSet(
   makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
-  makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
+  makeNumericParam("learning_rate", lower= 0.01, upper= 0.3),
   makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
-  makeIntegerParam("num_leaves", lower= 1L, upper= 2048L),
-  makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 8000L)
+  makeIntegerParam("num_leaves", lower= 10L, upper= 2048L),
+  makeIntegerParam("min_data_in_leaf", lower= 10L, upper= 8000L)
 )
 PARAM$hyperparametertuning$iteraciones <- 100
 

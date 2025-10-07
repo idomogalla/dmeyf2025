@@ -36,10 +36,10 @@ rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
-PARAM$experimento <- "expC01_Prueba01"
+PARAM$experimento <- "expC01_Prueba04"
 PARAM$semilla_primigenia <- 200003
-PARAM$train <- c(202101, 202102)
-PARAM$train_final <- c(202101, 202102)
+PARAM$train <- c(202102)
+PARAM$train_final <- c(202102)
 PARAM$future <- c(202104)
 PARAM$train_final_kaggle <- c(202101, 202102, 202103, 202104)
 PARAM$entrega_kaggle <- c(202106)
@@ -47,6 +47,34 @@ PARAM$semilla_kaggle <- 314159
 PARAM$cortes <- seq(0, 20000, by = 100)
 PARAM$trainingstrategy$undersampling <- 0.5
 PARAM$hyperparametertuning$xval_folds <- 5
+
+
+
+    num_leaves = trial.suggest_int('num_leaves', 8, 100)
+    learning_rate = trial.suggest_float('learning_rate', 0.005, 0.3) # más bajo, más iteraciones necesita
+    min_data_in_leaf = trial.suggest_int('min_data_in_leaf', 1, 1000)
+    feature_fraction = trial.suggest_float('feature_fraction', 0.1, 1.0)
+    bagging_fraction = trial.suggest_float('bagging_fraction', 0.1, 1.0)
+
+    params = {
+        'objective': 'binary',
+        'metric': 'custom',
+        'boosting_type': 'gbdt',
+        'first_metric_only': True,
+        'boost_from_average': True,
+        'feature_pre_filter': False,
+        'max_bin': 31,
+        'num_leaves': num_leaves,
+        'learning_rate': learning_rate,
+        'min_data_in_leaf': min_data_in_leaf,
+        'feature_fraction': feature_fraction,
+        'bagging_fraction': bagging_fraction,
+        'seed': semillas[0],
+        'verbose': -1,
+        'early_stopping_round': int(50 + 5 / learning_rate)  # Mueve esto aquí
+    }
+
+
 PARAM$lgbm$param_fijos <- list(
   boosting = "gbdt",
   objective = "binary",
@@ -80,17 +108,22 @@ PARAM$lgbm$param_fijos <- list(
 )
 # Bordes de hiperparámetros para BO
 PARAM$hypeparametertuning$hs <- makeParamSet(
-  makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
-  makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
-  makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
-  makeIntegerParam("num_leaves", lower= 1L, upper= 2048L),
-  makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 8000L)
+    makeIntegerParam("num_leaves", lower= 10L, upper= 2048L),
+
+
+    makeIntegerParam("num_iterations", lower= 50L, upper= 2000L),
+    makeNumericParam("learning_rate", lower= 0.01, upper= 0.5),
+
+    makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
+
+    
+    makeIntegerParam("min_data_in_leaf", lower= 10L, upper= 5000L)
 )
-PARAM$hyperparametertuning$iteraciones <- 100
+PARAM$hyperparametertuning$iteraciones <- 80
 
 # ----- Configuración del Logger con Ruta Absoluta -----
 # 1. Definir la ruta absoluta del directorio del experimento
-dir_experimento <- paste0("F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/Pruebas/Prueba 01/")
+dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 # 2. Crear el directorio si no existe (con recursive = TRUE por seguridad)
 dir.create(dir_experimento, showWarnings = FALSE, recursive = TRUE)
 # 3. Definir la ruta absoluta del archivo de log
@@ -133,13 +166,79 @@ tryCatch({
   # Sección 4: Preparación de Datos
   #------------------------------------------------------
   log_info("Iniciando Sección 4: Preparación de Datos.")
-  setwd("F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/")
+  setwd("~/buckets/b1/datasets")
   log_info(paste("Cambiando directorio a:", getwd()))
   dataset <- fread("./competencia_01.csv.gz", stringsAsFactors = TRUE)
   log_info("Dataset cargado correctamente.")
 
-  log_info("Inicio de Feature Engineering...")
+  log_info("Inicio de Feature Engineering")
+  dataset[, `:=`(
+      # Suma de consumos de tarjetas
+      mtarjetas_consumo = round(rowSums(.SD[, .(mtarjeta_visa_consumo, mtarjeta_master_consumo)], na.rm = TRUE), 1),
+      # Suma de beneficios/descuentos
+      mbeneficios = round(rowSums(.SD[, .(mcajeros_propios_descuentos, mtarjeta_visa_descuentos, mtarjeta_master_descuentos)], na.rm = TRUE), 1),
+      # Suma de ingresos
+      mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
+      # Diferencia: límite menos consumo para MasterCard
+      diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
+      # Diferencia: límite menos consumo para Visa
+      diff_visa_compra = round(Visa_mlimitecompra - Visa_mconsumospesos, 2)
+  )]
+
+  dataset[, `:=`(
+      # Diferencia: consumo total menos comisiones
+      diff_comisiones_consumo = round(mtarjetas_consumo - mcomisiones_mantenimiento, 2),
+      # Diferencia: beneficios totales menos comisiones
+      diff_comisiones_beneficios = round(mbeneficios - mcomisiones_mantenimiento, 2)
+  )]
+
+  # Columnas a las que se les aplicará el ranking
+  cols_a_rankear <- c("mpasivos_margen", "Master_mlimitecompra", "Visa_mlimitecompra", 
+                      "mpayroll", "mcuenta_corriente", "mcaja_ahorro", 
+                      "mtarjetas_consumo", "mingresos")
+
+  # Nombres para las nuevas columnas de ranking
+  nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
+
+  # Funcion para ranking con cero fijo
+  rank_con_cero_fijo <- function(x) {
+    # Vector para guardar los resultados
+    resultado <- numeric(length(x))
+    
+    # Índices para cada caso
+    idx_pos <- which(x > 0)
+    idx_neg <- which(x < 0)
+    idx_cero <- which(x == 0)
+    
+    # 1. Ranking para valores positivos (> 0)
+    if (length(idx_pos) > 0) {
+      # Se divide por la cantidad de positivos para obtener el percentil (0 a 1)
+      resultado[idx_pos] <- frankv(x[idx_pos], ties.method = "average") / length(idx_pos)
+    }
+    
+    # 2. Ranking para valores negativos (< 0)
+    if (length(idx_neg) > 0) {
+      # Se calcula el percentil para los negativos y se multiplica por -1 (-1 a 0)
+      resultado[idx_neg] <- (frankv(x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
+    }
+    
+    # 3. Para los valores que son cero, el ranking es cero
+    if (length(idx_cero) > 0) {
+      resultado[idx_cero] <- 0
+    }
+    
+    return(resultado)
+  }
+
+  # Aplicar la función a todas las columnas especificadas, agrupando por mes
+  dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), 
+          by = foto_mes, 
+          .SDcols = cols_a_rankear]
+
+  print("Columnas de ranking generadas correctamente.")
+
   # Genero columnas Lags y Delta Lags de orden 1
+  log_info("Inicio de Feature Lags")
   cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
   cols_con_lag <- setdiff(names(dataset), cols_a_excluir)
   nombres_nuevas_cols_lag <- paste0(cols_con_lag, "_lag1")
