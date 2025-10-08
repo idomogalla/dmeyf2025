@@ -37,6 +37,15 @@ gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
 PARAM$experimento <- "expC01_Prueba03"
+PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
+PARAM$dir_dataset <- "~/buckets/b1/datasets/"
+PARAM$carpeta_logs <- "logs/"
+PARAM$carpeta_bayesiana <- "Archivos Bayesiana/"
+PARAM$carpeta_kaggle <- "Kaggle/"
+PARAM$carpeta_kaggle_ensamble <- "Kaggle_Promediado/"
+PARAM$carpeta_graficos <- "Plots/"
+PARAM$carpeta_entregables <- "Entregables/"
+
 PARAM$semillas_primigenias <- c(200003, 300007, 400009, 500009, 600011)
 PARAM$train <- c(202101, 202102)
 PARAM$train_final <- c(202101, 202102)
@@ -89,13 +98,18 @@ PARAM$hypeparametertuning$hs <- makeParamSet(
 PARAM$hyperparametertuning$iteraciones <- 100
 
 # ----- Configuración del Logger con Ruta Absoluta -----
-# 1. Definir la ruta absoluta del directorio del experimento
-dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
-# 2. Crear el directorio si no existe (con recursive = TRUE por seguridad)
-dir.create(dir_experimento, showWarnings = FALSE, recursive = TRUE)
-# 3. Definir la ruta absoluta del archivo de log
-log_file <- file.path(dir_experimento, paste0("log_", PARAM$experimento, ".log"))
-# 4. Configurar el logger para que escriba en consola y en la ruta absoluta del archivo
+# Creo la carpeta del experimento
+dir.create(PARAM$dir_experimento,
+           showWarnings = FALSE,
+           recursive = TRUE)
+setwd(PARAM$dir_experimento)
+# Creo la carpeta para los logs
+dir.create(PARAM$carpeta_logs,
+           showWarnings = FALSE,
+           recursive = TRUE)
+# Definir la ruta del archivo log
+log_file <- file.path(PARAM$carpeta_logs, paste0("log_", PARAM$experimento, ".log"))
+# Configurar el logger para que escriba en consola y en la ruta absoluta del archivo
 log_appender(appender_tee(log_file))
 
 log_info("------------------------------------------------------")
@@ -134,9 +148,9 @@ tryCatch({
     # Sección 4: Preparación de Datos
     #------------------------------------------------------
     log_info("Iniciando Sección 4: Preparación de Datos.")
-    setwd("~/buckets/b1/datasets")
-    log_info(paste("Cambiando directorio a:", getwd()))
-    dataset <- fread("./competencia_01.csv.gz", stringsAsFactors = TRUE)
+    log_info(paste("Leyendo dataset desde:", PARAM$dir_dataset))
+    dataset <- fread(file.path(PARAM$dir_dataset, "competencia_01.csv.gz"),
+                    stringsAsFactors = TRUE)
     log_info("Dataset cargado correctamente.")
 
     cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
@@ -166,9 +180,6 @@ tryCatch({
     log_info("Dataset de entrenamiento para LightGBM creado.")
     log_info(paste("Dimensiones de dtrain -> Filas:", nrow(dtrain), "| Columnas:", ncol(dtrain)))
 
-    setwd(dir_experimento)
-    log_info(paste("Cambiando directorio de trabajo a:", getwd()))
-
     # Sección 5: Optimización Bayesiana
     #------------------------------------------------------
     log_info("Iniciando Sección 5: Optimización Bayesiana de Hiperparámetros.")
@@ -185,7 +196,7 @@ tryCatch({
     # Lista para almacenar la tabla de predicción de cada modelo
     predicciones_ensemble <- list()
 
-    dir.create("Archivos Bayesiana", showWarnings=FALSE)
+    dir.create(PARAM$carpeta_bayesiana, showWarnings=FALSE)
     # Recorro cada semilla
     for (semilla_actual in PARAM$semillas_primigenias) {
         log_info("---------------------------------------------------")
@@ -215,7 +226,7 @@ tryCatch({
                                 label= dataset_train[training == 1L, clase01], free_raw_data= FALSE)
         
         #--- Optimización Bayesiana ---
-        kbayesiana <- paste0("./Archivos Bayesiana/bayesiana_", semilla_actual, ".RDATA")
+        kbayesiana <- paste0(PARAM$carpeta_bayesiana,"bayesiana_", semilla_actual, ".RDATA")
         funcion_optimizar <- EstimarGanancia_AUC_lightgbm # la funcion que voy a maximizar
 
         configureMlr(show.learner.output= FALSE)
@@ -240,7 +251,7 @@ tryCatch({
         tb_bayesiana[, iter := .I]
         setorder(tb_bayesiana, -y)
         
-        fwrite(tb_bayesiana, file= paste0("./Archivos Bayesiana/BO_log_", semilla_actual, ".txt"), sep= "\t")
+        fwrite(tb_bayesiana, file= paste0(PARAM$carpeta_bayesiana,"BO_log_", semilla_actual, ".txt"), sep= "\t")
         
         mejores_hiperparametros <- tb_bayesiana[1, setdiff(colnames(tb_bayesiana),
             c("y","dob","eol","error.message","exec.time","ei","error.model", "train.time",
@@ -248,7 +259,7 @@ tryCatch({
 
         PARAM$out$lgbm$mejores_hiperparametros <- mejores_hiperparametros
         PARAM$out$lgbm$y <- tb_bayesiana[1, y]
-        write_yaml(PARAM, file= paste0("./Archivos Bayesiana/PARAM_", semilla_actual, ".yml"))
+        write_yaml(PARAM, file= paste0(PARAM$carpeta_bayesiana,"PARAM_", semilla_actual, ".yml"))
 
         log_info("Mejores hiperparámetros encontrados:")
         log_info(paste(capture.output(print(PARAM$out$lgbm$mejores_hiperparametros)), collapse = "\n"))
@@ -270,8 +281,8 @@ tryCatch({
         modelo_final <- lgb.train(data= dtrain_final, param= param_normalizado)
         
         tb_importancia <- as.data.table(lgb.importance(modelo_final))
-        fwrite(tb_importancia, file= paste0("./Archivos Bayesiana/impo_", semilla_actual, ".txt"), sep= "\t")
-        lgb.save(modelo_final, paste0("./Archivos Bayesiana/modelo_", semilla_actual, ".txt"))
+        fwrite(tb_importancia, file= paste0(PARAM$carpeta_bayesiana,"impo_", semilla_actual, ".txt"), sep= "\t")
+        lgb.save(modelo_final, paste0(PARAM$carpeta_bayesiana,"modelo_", semilla_actual, ".txt"))
         
         #--- Predicción y guardado para el ensemble ---
         dfuture <- dataset[foto_mes %in% PARAM$future]
@@ -280,7 +291,7 @@ tryCatch({
         tb_prediccion_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
         tb_prediccion_individual[, prob := prediccion]
 
-        fwrite(tb_prediccion_individual, file= paste0("./Archivos Bayesiana/prediccion_", semilla_actual, ".txt"), sep= "\t")
+        fwrite(tb_prediccion_individual, file= paste0(PARAM$carpeta_bayesiana"prediccion_", semilla_actual, ".txt"), sep= "\t")
         predicciones_ensemble[[as.character(semilla_actual)]] <- tb_prediccion_individual
 
         log_info(paste0("Modelo con semilla ", semilla_actual, " entrenado y predicción guardada."))
@@ -296,7 +307,7 @@ tryCatch({
     tb_prediccion <- tb_ensemble_completa[, .(prob = mean(prob)), by = .(numero_de_cliente, foto_mes)]
 
     # Guardo la predicción final del ensemble
-    fwrite(tb_prediccion, file= "./Archivos Bayesiana/prediccion_ensemble.txt", sep= "\t")
+    fwrite(tb_prediccion, file= paste0(PARAM$carpeta_bayesiana,"prediccion_ensemble.txt"), sep= "\t")
 
     log_info(paste0("Ensemble creado promediando las predicciones de los ", length(PARAM$semillas_primigenias), " modelos."))
 
@@ -323,6 +334,9 @@ tryCatch({
         cat("Envios=", envios, "\t", " TOTAL=", format(res$total, big.mark=","), "  Public=", format(res$public, big.mark=","),
             " Private=", format(res$private, big.mark=","), "\n", sep= "")
     }
+
+    max_ganancia_valor <- max(resultados$ganancia_total)
+    envios_max_total <- resultados[ganancia_total == max_ganancia_valor, clientes]
 
     # pasar a formato largo
     resultados_long <- melt(
@@ -372,6 +386,83 @@ tryCatch({
     ggsave(paste0("curvas_", PARAM$experimento, ".png"), plot = p, width = 10, height = 6)
 
     log_info("Gráfico de curvas de ganancia guardado.")
+
+    # Sección 7: Generación de Entregables para Kaggle
+    #------------------------------------------------------
+    log_info("Iniciando Sección 7: Generación de Entregables para Kaggle.")
+    
+    # 1. Preparar los datasets finales para re-entrenamiento y predicción
+    # Se usarán todos los datos disponibles para entrenar los modelos finales
+    dataset_train_final_kaggle <- dataset[foto_mes %in% PARAM$train_final_kaggle]
+    dataset_train_final_kaggle[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
+    
+    # El dataset sobre el que se va a predecir para la entrega final
+    dfuture_entrega <- dataset[foto_mes %in% PARAM$entrega_kaggle]
+    
+    log_info("Datasets finales de entrenamiento y entrega preparados.")
+    
+    # 2. Crear el lgb.Dataset final una sola vez para eficiencia
+    dtrain_final_kaggle <- lgb.Dataset(
+      data = data.matrix(dataset_train_final_kaggle[, campos_buenos, with = FALSE]),
+      label = dataset_train_final_kaggle[, clase01]
+    )
+    
+    # 3. Bucle para re-entrenar cada modelo con sus HP óptimos y predecir
+    lista_predicciones_final <- list()
+    
+    for (semilla_actual in PARAM$semillas_primigenias) {
+      log_info(paste0("Re-entrenando modelo final para semilla: ", semilla_actual))
+      
+      # Cargar los mejores hiperparámetros específicos para esta semilla
+      param_semilla <- read_yaml(paste0(PARAM$carpeta_bayesiana,"PARAM_", semilla_actual, ".yml"))
+      mejores_hp_semilla <- param_semilla$out$lgbm$mejores_hiperparametros
+      
+      # Combinar parámetros fijos con los optimizados para esta semilla
+      param_final_kaggle <- modifyList(PARAM$lgbm$param_fijos, mejores_hp_semilla)
+      param_final_kaggle$seed <- semilla_actual # Asegurar la semilla correcta
+      
+      # Normalizar min_data_in_leaf
+      param_normalizado_kaggle <- copy(param_final_kaggle)
+      param_normalizado_kaggle$min_data_in_leaf <- round(
+        param_final_kaggle$min_data_in_leaf / PARAM$trainingstrategy$undersampling
+      )
+      
+      # Entrenar el modelo final
+      modelo_kaggle <- lgb.train(data = dtrain_final_kaggle, param = param_normalizado_kaggle)
+      
+      # Predecir sobre el dataset de entrega
+      prediccion_kaggle <- predict(modelo_kaggle, data.matrix(dfuture_entrega[, campos_buenos, with = FALSE]))
+      
+      # Guardar la predicción en una tabla temporal
+      tb_pred_final <- dfuture_entrega[, list(numero_de_cliente, foto_mes)]
+      tb_pred_final[, prob := prediccion_kaggle]
+      lista_predicciones_final[[as.character(semilla_actual)]] <- tb_pred_final
+    }
+    
+    # 4. Crear el ensemble final promediando las predicciones de entrega
+    log_info("Promediando predicciones finales para el ensemble de entrega.")
+    predicciones_finales_todas <- rbindlist(lista_predicciones_final)
+    tb_prediccion_final_ensamble <- predicciones_finales_todas[, .(prob = mean(prob)), by = .(numero_de_cliente, foto_mes)]
+    
+    # 5. Generar los archivos de entrega usando los envíos óptimos ya calculados
+    log_info(paste0("Generando archivos de entrega para los envíos óptimos: ", paste(envios_max_total, collapse = ", ")))
+    
+    dir.create(PARAM$carpeta_entregables, showWarnings = FALSE)
+    setorder(tb_prediccion_final_ensamble, -prob)
+    
+    for (envios in envios_max_total) {
+      tb_prediccion_final_ensamble[, Predicted := 0L]
+      tb_prediccion_final_ensamble[1:envios, Predicted := 1L]
+      
+      archivo_entrega <- paste0(PARAM$carpeta_entregables, PARAM$experimento, "_", envios, ".csv")
+      
+      fwrite(tb_prediccion_final_ensamble[, list(numero_de_cliente, Predicted)],
+             file = archivo_entrega,
+             sep = ",")
+             
+      log_info(paste0("Archivo de entrega generado: ", archivo_entrega))
+    }
+
 
 }, error = function(e) {
     # Mensaje de error mejorado

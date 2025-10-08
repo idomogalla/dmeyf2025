@@ -514,6 +514,7 @@ tryCatch({
     names(etiquetas) <- maximos$tipo
     
     # --- Crear y guardar gráfico ---
+    dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
     p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
       geom_line(linewidth = 1) +
       geom_point(data = maximos,
@@ -600,7 +601,10 @@ tryCatch({
                             PARAM$out$lgbm$mejores_hiperparametros)
   param_normalizado <- copy(param_final)
   param_normalizado$min_data_in_leaf <- round(param_final$min_data_in_leaf / PARAM$trainingstrategy$undersampling)
-  
+  param_normalizado$early_stopping_rounds <- NULL
+  param_normalizado$early_stopping_round <- NULL
+  param_normalizado$early_stopping <- NULL
+
   # Entreno LGBM
   modelo_final <- lgb.train(data = dtrain_final, param = param_normalizado)
   log_info("Entrenamiento del modelo final completado.")
@@ -610,7 +614,8 @@ tryCatch({
     data = dtrain_final,
     nfold = PARAM$hyperparametertuning$xval_folds, # Reutilizamos los pliegues de la optimización
     stratified = TRUE,
-    param = param_normalizado
+    param = param_normalizado,
+    early_stopping_round = 0
   )
   auc_modelo_unico <- modelocv_unico$best_score
   log_info(paste("AUC (CV) del Modelo Único:", format(auc_modelo_unico, digits = 6)))
@@ -665,7 +670,7 @@ tryCatch({
   # Se usa la PREDICCIÓN del modelo final, pero los CORTES ÓPTIMOS de la fase de evaluación
   GenerarEnviosKaggle(
     tb_prediccion = tb_prediccion_final,
-    envios_optimos = envios_optimos_encontrados, # <--- Usamos el resultado de la Fase 1
+    envios_optimos = resultados_unico$envios_optimos, # <--- Usamos el resultado de la Fase 1
     tipo_modelo = "final_unico",                  # <--- Un nombre de modelo descriptivo
     carpeta_salida = PARAM$carpeta_kaggle,
     experimento_id = PARAM$experimento
@@ -687,7 +692,8 @@ tryCatch({
         data = dtrain_final,
         nfold = PARAM$hyperparametertuning$xval_folds,
         stratified = TRUE,
-        param = param_normalizado
+        param = param_normalizado,
+        early_stopping_round  = 0
       )
     auc_actual <- modelocv_ensamble$best_score
     aucs_ensamble <- c(aucs_ensamble, auc_actual) # Guardamos el AUC

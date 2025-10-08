@@ -187,3 +187,4 @@ project/target
 *.ods
 *dmeyf-venv/
 **/modelo.txt
+**/modelo_*.txt

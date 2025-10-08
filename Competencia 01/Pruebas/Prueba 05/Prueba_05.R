@@ -112,6 +112,19 @@ PARAM$hypeparametertuning$hs <- makeParamSet(
   makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
   
   makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 10000L)
+
+  #makeNumericParam("min_sum_hessian_in_leaf", lower= 0.001, upper= 0.1),
+  #makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
+  #makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
+  #makeNumericParam("bagging_fraction", lower= 0.0, upper= 1.0),
+  #makeIntegerParam("bagging_freq", lower= 0L, upper= 10L),
+  #makeNumericParam("lambda_l1", lower= 0.0, upper= 100.0),
+  #makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0),
+  #makeNumericParam("min_gain_to_split", lower= 0.0, upper= 15.0),
+  #makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
+  #makeIntegerParam("max_depth", lower= -1L, upper= 20),
+  #makeIntegerParam("num_leaves", lower= 2L, upper= 2048L),
+  #makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 10000L)
 )
 PARAM$hyperparametertuning$iteraciones <- 80
 
@@ -514,6 +527,7 @@ tryCatch({
     names(etiquetas) <- maximos$tipo
     
     # --- Crear y guardar gráfico ---
+    dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
     p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
       geom_line(linewidth = 1) +
       geom_point(data = maximos,
@@ -557,9 +571,11 @@ tryCatch({
     log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
 
     # Se combinan los envíos óptimos con su versión +500 y se eliminan duplicados
-    envios_a_generar <- unique(c(envios_optimos, envios_optimos + 500))
+    envios_a_generar <- unique(c(envios_optimos, 10500, envios_optimos + 500))
 
     log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
+
+    dir.create(carpeta_salida, showWarnings = FALSE)
 
     # Asegurar que la tabla de predicción esté ordenada por probabilidad descendente
     setorder(tb_prediccion, -prob)
@@ -571,12 +587,7 @@ tryCatch({
       tb_prediccion[1:envios, Predicted := 1L]
 
       # Definir el nombre del archivo de salida
-      archivo_kaggle <- paste0(
-        carpeta_salida,
-        experimento_id, "_",
-        tipo_modelo, "_",
-        envios, ".csv"
-      )
+      archivo_kaggle <- paste0(carpeta_salida,experimento_id, "_",tipo_modelo, "_",envios, ".csv")
 
       # Grabar el archivo .csv
       fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
@@ -665,9 +676,9 @@ tryCatch({
   # Se usa la PREDICCIÓN del modelo final, pero los CORTES ÓPTIMOS de la fase de evaluación
   GenerarEnviosKaggle(
     tb_prediccion = tb_prediccion_final,
-    envios_optimos = envios_optimos_encontrados, # <--- Usamos el resultado de la Fase 1
+    envios_optimos = resultados_ensamble$envios_optimos, # <--- Usamos el resultado de la Fase 1
     tipo_modelo = "final_unico",                  # <--- Un nombre de modelo descriptivo
-    carpeta_salida = PARAM$carpeta_kaggle,
+    carpeta_salida = PARAM$carpeta_entregables,
     experimento_id = PARAM$experimento
   )
 
@@ -675,7 +686,7 @@ tryCatch({
   # Sección 7: Entrenamiento y Predicción (Ensemble)
   #------------------------------------------------------
   log_info("Iniciando Sección 7: Entrenamiento del Ensamble de Modelos.")
-  semillas <- c(200003, 300007, 400009, 500009, 600011)
+  semillas <- c(200003, 300007, 400009, 500009, 600011, 314159, 102191, 111109, 230101, 100129)
   lista_predicciones <- list()
   aucs_ensamble <- c()
   
@@ -758,7 +769,7 @@ tryCatch({
     tb_prediccion = tb_prediccion_final_ensamble,
     envios_optimos = resultados_ensamble$envios_optimos, # <-- Usamos el resultado de la evaluación
     tipo_modelo = "final_ensamble",
-    carpeta_salida = PARAM$carpeta_kaggle_ensamble,
+    carpeta_salida = PARAM$carpeta_entregables,
     experimento_id = PARAM$experimento
   )
 

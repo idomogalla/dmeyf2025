@@ -517,6 +517,7 @@ tryCatch({
     names(etiquetas) <- maximos$tipo
     
     # --- Crear y guardar gráfico ---
+    dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
     p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
       geom_line(linewidth = 1) +
       geom_point(data = maximos,
@@ -668,7 +669,7 @@ tryCatch({
   # Se usa la PREDICCIÓN del modelo final, pero los CORTES ÓPTIMOS de la fase de evaluación
   GenerarEnviosKaggle(
     tb_prediccion = tb_prediccion_final,
-    envios_optimos = envios_optimos_encontrados, # <--- Usamos el resultado de la Fase 1
+    envios_optimos = resultados_ensamble$envios_optimos, # <--- Usamos el resultado de la Fase 1
     tipo_modelo = "final_unico",                  # <--- Un nombre de modelo descriptivo
     carpeta_salida = PARAM$carpeta_kaggle,
     experimento_id = PARAM$experimento
@@ -678,7 +679,7 @@ tryCatch({
   # Sección 7: Entrenamiento y Predicción (Ensemble)
   #------------------------------------------------------
   log_info("Iniciando Sección 7: Entrenamiento del Ensamble de Modelos.")
-  semillas <- c(200003, 300007, 400009, 500009, 600011)
+  semillas <- c(200003, 300007, 400009, 500009, 600011, 314159, 102191, 111109, 230101, 100129)
   lista_predicciones <- list()
   aucs_ensamble <- c()
   
