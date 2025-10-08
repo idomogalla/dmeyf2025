@@ -291,7 +291,7 @@ tryCatch({
         tb_prediccion_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
         tb_prediccion_individual[, prob := prediccion]
 
-        fwrite(tb_prediccion_individual, file= paste0(PARAM$carpeta_bayesiana"prediccion_", semilla_actual, ".txt"), sep= "\t")
+        fwrite(tb_prediccion_individual, file= paste0(PARAM$carpeta_bayesiana,"prediccion_", semilla_actual, ".txt"), sep= "\t")
         predicciones_ensemble[[as.character(semilla_actual)]] <- tb_prediccion_individual
 
         log_info(paste0("Modelo con semilla ", semilla_actual, " entrenado y predicción guardada."))

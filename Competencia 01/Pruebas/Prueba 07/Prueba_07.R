@@ -2,11 +2,10 @@
 #------------------------------------------------------
 # Sección 1: Carga de Librerías
 #------------------------------------------------------
-if (!require("logger"))
-  install.packages("logger")
-library("logger")
-
 suppressPackageStartupMessages({
+  if (!require("logger"))
+    install.packages("logger")
+  library("logger")
   if (!require("data.table"))
     install.packages("data.table")
   library("data.table")
@@ -40,6 +39,15 @@ suppressPackageStartupMessages({
   if (!require("ggplot2"))
     install.packages("ggplot2")
   library("ggplot2")
+  if (!require("ggrepel"))
+    install.packages("ggrepel")
+  library("ggrepel")
+  if (!require("stringr"))
+    install.packages("stringr")
+  library("stringr")
+  if (!require("scales"))
+    install.packages("scales")
+  library("scales")
 })
 #------------------------------------------------------
 # Sección 2: Configuración Inicial y Parámetros
@@ -204,6 +212,7 @@ tryCatch({
   log_info("Dataset cargado correctamente.")
   
   log_info("Inicio de Feature Engineering")
+  setkey(dataset, numero_de_cliente, foto_mes)
   # Agrego columnas
   dataset[, `:=`(
     # Suma de consumos de tarjetas
@@ -217,7 +226,7 @@ tryCatch({
     # Suma de ingresos
     mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
     # Suma de inversiones
-    mingresos = round(rowSums(.SD[, .(minversion1_pesos, minversion1_dolares, mplazo_fijo_pesos,mplazo_fijo_dolares, minversion2)], na.rm = TRUE), 1),
+    minversiones = round(rowSums(.SD[, .(minversion1_pesos, minversion1_dolares, mplazo_fijo_pesos,mplazo_fijo_dolares, minversion2)], na.rm = TRUE), 1),
     # Diferencia: límite menos consumo para MasterCard
     diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
     # Diferencia: límite menos consumo para Visa
@@ -237,14 +246,15 @@ tryCatch({
     "mcuenta_corriente_adicional", "mcuenta_corriente", "mcaja_ahorro", "mcaja_ahorro_adicional", "mcaja_ahorro_dolares",
     "mcuentas_saldo", "mautoservicio", "mtarjeta_visa_consumo", "mtarjeta_master_consumo", "mprestamos_personales", "mprestamos_prendarios",
     "mprestamos_hipotecarios", "mplazo_fijo_dolares", "mplazo_fijo_pesos", "minversion1_pesos", "minversion1_dolares", "minversion2", "mpayroll", "mpayroll2",
-    "mcuenta_debitos_automaticos", "mtarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
+    "mcuenta_debitos_automaticos", "mttarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
     "mcajeros_propios_descuentos", "mtarjeta_visa_descuentos", "mtarjeta_master_descuentos", "mcomisiones_mantenimiento", "mcomisiones_otras", "mforex_buy",
     "mforex_sell", "mtransferencias_recibidas", "mtransferencias_emitidas", "mextraccion_autoservicio", "mcheques_depositados", "mcheques_emitidos", 
     "mcheques_depositados_rechazados", "mcheques_emitidos_rechazados", "matm", "matm_other", "Master_mfinanciacion_limite",
     "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
     "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
     "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
-    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo"
+    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo",
+    "mtarjetas_consumo", "mbeneficios", "mingresos", "minversiones", "diff_master_compra", "diff_visa_compra", "diff_comisiones_consumo", "diff_comisiones_beneficios"
   )
   
   # Nombres para las nuevas columnas de ranking
@@ -594,8 +604,8 @@ tryCatch({
 
     log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
 
-    # Se combinan los envíos óptimos con su versión +500 y se eliminan duplicados
-    envios_a_generar <- unique(c(envios_optimos))
+    # Se combinan los envíos óptimos y se eliminan duplicados
+    envios_a_generar <- unique(c(envios_optimos, 10500))
 
     log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
 
@@ -793,7 +803,7 @@ tryCatch({
   lista_predicciones_final <- list()
   dfuture_entrega <- dataset[foto_mes %in% PARAM$entrega_kaggle]
 
-  for (semilla_actual in semillas) {
+  for (semilla_actual in PARAM$semillas_ensemble) {
     log_info(paste0("Re-entrenando modelo final del ensamble con semilla: ", semilla_actual))
     param_normalizado$seed <- semilla_actual
     modelo_final_ens <- lgb.train(data = dtrain_final_kaggle_ens, param = param_normalizado)

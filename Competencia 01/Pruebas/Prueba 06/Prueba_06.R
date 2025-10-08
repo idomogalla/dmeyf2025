@@ -672,8 +672,8 @@ tryCatch({
   # Se usa la PREDICCIÓN del modelo final, pero los CORTES ÓPTIMOS de la fase de evaluación
   GenerarEnviosKaggle(
     tb_prediccion = tb_prediccion_final,
-    envios_optimos = resultados_ensamble$envios_optimos, # <--- Usamos el resultado de la Fase 1
-    tipo_modelo = "final_unico",                  # <--- Un nombre de modelo descriptivo
+    envios_optimos = resultados_unico$envios_optimos,
+    tipo_modelo = "final_unico",
     carpeta_salida = PARAM$carpeta_kaggle,
     experimento_id = PARAM$experimento
   )
