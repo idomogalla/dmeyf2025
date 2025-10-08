@@ -604,6 +604,9 @@ tryCatch({
                             PARAM$out$lgbm$mejores_hiperparametros)
   param_normalizado <- copy(param_final)
   param_normalizado$min_data_in_leaf <- round(param_final$min_data_in_leaf / PARAM$trainingstrategy$undersampling)
+  param_normalizado$early_stopping <- NULL
+  param_normalizado$early_stopping_round <- NULL
+  param_normalizado$early_stopping_rounds <- NULL
   
   # Entreno LGBM
   modelo_final <- lgb.train(data = dtrain_final, param = param_normalizado)
