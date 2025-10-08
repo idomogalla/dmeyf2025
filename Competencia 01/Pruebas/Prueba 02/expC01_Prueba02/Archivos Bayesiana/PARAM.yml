@@ -255,6 +255,81 @@ lgbm:
 hypeparametertuning:
   hs:
     pars:
+      min_sum_hessian_in_leaf:
+        id: min_sum_hessian_in_leaf
+        type: numeric
+        len: 1
+        lower: 0.001
+        upper: 0.1
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      lambda_l1:
+        id: lambda_l1
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 100.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      lambda_l2:
+        id: lambda_l2
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 100.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      num_leaves:
+        id: num_leaves
+        type: integer
+        len: 1
+        lower: 10
+        upper: 2048
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      max_depth:
+        id: max_depth
+        type: integer
+        len: 1
+        lower: -1
+        upper: 14.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
       num_iterations:
         id: num_iterations
         type: integer
@@ -274,8 +349,8 @@ hypeparametertuning:
         id: learning_rate
         type: numeric
         len: 1
-        lower: 0.005
-        upper: 0.1
+        lower: 0.01
+        upper: 0.3
         values: ~
         cnames: ~
         allow.inf: no
@@ -300,12 +375,27 @@ hypeparametertuning:
         requires: ~
         tunable: yes
         special.vals: []
-      num_leaves:
-        id: num_leaves
+      bagging_fraction:
+        id: bagging_fraction
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 1.0
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      bagging_freq:
+        id: bagging_freq
         type: integer
         len: 1
-        lower: 1
-        upper: 2048
+        lower: 0
+        upper: 10
         values: ~
         cnames: ~
         allow.inf: no
@@ -319,8 +409,23 @@ hypeparametertuning:
         id: min_data_in_leaf
         type: integer
         len: 1
-        lower: 1
+        lower: 10
         upper: 8000
+        values: ~
+        cnames: ~
+        allow.inf: no
+        has.default: no
+        default: ~
+        trafo: ~
+        requires: ~
+        tunable: yes
+        special.vals: []
+      min_gain_to_split:
+        id: min_gain_to_split
+        type: numeric
+        len: 1
+        lower: 0.0
+        upper: 15.0
         values: ~
         cnames: ~
         allow.inf: no

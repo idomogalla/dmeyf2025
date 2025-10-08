@@ -2,31 +2,43 @@
 
 # Sección 1: Carga de Librerías
 #------------------------------------------------------
-if (!require("logger")) install.packages("logger")
+if (!require("logger"))
+  install.packages("logger")
 library("logger")
 
 suppressPackageStartupMessages({
-  if (!require("data.table")) install.packages("data.table")
+  if (!require("data.table"))
+    install.packages("data.table")
   library("data.table")
-  if (!require("parallel")) install.packages("parallel")
+  if (!require("parallel"))
+    install.packages("parallel")
   library("parallel")
-  if (!require("R.utils")) install.packages("R.utils")
+  if (!require("R.utils"))
+    install.packages("R.utils")
   library("R.utils")
-  if (!require("primes")) install.packages("primes")
+  if (!require("primes"))
+    install.packages("primes")
   library("primes")
-  if (!require("utils")) install.packages("utils")
+  if (!require("utils"))
+    install.packages("utils")
   library("utils")
-  if (!require("rlist")) install.packages("rlist")
+  if (!require("rlist"))
+    install.packages("rlist")
   library("rlist")
-  if (!require("yaml")) install.packages("yaml")
+  if (!require("yaml"))
+    install.packages("yaml")
   library("yaml")
-  if (!require("lightgbm")) install.packages("lightgbm")
+  if (!require("lightgbm"))
+    install.packages("lightgbm")
   library("lightgbm")
-  if (!require("DiceKriging")) install.packages("DiceKriging")
+  if (!require("DiceKriging"))
+    install.packages("DiceKriging")
   library("DiceKriging")
-  if (!require("mlrMBO")) install.packages("mlrMBO")
+  if (!require("mlrMBO"))
+    install.packages("mlrMBO")
   library("mlrMBO")
-  if (!require("ggplot2")) install.packages("ggplot2")
+  if (!require("ggplot2"))
+    install.packages("ggplot2")
   library("ggplot2")
 })
 
@@ -47,33 +59,6 @@ PARAM$semilla_kaggle <- 314159
 PARAM$cortes <- seq(0, 20000, by = 100)
 PARAM$trainingstrategy$undersampling <- 0.5
 PARAM$hyperparametertuning$xval_folds <- 5
-
-
-
-    num_leaves = trial.suggest_int('num_leaves', 8, 100)
-    learning_rate = trial.suggest_float('learning_rate', 0.005, 0.3) # más bajo, más iteraciones necesita
-    min_data_in_leaf = trial.suggest_int('min_data_in_leaf', 1, 1000)
-    feature_fraction = trial.suggest_float('feature_fraction', 0.1, 1.0)
-    bagging_fraction = trial.suggest_float('bagging_fraction', 0.1, 1.0)
-
-    params = {
-        'objective': 'binary',
-        'metric': 'custom',
-        'boosting_type': 'gbdt',
-        'first_metric_only': True,
-        'boost_from_average': True,
-        'feature_pre_filter': False,
-        'max_bin': 31,
-        'num_leaves': num_leaves,
-        'learning_rate': learning_rate,
-        'min_data_in_leaf': min_data_in_leaf,
-        'feature_fraction': feature_fraction,
-        'bagging_fraction': bagging_fraction,
-        'seed': semillas[0],
-        'verbose': -1,
-        'early_stopping_round': int(50 + 5 / learning_rate)  # Mueve esto aquí
-    }
-
 
 PARAM$lgbm$param_fijos <- list(
   boosting = "gbdt",
@@ -108,16 +93,16 @@ PARAM$lgbm$param_fijos <- list(
 )
 # Bordes de hiperparámetros para BO
 PARAM$hypeparametertuning$hs <- makeParamSet(
-    makeIntegerParam("num_leaves", lower= 10L, upper= 2048L),
-
-
-    makeIntegerParam("num_iterations", lower= 50L, upper= 2000L),
-    makeNumericParam("learning_rate", lower= 0.01, upper= 0.5),
-
-    makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
-
-    
-    makeIntegerParam("min_data_in_leaf", lower= 10L, upper= 5000L)
+  makeIntegerParam("num_leaves", lower = 10L, upper = 2048L),
+  
+  
+  makeIntegerParam("num_iterations", lower = 50L, upper = 2000L),
+  makeNumericParam("learning_rate", lower = 0.01, upper = 0.5),
+  
+  makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
+  
+  
+  makeIntegerParam("min_data_in_leaf", lower = 10L, upper = 5000L)
 )
 PARAM$hyperparametertuning$iteraciones <- 80
 
@@ -125,7 +110,9 @@ PARAM$hyperparametertuning$iteraciones <- 80
 # 1. Definir la ruta absoluta del directorio del experimento
 dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 # 2. Crear el directorio si no existe (con recursive = TRUE por seguridad)
-dir.create(dir_experimento, showWarnings = FALSE, recursive = TRUE)
+dir.create(dir_experimento,
+           showWarnings = FALSE,
+           recursive = TRUE)
 # 3. Definir la ruta absoluta del archivo de log
 log_file <- file.path(dir_experimento, paste0("log_", PARAM$experimento, ".log"))
 # 4. Configurar el logger para que escriba en consola y en la ruta absoluta del archivo
@@ -138,15 +125,30 @@ log_info("------------------------------------------------------")
 
 # Sección 3: Funciones Auxiliares
 #------------------------------------------------------
-particionar <- function(data, division, agrupa = "", campo = "fold", start = 1, seed = NA) {
-  if (!is.na(seed)) set.seed(seed, "L'Ecuyer-CMRG")
-  bloque <- unlist(mapply(function(x, y) { rep(y, x) }, division, seq(from = start, length.out = length(division))))
+particionar <- function(data,
+                        division,
+                        agrupa = "",
+                        campo = "fold",
+                        start = 1,
+                        seed = NA) {
+  if (!is.na(seed))
+    set.seed(seed, "L'Ecuyer-CMRG")
+  bloque <- unlist(mapply(function(x, y) {
+    rep(y, x)
+  }, division, seq(
+    from = start, length.out = length(division)
+  )))
   data[, (campo) := sample(rep(bloque, ceiling(.N / length(bloque))))[1:.N], by = agrupa]
 }
 
 realidad_inicializar <- function(pfuture, pparam) {
   drealidad <- pfuture[, list(numero_de_cliente, foto_mes, clase_ternaria)]
-  particionar(drealidad, division = c(3, 7), agrupa = "clase_ternaria", seed = pparam$semilla_kaggle)
+  particionar(
+    drealidad,
+    division = c(3, 7),
+    agrupa = "clase_ternaria",
+    seed = pparam$semilla_kaggle
+  )
   return(drealidad)
 }
 
@@ -154,8 +156,10 @@ realidad_evaluar <- function(prealidad, pprediccion) {
   prealidad[pprediccion, on = c("numero_de_cliente", "foto_mes"), predicted := i.Predicted]
   tbl <- prealidad[, list("qty" = .N), list(fold, predicted, clase_ternaria)]
   res <- list()
-  res$public <- tbl[fold == 1 & predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", 780000, -20000))] / 0.3
-  res$private <- tbl[fold == 2 & predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", 780000, -20000))] / 0.7
+  res$public <- tbl[fold == 1 &
+                      predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", 780000, -20000))] / 0.3
+  res$private <- tbl[fold == 2 &
+                       predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", 780000, -20000))] / 0.7
   res$total <- tbl[predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", 780000, -20000))]
   prealidad[, predicted := NULL]
   return(res)
@@ -170,36 +174,47 @@ tryCatch({
   log_info(paste("Cambiando directorio a:", getwd()))
   dataset <- fread("./competencia_01.csv.gz", stringsAsFactors = TRUE)
   log_info("Dataset cargado correctamente.")
-
+  
   log_info("Inicio de Feature Engineering")
   dataset[, `:=`(
-      # Suma de consumos de tarjetas
-      mtarjetas_consumo = round(rowSums(.SD[, .(mtarjeta_visa_consumo, mtarjeta_master_consumo)], na.rm = TRUE), 1),
-      # Suma de beneficios/descuentos
-      mbeneficios = round(rowSums(.SD[, .(mcajeros_propios_descuentos, mtarjeta_visa_descuentos, mtarjeta_master_descuentos)], na.rm = TRUE), 1),
-      # Suma de ingresos
-      mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
-      # Diferencia: límite menos consumo para MasterCard
-      diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
-      # Diferencia: límite menos consumo para Visa
-      diff_visa_compra = round(Visa_mlimitecompra - Visa_mconsumospesos, 2)
+    # Suma de consumos de tarjetas
+    mtarjetas_consumo = round(rowSums(.SD[, .(mtarjeta_visa_consumo, mtarjeta_master_consumo)], na.rm = TRUE), 1),
+    # Suma de beneficios/descuentos
+    mbeneficios = round(rowSums(.SD[, .(
+      mcajeros_propios_descuentos,
+      mtarjeta_visa_descuentos,
+      mtarjeta_master_descuentos
+    )], na.rm = TRUE), 1),
+    # Suma de ingresos
+    mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
+    # Diferencia: límite menos consumo para MasterCard
+    diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
+    # Diferencia: límite menos consumo para Visa
+    diff_visa_compra = round(Visa_mlimitecompra - Visa_mconsumospesos, 2)
   )]
-
+  
   dataset[, `:=`(
-      # Diferencia: consumo total menos comisiones
-      diff_comisiones_consumo = round(mtarjetas_consumo - mcomisiones_mantenimiento, 2),
-      # Diferencia: beneficios totales menos comisiones
-      diff_comisiones_beneficios = round(mbeneficios - mcomisiones_mantenimiento, 2)
+    # Diferencia: consumo total menos comisiones
+    diff_comisiones_consumo = round(mtarjetas_consumo - mcomisiones_mantenimiento, 2),
+    # Diferencia: beneficios totales menos comisiones
+    diff_comisiones_beneficios = round(mbeneficios - mcomisiones_mantenimiento, 2)
   )]
-
+  
   # Columnas a las que se les aplicará el ranking
-  cols_a_rankear <- c("mpasivos_margen", "Master_mlimitecompra", "Visa_mlimitecompra", 
-                      "mpayroll", "mcuenta_corriente", "mcaja_ahorro", 
-                      "mtarjetas_consumo", "mingresos")
-
+  cols_a_rankear <- c(
+    "mpasivos_margen",
+    "Master_mlimitecompra",
+    "Visa_mlimitecompra",
+    "mpayroll",
+    "mcuenta_corriente",
+    "mcaja_ahorro",
+    "mtarjetas_consumo",
+    "mingresos"
+  )
+  
   # Nombres para las nuevas columnas de ranking
   nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
-
+  
   # Funcion para ranking con cero fijo
   rank_con_cero_fijo <- function(x) {
     # Vector para guardar los resultados
@@ -229,14 +244,12 @@ tryCatch({
     
     return(resultado)
   }
-
+  
   # Aplicar la función a todas las columnas especificadas, agrupando por mes
-  dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), 
-          by = foto_mes, 
-          .SDcols = cols_a_rankear]
-
+  dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
+  
   print("Columnas de ranking generadas correctamente.")
-
+  
   # Genero columnas Lags y Delta Lags de orden 1
   log_info("Inicio de Feature Lags")
   cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
@@ -246,29 +259,44 @@ tryCatch({
   nombres_nuevas_cols_delta <- paste0(cols_con_lag, "_delta1")
   dataset[, (nombres_nuevas_cols_delta) := .SD - mget(nombres_nuevas_cols_lag), .SDcols = cols_con_lag]
   log_info("Features de lag y delta generadas.")
-
+  
   dataset_train <- dataset[foto_mes %in% PARAM$train]
   dataset_train[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
   log_info("Clase convertida a formato binario.")
-
+  
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   dataset_train[, azar := runif(nrow(dataset_train))]
   dataset_train[, training := 0L]
-  dataset_train[foto_mes %in% PARAM$train & (azar <= PARAM$trainingstrategy$undersampling | clase_ternaria %in% c("BAJA+1", "BAJA+2")), training := 1L]
-  log_info(paste("Undersampling aplicado con una tasa de:", PARAM$trainingstrategy$undersampling))
-
-  campos_buenos <- setdiff(colnames(dataset_train), c("clase_ternaria", "clase01", "azar", "training"))
+  dataset_train[foto_mes %in% PARAM$train &
+                  (
+                    azar <= PARAM$trainingstrategy$undersampling |
+                      clase_ternaria %in% c("BAJA+1", "BAJA+2")
+                  ), training := 1L]
+  log_info(
+    paste(
+      "Undersampling aplicado con una tasa de:",
+      PARAM$trainingstrategy$undersampling
+    )
+  )
+  
+  campos_buenos <- setdiff(colnames(dataset_train),
+                           c("clase_ternaria", "clase01", "azar", "training"))
   dtrain <- lgb.Dataset(
     data = data.matrix(dataset_train[training == 1L, campos_buenos, with = FALSE]),
     label = dataset_train[training == 1L, clase01],
     free_raw_data = FALSE
   )
   log_info("Dataset de entrenamiento para LightGBM creado.")
-  log_info(paste("Dimensiones de dtrain -> Filas:", nrow(dtrain), "| Columnas:", ncol(dtrain)))
-
+  log_info(paste(
+    "Dimensiones de dtrain -> Filas:",
+    nrow(dtrain),
+    "| Columnas:",
+    ncol(dtrain)
+  ))
+  
   setwd(dir_experimento)
   log_info(paste("Cambiando directorio de trabajo a:", getwd()))
-
+  
   # Sección 5: Optimización Bayesiana
   #------------------------------------------------------
   log_info("Iniciando Sección 5: Optimización Bayesiana de Hiperparámetros.")
@@ -276,28 +304,56 @@ tryCatch({
     # x pisa (o agrega) a param_fijos
     param_completo <- modifyList(PARAM$lgbm$param_fijos, x)
     # Entreno LightGBM
-    modelocv <- lgb.cv(data = dtrain, nfold = PARAM$hyperparametertuning$xval_folds, stratified = TRUE, param = param_completo)
+    modelocv <- lgb.cv(
+      data = dtrain,
+      nfold = PARAM$hyperparametertuning$xval_folds,
+      stratified = TRUE,
+      param = param_completo
+    )
     # obtengo la ganancia
     AUC <- modelocv$best_score
     # hago espacio en la memoria
     rm(modelocv)
     gc(full = TRUE, verbose = FALSE)
-    log_info(paste("Iteración BO -> AUC:", format(AUC, digits = 6), "|", format(Sys.time(), "%a %b %d %X %Y")))
+    log_info(paste(
+      "Iteración BO -> AUC:",
+      format(AUC, digits = 6),
+      "|",
+      format(Sys.time(), "%a %b %d %X %Y")
+    ))
     return(AUC)
   }
-
+  
   dir.create("Archivos Bayesiana", showWarnings = FALSE)
   kbayesiana <- "./Archivos Bayesiana/bayesiana.RDATA"
   funcion_optimizar <- EstimarGanancia_AUC_lightgbm # la funcion que voy a maximizar
   configureMlr(show.learner.output = FALSE)
-  obj.fun <- makeSingleObjectiveFunction(fn = funcion_optimizar, minimize = FALSE, noisy = TRUE, par.set = PARAM$hypeparametertuning$hs, has.simple.signature = FALSE)
-  ctrl <- makeMBOControl(save.on.disk.at.time = 600, save.file.path = kbayesiana)
+  obj.fun <- makeSingleObjectiveFunction(
+    fn = funcion_optimizar,
+    minimize = FALSE,
+    noisy = TRUE,
+    par.set = PARAM$hypeparametertuning$hs,
+    has.simple.signature = FALSE
+  )
+  ctrl <- makeMBOControl(save.on.disk.at.time = 600,
+                         save.file.path = kbayesiana)
   ctrl <- setMBOControlTermination(ctrl, iters = PARAM$hyperparametertuning$iteraciones)
   ctrl <- setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
-  surr.km <- makeLearner("regr.km", predict.type = "se", covtype = "matern3_2", control = list(trace = FALSE))
-
+  surr.km <- makeLearner(
+    "regr.km",
+    predict.type = "se",
+    covtype = "matern3_2",
+    control = list(trace = FALSE)
+  )
+  
   if (!file.exists(kbayesiana)) {
-    log_info(paste("Iniciando nueva búsqueda Bayesiana de", PARAM$hyperparametertuning$iteraciones, "iteraciones."))
+    log_info(
+      paste(
+        "Iniciando nueva búsqueda Bayesiana de",
+        PARAM$hyperparametertuning$iteraciones,
+        "iteraciones."
+      )
+    )
     bayesiana_salida <- mbo(obj.fun, learner = surr.km, control = ctrl)
   } else {
     log_info("Continuando búsqueda Bayesiana desde archivo existente.")
@@ -309,12 +365,31 @@ tryCatch({
   tb_bayesiana[, iter := .I]
   setorder(tb_bayesiana, -y)
   fwrite(tb_bayesiana, file = "./Archivos Bayesiana/BO_log.txt", sep = "\t")
-  PARAM$out$lgbm$mejores_hiperparametros <- tb_bayesiana[1, setdiff(colnames(tb_bayesiana), c("y", "dob", "eol", "error.message", "exec.time", "ei", "error.model", "train.time", "prop.type", "propose.time", "se", "mean", "iter")), with = FALSE]
+  PARAM$out$lgbm$mejores_hiperparametros <- tb_bayesiana[1, setdiff(
+    colnames(tb_bayesiana),
+    c(
+      "y",
+      "dob",
+      "eol",
+      "error.message",
+      "exec.time",
+      "ei",
+      "error.model",
+      "train.time",
+      "prop.type",
+      "propose.time",
+      "se",
+      "mean",
+      "iter"
+    )
+  ), with = FALSE]
   PARAM$out$lgbm$y <- tb_bayesiana[1, y]
   write_yaml(PARAM, file = "./Archivos Bayesiana/PARAM.yml")
   
   log_info("Mejores hiperparámetros encontrados:")
-  log_info(paste(capture.output(print(PARAM$out$lgbm$mejores_hiperparametros)), collapse = "\n"))
+  log_info(paste(capture.output(
+    print(PARAM$out$lgbm$mejores_hiperparametros)
+  ), collapse = "\n"))
   log_info(paste("Mejor AUC (y):", PARAM$out$lgbm$y))
   
   # Sección 6: Entrenamiento y Predicción (Modelo Único)
@@ -323,8 +398,9 @@ tryCatch({
   dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+1", "BAJA+2"), 1L, 0L)]
   dataset_train <- dataset[foto_mes %in% PARAM$train_final]
   dtrain_final <- lgb.Dataset(data = data.matrix(dataset_train[, campos_buenos, with = FALSE]), label = dataset_train[, clase01])
-
-  param_final <- modifyList(PARAM$lgbm$param_fijos, PARAM$out$lgbm$mejores_hiperparametros)
+  
+  param_final <- modifyList(PARAM$lgbm$param_fijos,
+                            PARAM$out$lgbm$mejores_hiperparametros)
   param_normalizado <- copy(param_final)
   param_normalizado$min_data_in_leaf <- round(param_final$min_data_in_leaf / PARAM$trainingstrategy$undersampling)
   
@@ -333,7 +409,7 @@ tryCatch({
   lgb.save(modelo_final, "./Archivos Bayesiana/modelo.txt")
   tb_importancia <- as.data.table(lgb.importance(modelo_final))
   fwrite(tb_importancia, file = "./Archivos Bayesiana/impo.txt", sep = "\t")
-
+  
   log_info("Generando predicciones y envíos para Kaggle (Modelo Único)...")
   dfuture <- dataset[foto_mes %in% PARAM$future]
   prediccion <- predict(modelo_final, data.matrix(dfuture[, campos_buenos, with = FALSE]))
@@ -350,13 +426,33 @@ tryCatch({
   for (envios in PARAM$cortes) {
     tb_prediccion[, Predicted := 0L] # seteo inicial a 0
     tb_prediccion[1:envios, Predicted := 1L] # marco los primeros n envios
-    fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)], file = paste0("./kaggle/", PARAM$experimento, "_", envios, ".csv"), sep = ",")
+    fwrite(
+      tb_prediccion[, list(numero_de_cliente, Predicted)],
+      file = paste0("./kaggle/", PARAM$experimento, "_", envios, ".csv"),
+      sep = ","
+    )
     res <- realidad_evaluar(drealidad, tb_prediccion)
-    resultados <- rbind(resultados, data.table(clientes = envios, ganancia_total = res$total, ganancia_public = res$public, ganancia_private = res$private))
+    resultados <- rbind(
+      resultados,
+      data.table(
+        clientes = envios,
+        ganancia_total = res$total,
+        ganancia_public = res$public,
+        ganancia_private = res$private
+      )
+    )
     options(scipen = 999)
-    log_info(sprintf("Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f", envios, res$total, res$public, res$private))
+    log_info(
+      sprintf(
+        "Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f",
+        envios,
+        res$total,
+        res$public,
+        res$private
+      )
+    )
   }
-
+  
   # pasar a formato largo
   resultados_long <- melt(
     resultados,
@@ -365,21 +461,27 @@ tryCatch({
     variable.name = "tipo",
     value.name = "ganancia"
   )
-
+  
   # calcular máximos por tipo
   maximos <- resultados_long[, .SD[which.max(ganancia)], by = tipo]
-
+  
   # etiquetas personalizadas
   etiquetas <- paste0(
     maximos$tipo,
-    " (envíos = ", maximos$clientes, ", máx = ", format(maximos$ganancia, big.mark = ","), ")"
+    " (envíos = ",
+    maximos$clientes,
+    ", máx = ",
+    format(maximos$ganancia, big.mark = ","),
+    ")"
   )
   names(etiquetas) <- maximos$tipo
-
+  
   # gráfico
   p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
     geom_line(linewidth = 1) +
-    geom_point(data = maximos, aes(x = clientes, y = ganancia, color = tipo), size = 3) +
+    geom_point(data = maximos,
+               aes(x = clientes, y = ganancia, color = tipo),
+               size = 3) +
     labs(
       title = paste0("Curvas de Ganancia (", PARAM$experimento, ")"),
       x = "Clientes",
@@ -395,25 +497,31 @@ tryCatch({
       labels = etiquetas
     ) +
     theme_minimal() +
-    theme(
-      plot.margin = margin(10, 10, 10, 10),
-      legend.position = "bottom"
-    ) +
+    theme(plot.margin = margin(10, 10, 10, 10),
+          legend.position = "bottom") +
     guides(color = guide_legend(nrow = 3, byrow = TRUE))
-
+  
   # guardar imagen
-  ggsave(paste0("curvas_", PARAM$experimento, ".png"), plot = p, width = 10, height = 6)
-
+  ggsave(
+    paste0("curvas_", PARAM$experimento, ".png"),
+    plot = p,
+    width = 10,
+    height = 6
+  )
+  
   log_info("Gráfico de curvas de ganancia (modelo único) guardado.")
-
+  
   # Sección 7: Entrenamiento y Predicción (Ensemble)
   #------------------------------------------------------
   log_info("Iniciando Sección 7: Entrenamiento del Ensamble de Modelos.")
   semillas <- c(200003, 300007, 400009, 500009, 600011)
   lista_predicciones <- list()
-
+  
   for (semilla_actual in semillas) {
-    log_info(paste("Entrenando modelo del ensamble con semilla:", semilla_actual))
+    log_info(paste(
+      "Entrenando modelo del ensamble con semilla:",
+      semilla_actual
+    ))
     param_normalizado$seed <- semilla_actual
     modelo_final <- lgb.train(data = dtrain_final, param = param_normalizado)
     prediccion_individual <- predict(modelo_final, data.matrix(dfuture[, campos_buenos, with = FALSE]))
@@ -421,25 +529,51 @@ tryCatch({
     tb_prediccion_individual[, prob := prediccion_individual]
     lista_predicciones[[as.character(semilla_actual)]] <- tb_prediccion_individual
   }
-
+  
   log_info("Creando el ensamble final promediando probabilidades.")
   predicciones_todas <- rbindlist(lista_predicciones)
   tb_prediccion <- predicciones_todas[, .(prob = mean(prob)), by = .(numero_de_cliente, foto_mes)]
   setorder(tb_prediccion, -prob)
   dir.create("kaggle_promedidado", showWarnings = FALSE)
   resultados <- data.table()
-
+  
   log_info("Generando predicciones y envíos para Kaggle (Ensemble)...")
   for (envios in PARAM$cortes) {
     tb_prediccion[, Predicted := 0L][1:envios, Predicted := 1L]
-    fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)], file = paste0("./kaggle_promedidado/", PARAM$experimento, "_", envios, ".csv"), sep = ",")
+    fwrite(
+      tb_prediccion[, list(numero_de_cliente, Predicted)],
+      file = paste0(
+        "./kaggle_promedidado/",
+        PARAM$experimento,
+        "_",
+        envios,
+        ".csv"
+      ),
+      sep = ","
+    )
     res <- realidad_evaluar(drealidad, tb_prediccion)
-    resultados <- rbind(resultados, data.table(clientes = envios, ganancia_total = res$total, ganancia_public = res$public, ganancia_private = res$private))
+    resultados <- rbind(
+      resultados,
+      data.table(
+        clientes = envios,
+        ganancia_total = res$total,
+        ganancia_public = res$public,
+        ganancia_private = res$private
+      )
+    )
     options(scipen = 999)
-    log_info(sprintf("Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f", envios, res$total, res$public, res$private))
+    log_info(
+      sprintf(
+        "Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f",
+        envios,
+        res$total,
+        res$public,
+        res$private
+      )
+    )
   }
-
-    # pasar a formato largo
+  
+  # pasar a formato largo
   resultados_long <- melt(
     resultados,
     id.vars = "clientes",
@@ -447,21 +581,27 @@ tryCatch({
     variable.name = "tipo",
     value.name = "ganancia"
   )
-
+  
   # calcular máximos por tipo
   maximos <- resultados_long[, .SD[which.max(ganancia)], by = tipo]
-
+  
   # etiquetas personalizadas
   etiquetas <- paste0(
     maximos$tipo,
-    " (envíos = ", maximos$clientes, ", máx = ", format(maximos$ganancia, big.mark = ","), ")"
+    " (envíos = ",
+    maximos$clientes,
+    ", máx = ",
+    format(maximos$ganancia, big.mark = ","),
+    ")"
   )
   names(etiquetas) <- maximos$tipo
-
+  
   # gráfico
   p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
     geom_line(linewidth = 1) +
-    geom_point(data = maximos, aes(x = clientes, y = ganancia, color = tipo), size = 3) +
+    geom_point(data = maximos,
+               aes(x = clientes, y = ganancia, color = tipo),
+               size = 3) +
     labs(
       title = paste0("Curvas de Ganancia (", PARAM$experimento, ")"),
       x = "Clientes",
@@ -477,21 +617,26 @@ tryCatch({
       labels = etiquetas
     ) +
     theme_minimal() +
-    theme(
-      plot.margin = margin(10, 10, 10, 10),
-      legend.position = "bottom"
-    ) +
+    theme(plot.margin = margin(10, 10, 10, 10),
+          legend.position = "bottom") +
     guides(color = guide_legend(nrow = 3, byrow = TRUE))
-
+  
   # guardar imagen
-  ggsave(paste0("curvas_ensamble_", PARAM$experimento, ".png"), plot = p, width = 10, height = 6)
+  ggsave(
+    paste0("curvas_ensamble_", PARAM$experimento, ".png"),
+    plot = p,
+    width = 10,
+    height = 6
+  )
   log_info("Gráfico de curvas de ganancia (ensemble) guardado.")
-
+  
 }, error = function(e) {
   # Mensaje de error mejorado
   log_error("######################################################")
   log_error("Se ha producido un error fatal en la ejecución.")
-  log_error("Revisa el último mensaje 'INFO' en el log para identificar la sección donde ocurrió el fallo.")
+  log_error(
+    "Revisa el último mensaje 'INFO' en el log para identificar la sección donde ocurrió el fallo."
+  )
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
   quit(status = 1) # Detiene el script con un código de error
