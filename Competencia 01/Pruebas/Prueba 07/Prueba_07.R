@@ -119,15 +119,15 @@ PARAM$hyperparametertuning$hs <- makeParamSet(
   #makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
   #makeNumericParam("bagging_fraction", lower= 0.0, upper= 1.0),
   #makeIntegerParam("bagging_freq", lower= 0L, upper= 10L),
-  #makeNumericParam("lambda_l1", lower= 0.0, upper= 100.0),
-  #makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0),
+  makeNumericParam("lambda_l1", lower= 0.0, upper= 100.0),
+  makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0),
   #makeNumericParam("min_gain_to_split", lower= 0.0, upper= 15.0),
   #makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
   #makeIntegerParam("max_depth", lower= -1L, upper= 20),
   #makeIntegerParam("num_leaves", lower= 2L, upper= 2048L),
   #makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 10000L)
 )
-PARAM$hyperparametertuning$iteraciones <- 80
+PARAM$hyperparametertuning$iteraciones <- 100
 
 # ----- Configuración del Logger -----
 # Creo la carpeta del experimento
