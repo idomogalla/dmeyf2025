@@ -221,7 +221,7 @@ tryCatch({
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   dataset_train[, azar := runif(nrow(dataset_train))]
   dataset_train[, training := 0L]
-  a[foto_mes %in% PARAM$train &
+  [foto_mes %in% PARAM$train &
       (
         azar <= PARAM$trainingstrategy$undersampling |
           clase_ternaria %in% c("BAJA+1", "BAJA+2")

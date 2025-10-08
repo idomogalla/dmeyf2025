@@ -286,17 +286,12 @@ tryCatch({
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   dataset_train[, azar := runif(nrow(dataset_train))]
   dataset_train[, training := 0L]
-  a[foto_mes %in% PARAM$train &
-      (
-        azar <= PARAM$trainingstrategy$undersampling |
-          clase_ternaria %in% c("BAJA+1", "BAJA+2")
-      ), training := 1L]
-  log_info(
-    paste(
-      "Undersampling aplicado con una tasa de:",
-      PARAM$trainingstrategy$undersampling
-    )
-  )
+  dataset_train[
+    foto_mes %in%  PARAM$train &
+      (azar <= PARAM$trainingstrategy$undersampling | clase_ternaria %in% c("BAJA+1", "BAJA+2")),
+    training := 1L
+  ]
+  log_info(paste0("Undersampling aplicado con una tasa de:",PARAM$trainingstrategy$undersampling))
   
   campos_buenos <- setdiff(colnames(dataset_train),
                            c("clase_ternaria", "clase01", "azar", "training"))
