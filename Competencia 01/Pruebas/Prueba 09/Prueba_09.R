@@ -80,22 +80,45 @@ PARAM$entrega_kaggle <- c(202106)
 PARAM$semilla_kaggle <- 314159
 PARAM$cortes <- seq(0, 20000, by = 100)
 
-PARAM$trainingstrategy$undersampling <- 0.5
+PARAM$trainingstrategy$undersampling <- 1.0
 PARAM$out <- list()
 
 PARAM$lgbm$param_fijos <- list(
-  num_cores = parallel::detectCores(),
-  boosting = "gbdt",
-  objective = "binary",
-  metric = "auc",
-  first_metric_only = FALSE,
-  boost_from_average = TRUE,
-  feature_pre_filter = FALSE,
-  force_row_wise = TRUE,
-  verbosity = -100,
-  seed = PARAM$semilla_primigenia,
-  is_unbalance = FALSE,
-  early_stopping_round = 100
+  boosting= "gbdt", # puede ir  dart  , ni pruebe random_forest
+  objective= "binary",
+  metric= "auc",
+  first_metric_only= FALSE,
+  boost_from_average= TRUE,
+  feature_pre_filter= FALSE,
+  force_row_wise= TRUE, # para reducir warnings
+  verbosity= -100,
+
+  seed= PARAM$semilla_primigenia,
+
+  max_depth= -1L, # -1 significa no limitar,  por ahora lo dejo fijo
+  min_gain_to_split= 0, # min_gain_to_split >= 0
+  min_sum_hessian_in_leaf= 0.001, #  min_sum_hessian_in_leaf >= 0.0
+  lambda_l1= 0.0, # lambda_l1 >= 0.0
+  lambda_l2= 0.0, # lambda_l2 >= 0.0
+  max_bin= 31L, # lo debo dejar fijo, no participa de la BO
+
+  bagging_fraction= 1.0, # 0.0 < bagging_fraction <= 1.0
+  pos_bagging_fraction= 1.0, # 0.0 < pos_bagging_fraction <= 1.0
+  neg_bagging_fraction= 1.0, # 0.0 < neg_bagging_fraction <= 1.0
+  is_unbalance= FALSE, #
+  scale_pos_weight= 1.0, # scale_pos_weight > 0.0
+
+  drop_rate= 0.1, # 0.0 < neg_bagging_fraction <= 1.0
+  max_drop= 50, # <=0 means no limit
+  skip_drop= 0.5, # 0.0 <= skip_drop <= 1.0
+
+  extra_trees= FALSE,
+
+  num_iterations= 1200,
+  learning_rate= 0.02,
+  feature_fraction= 0.5,
+  num_leaves= 750,
+  min_data_in_leaf= 5000
 )
 # Bordes de hiperparámetros para BO
 PARAM$hyperparametertuning$hs <- makeParamSet(

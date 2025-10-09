@@ -42,9 +42,6 @@ suppressPackageStartupMessages({
   if (!require("ggrepel"))
     install.packages("ggrepel")
   library("ggrepel")
-  if (!require("stringr"))
-    install.packages("stringr")
-  library("stringr")
   if (!require("scales"))
     install.packages("scales")
   library("scales")
@@ -457,9 +454,9 @@ EvaluarYGraficar <- function(tb_prediccion,
   # Crear etiquetas para la leyenda (mostrando solo el valor de ganancia)
   maximos_leyenda <- maximos[, .(ganancia = first(ganancia)), by = tipo]
   etiquetas <- paste0(
-    stringr::str_to_title(gsub("_", " ", maximos_leyenda$tipo)),
+    tools::toTitleCase(gsub("_", " ", maximos_leyenda$tipo)),
     " (máx = ",
-    format(maximos_leyenda$ganancia, big.mark = ","),
+    format(maximos_leyenda$ganancia, big.mark = ".", decimal.mark = ","),
     ")"
   )
   names(etiquetas) <- maximos_leyenda$tipo
@@ -484,7 +481,7 @@ EvaluarYGraficar <- function(tb_prediccion,
       segment.color = 'grey50'
     ) +
     labs(
-      title = paste0("Curvas de Ganancia (Modelo ", stringr::str_to_title(tipo_modelo), " - ", PARAM$experimento, ")"),
+      title = paste0("Curvas de Ganancia (Modelo ", tools::toTitleCase(gsub("_", " ", tipo_modelo))," - ",PARAM$experimento,")"),
       x = "Clientes Contactados (Envíos)",
       y = "Ganancia",
       color = "Máximos"

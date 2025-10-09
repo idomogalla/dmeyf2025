@@ -42,9 +42,6 @@ suppressPackageStartupMessages({
   if (!require("ggrepel"))
     install.packages("ggrepel")
   library("ggrepel")
-  if (!require("stringr"))
-    install.packages("stringr")
-  library("stringr")
   if (!require("scales"))
     install.packages("scales")
   library("scales")
@@ -565,9 +562,9 @@ EvaluarYGraficar <- function(tb_prediccion,
   # Crear etiquetas para la leyenda (mostrando solo el valor de ganancia)
   maximos_leyenda <- maximos[, .(ganancia = first(ganancia)), by = tipo]
   etiquetas <- paste0(
-    stringr::str_to_title(gsub("_", " ", maximos_leyenda$tipo)),
+    tools::toTitleCase(gsub("_", " ", maximos_leyenda$tipo)),
     " (máx = ",
-    format(maximos_leyenda$ganancia, big.mark = ","),
+    format(maximos_leyenda$ganancia, big.mark = ".", decimal.mark = ","),
     ")"
   )
   names(etiquetas) <- maximos_leyenda$tipo
@@ -592,7 +589,7 @@ EvaluarYGraficar <- function(tb_prediccion,
       segment.color = 'grey50'
     ) +
     labs(
-      title = paste0("Curvas de Ganancia (Modelo ", stringr::str_to_title(tipo_modelo), " - ", PARAM$experimento, ")"),
+      title = paste0("Curvas de Ganancia (Modelo ", tools::toTitleCase(gsub("_", " ", tipo_modelo))," - ",PARAM$experimento,")"),
       x = "Clientes Contactados (Envíos)",
       y = "Ganancia",
       color = "Máximos"
@@ -680,17 +677,18 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
   maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
   maximo_promedio <- head(maximo_promedio, 1) # Tomamos solo el primero
 
-  # 5. Crear etiquetas para la leyenda del gráfico
   # Etiquetas para las curvas individuales
   labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
     max_info <- maximos_individuales[semilla == sem]
-    sprintf("S %s: G %,.0f (E %d)",
-            sem, max_info$ganancia_total, max_info$clientes)
+    paste0("S ", sem, 
+          ": G ", format(max_info$ganancia_total, big.mark = ".", decimal.mark = ",", digits = 0),
+          " (E ", max_info$clientes, ")")
   })
 
   # Etiqueta para la curva promedio
-  label_promedio <- sprintf("Promedio: G %,.0f (E %d)",
-                          maximo_promedio$ganancia_total, maximo_promedio$clientes)
+  label_promedio <- paste0("Promedio: G ",
+                          format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ",", digits = 0),
+                          " (E ", maximo_promedio$clientes, ")")
 
   # 6. Preparar colores y etiquetas para el plot
   # Un color tenue para cada semilla y uno fuerte para el promedio
