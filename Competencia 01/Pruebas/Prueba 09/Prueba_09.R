@@ -296,11 +296,6 @@ tryCatch({
   log_info(paste(capture.output(print(PARAM$out$lgbm$mejores_hiperparametros)), collapse = "\n"))
   log_info(paste("Mejor AUC (y):", PARAM$out$lgbm$y))
 
-# --- El resto del script sigue aquí ---
-# (Se omite por brevedad, ya que las funciones EvaluarYGraficar y GenerarEnviosKaggle no cambian)
-# Pegar el resto del script original desde la definición de "EvaluarYGraficar" hasta el final.
-# Las únicas modificaciones necesarias en las secciones 6 y 7 ya fueron explicadas y se muestran a continuación.
-
 }, error = function(e) {
   log_error("######################################################")
   log_error("Se ha producido un error fatal en la Sección 5: Optimización Bayesiana.")
@@ -310,185 +305,292 @@ tryCatch({
 })
 
 #------------------------------------------------------
-  # Funciones para secciones 6 y 7
-  #------------------------------------------------------
-  EvaluarYGraficar <- function(tb_prediccion,
-                               drealidad,
-                               PARAM,
-                               tipo_modelo,
-                               carpeta_salida_kaggle) {
-    log_info(paste0("Iniciando evaluación y graficación para el modelo: ",tipo_modelo))
-    dir.create(carpeta_salida_kaggle, showWarnings = FALSE)
-    resultados <- data.table()
+# Funciones para secciones 6 y 7
+#------------------------------------------------------
+EvaluarYGraficar <- function(tb_prediccion,
+                              drealidad,
+                              PARAM,
+                              tipo_modelo,
+                              carpeta_salida_kaggle) {
+  log_info(paste0("Iniciando evaluación y graficación para el modelo: ",tipo_modelo))
+  dir.create(carpeta_salida_kaggle, showWarnings = FALSE)
+  resultados <- data.table()
+  
+  # Ordenar las predicciones de mayor a menor probabilidad
+  setorder(tb_prediccion, -prob)
+  
+  # --- Bucle de evaluación por cortes ---
+  for (envios in PARAM$cortes) {
+    tb_prediccion[, Predicted := 0L]
+    tb_prediccion[1:envios, Predicted := 1L] # marco los envios
     
-    # Ordenar las predicciones de mayor a menor probabilidad
-    setorder(tb_prediccion, -prob)
-    
-    # --- Bucle de evaluación por cortes ---
-    for (envios in PARAM$cortes) {
-      tb_prediccion[, Predicted := 0L]
-      tb_prediccion[1:envios, Predicted := 1L] # marco los envios
-      
-      fwrite(
-        tb_prediccion[, list(numero_de_cliente, Predicted)],
-        file = paste0(carpeta_salida_kaggle, PARAM$experimento,"_",envios,".csv"),
-        sep = ","
-      )
-      
-      res <- realidad_evaluar(drealidad, tb_prediccion)
-      
-      resultados <- rbind(
-        resultados,
-        data.table(
-          clientes = envios,
-          ganancia_total = res$total,
-          ganancia_public = res$public,
-          ganancia_private = res$private
-        )
-      )
-
-      options(scipen = 999)
-      log_info(
-        sprintf(
-          "Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f",
-          envios,
-          res$total,
-          res$public,
-          res$private
-        )
-      )
-    }
-    
-    # --- Guardar resultados en CSV ---
-    archivo_resultados_csv <- paste0(PARAM$carpeta_bayesiana, "envios_", tipo_modelo, "_", PARAM$experimento, ".csv")
-    resultados_para_csv <- copy(resultados)
-    setnames(
-      resultados_para_csv,
-      old = c(
-        "clientes",
-        "ganancia_total",
-        "ganancia_public",
-        "ganancia_private"
-      ),
-      new = c("ENVIOS", "TOTAL", "PUBLIC", "PRIVATE")
+    fwrite(
+      tb_prediccion[, list(numero_de_cliente, Predicted)],
+      file = paste0(carpeta_salida_kaggle, PARAM$experimento,"_",envios,".csv"),
+      sep = ","
     )
-    fwrite(resultados_para_csv, file = archivo_resultados_csv)
-    log_info(paste0("Tabla de resultados para [", tipo_modelo, "] guardada en: ", archivo_resultados_csv))
     
-    # --- Encontrar envíos con ganancia máxima ---
-    max_ganancia_valor <- max(resultados$ganancia_total)
-    envios_max_total <- resultados[ganancia_total == max_ganancia_valor, clientes]
-    log_info(paste0("Envíos óptimos para [", tipo_modelo, "]: ", paste(envios_max_total, collapse = ", ")))
+    res <- realidad_evaluar(drealidad, tb_prediccion)
     
-    # --- Preparar datos para el gráfico ---
-    resultados_long <- melt(
+    resultados <- rbind(
       resultados,
-      id.vars = "clientes",
-      measure.vars = c("ganancia_total", "ganancia_public", "ganancia_private"),
-      variable.name = "tipo",
-      value.name = "ganancia"
+      data.table(
+        clientes = envios,
+        ganancia_total = res$total,
+        ganancia_public = res$public,
+        ganancia_private = res$private
+      )
     )
-    
-    # Capturar TODOS los puntos con ganancia máxima por tipo
-    maximos <- resultados_long[, .SD[ganancia == max(ganancia)], by = tipo]
-    
-    # Crear etiquetas para la leyenda (mostrando solo el valor de ganancia)
-    maximos_leyenda <- maximos[, .(ganancia = first(ganancia)), by = tipo]
-    etiquetas <- paste0(
-      stringr::str_to_title(gsub("_", " ", maximos_leyenda$tipo)),
-      " (máx = ",
-      format(maximos_leyenda$ganancia, big.mark = ","),
-      ")"
+
+    options(scipen = 999)
+    log_info(
+      sprintf(
+        "Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f",
+        envios,
+        res$total,
+        res$public,
+        res$private
+      )
     )
-    names(etiquetas) <- maximos_leyenda$tipo
-    
-    # --- Crear y guardar gráfico ---
-    dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
-    p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
-      geom_line(linewidth = 1) +
-      # MODIFICACIÓN 3: Graficar TODOS los puntos máximos
-      geom_point(data = maximos,
-                aes(x = clientes, y = ganancia, color = tipo),
-                size = 3) +
-      # MODIFICACIÓN 4: Añadir etiquetas con el valor de 'envios' a cada punto máximo
-      ggrepel::geom_text_repel(
-        data = maximos,
-        aes(label = clientes),
-        color = "black",
-        size = 3.5,
-        box.padding = 0.5,
-        point.padding = 0.5,
-        min.segment.length = 0,
-        segment.color = 'grey50'
-      ) +
-      labs(
-        title = paste0("Curvas de Ganancia (Modelo ", stringr::str_to_title(tipo_modelo), " - ", PARAM$experimento, ")"),
-        x = "Clientes Contactados (Envíos)",
-        y = "Ganancia",
-        color = "Máximos"
-      ) +
-      scale_y_continuous(labels = scales::comma) +
-      scale_color_manual(
-        values = c(
-          "ganancia_total" = "steelblue",
-          "ganancia_public" = "forestgreen",
-          "ganancia_private" = "firebrick"
-        ),
-        labels = etiquetas
-      ) +
-      theme_minimal() +
-      theme(plot.margin = margin(10, 10, 10, 10),
-            legend.position = "bottom") +
-      guides(color = guide_legend(nrow = 3, byrow = TRUE))
-    
-    ggsave(
-      paste0(PARAM$carpeta_graficos, "curvas_", tipo_modelo, "_", PARAM$experimento, ".png"),
-      plot = p,
-      width = 11,
-      height = 7
-    )
-    log_info(paste0("Gráfico de curvas de ganancia (", tipo_modelo, ") guardado."))
-    
-    return(list(envios_optimos = envios_max_total))
+  }
+  
+  # --- Guardar resultados en CSV ---
+  archivo_resultados_csv <- paste0(PARAM$carpeta_bayesiana, "envios_", tipo_modelo, "_", PARAM$experimento, ".csv")
+  resultados_para_csv <- copy(resultados)
+  setnames(
+    resultados_para_csv,
+    old = c(
+      "clientes",
+      "ganancia_total",
+      "ganancia_public",
+      "ganancia_private"
+    ),
+    new = c("ENVIOS", "TOTAL", "PUBLIC", "PRIVATE")
+  )
+  fwrite(resultados_para_csv, file = archivo_resultados_csv)
+  log_info(paste0("Tabla de resultados para [", tipo_modelo, "] guardada en: ", archivo_resultados_csv))
+  
+  # --- Encontrar envíos con ganancia máxima ---
+  max_ganancia_valor <- max(resultados$ganancia_total)
+  envios_max_total <- resultados[ganancia_total == max_ganancia_valor, clientes]
+  log_info(paste0("Envíos óptimos para [", tipo_modelo, "]: ", paste(envios_max_total, collapse = ", ")))
+
+  # Ganancia privada
+  max_ganancia_private <- max(resultados$ganancia_private)
+  envios_max_private <- resultados[ganancia_private == max_ganancia_private, clientes]
+  log_info(paste0("Envíos óptimos para Ganancia PRIVADA: ", paste(envios_max_private, collapse = ", ")))
+
+  # Combinar ambos resultados y eliminar duplicados
+  envios_optimos_combinados <- unique(c(envios_max_total, envios_max_private))
+  log_info(paste0("Envíos óptimos combinados a retornar: ", paste(sort(envios_optimos_combinados), collapse = ", ")))
+  
+  # --- Preparar datos para el gráfico ---
+  resultados_long <- melt(
+    resultados,
+    id.vars = "clientes",
+    measure.vars = c("ganancia_total", "ganancia_public", "ganancia_private"),
+    variable.name = "tipo",
+    value.name = "ganancia"
+  )
+  
+  # Capturar TODOS los puntos con ganancia máxima por tipo
+  maximos <- resultados_long[, .SD[ganancia == max(ganancia)], by = tipo]
+  
+  # Crear etiquetas para la leyenda (mostrando solo el valor de ganancia)
+  maximos_leyenda <- maximos[, .(ganancia = first(ganancia)), by = tipo]
+  etiquetas <- paste0(
+    stringr::str_to_title(gsub("_", " ", maximos_leyenda$tipo)),
+    " (máx = ",
+    format(maximos_leyenda$ganancia, big.mark = ","),
+    ")"
+  )
+  names(etiquetas) <- maximos_leyenda$tipo
+  
+  # --- Crear y guardar gráfico ---
+  dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
+  p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
+    geom_line(linewidth = 1) +
+    # Graficar TODOS los puntos máximos
+    geom_point(data = maximos,
+              aes(x = clientes, y = ganancia, color = tipo),
+              size = 3) +
+    # Añadir etiquetas con el valor de 'envios' a cada punto máximo
+    ggrepel::geom_text_repel(
+      data = maximos,
+      aes(label = clientes),
+      color = "black",
+      size = 3.5,
+      box.padding = 0.5,
+      point.padding = 0.5,
+      min.segment.length = 0,
+      segment.color = 'grey50'
+    ) +
+    labs(
+      title = paste0("Curvas de Ganancia (Modelo ", stringr::str_to_title(tipo_modelo), " - ", PARAM$experimento, ")"),
+      x = "Clientes Contactados (Envíos)",
+      y = "Ganancia",
+      color = "Máximos"
+    ) +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(
+      values = c(
+        "ganancia_total" = "steelblue",
+        "ganancia_public" = "forestgreen",
+        "ganancia_private" = "firebrick"
+      ),
+      labels = etiquetas
+    ) +
+    theme_minimal() +
+    theme(plot.margin = margin(10, 10, 10, 10),
+          legend.position = "bottom") +
+    guides(color = guide_legend(nrow = 3, byrow = TRUE))
+  
+  ggsave(
+    paste0(PARAM$carpeta_graficos, "curvas_", tipo_modelo, "_", PARAM$experimento, ".png"),
+    plot = p,
+    width = 11,
+    height = 7
+  )
+  log_info(paste0("Gráfico de curvas de ganancia (", tipo_modelo, ") guardado."))
+  
+  return(list(envios_optimos = envios_optimos_combinados))
+}
+
+GenerarEnviosKaggle <- function(tb_prediccion,
+                              envios_optimos,
+                              tipo_modelo,
+                              carpeta_salida,
+                              experimento_id) {
+
+  log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
+
+  # Se combinan los envíos óptimos y se eliminan duplicados
+  envios_a_generar <- unique(c(envios_optimos, 10500))
+
+  log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
+
+  dir.create(carpeta_salida, showWarnings = FALSE)
+
+  # Asegurar que la tabla de predicción esté ordenada por probabilidad descendente
+  setorder(tb_prediccion, -prob)
+
+  # 3. Bucle para generar cada archivo
+  for (envios in envios_a_generar) {
+    # Marcar los N primeros clientes como 'Predicted = 1'
+    tb_prediccion[, Predicted := 0L]
+    tb_prediccion[1:envios, Predicted := 1L]
+
+    # Definir el nombre del archivo de salida
+    archivo_kaggle <- paste0(carpeta_salida,experimento_id, "_",tipo_modelo, "_",envios, ".csv")
+
+    # Grabar el archivo .csv
+    fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
+          file = archivo_kaggle,
+          sep = ",")
+
+    log_info(paste0("Archivo generado: ", archivo_kaggle))
   }
 
-  GenerarEnviosKaggle <- function(tb_prediccion,
-                                envios_optimos,
-                                tipo_modelo,
-                                carpeta_salida,
-                                experimento_id) {
+  log_info(paste0("Generación de envíos para '", tipo_modelo, "' finalizada."))
+}
 
-    log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
+GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
+  log_info("Iniciando la graficación de la superposición de curvas del ensemble.")
 
-    # Se combinan los envíos óptimos y se eliminan duplicados
-    envios_a_generar <- unique(c(envios_optimos, 10500))
+  # 1. Unir todas las tablas de resultados en una sola
+  # Se añade una columna 'semilla' a cada tabla antes de unir
+  tb_todas <- rbindlist(lapply(names(lista_resultados), function(sem) {
+    lista_resultados[[sem]][, semilla := as.character(sem)]
+  }))
 
-    log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
+  # 2. Calcular la curva promedio
+  tb_promedio <- tb_todas[, .(ganancia_total = mean(ganancia_total)), by = clientes]
 
-    dir.create(carpeta_salida, showWarnings = FALSE)
+  # 3. Encontrar el primer punto de ganancia máxima para cada curva individual
+  maximos_individuales <- tb_todas[, .SD[ganancia_total == max(ganancia_total)], by = semilla]
+  maximos_individuales <- maximos_individuales[, head(.SD, 1), by = semilla] # Tomamos solo el primero si hay empates
 
-    # Asegurar que la tabla de predicción esté ordenada por probabilidad descendente
-    setorder(tb_prediccion, -prob)
+  # 4. Encontrar el primer punto de ganancia máxima para la curva promedio
+  maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
+  maximo_promedio <- head(maximo_promedio, 1) # Tomamos solo el primero
 
-    # 3. Bucle para generar cada archivo
-    for (envios in envios_a_generar) {
-      # Marcar los N primeros clientes como 'Predicted = 1'
-      tb_prediccion[, Predicted := 0L]
-      tb_prediccion[1:envios, Predicted := 1L]
+  # 5. Crear etiquetas para la leyenda del gráfico
+  # Etiquetas para las curvas individuales
+  labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
+    max_info <- maximos_individuales[semilla == sem]
+    sprintf("S %s: G %,.0f (E %d)",
+            sem, max_info$ganancia_total, max_info$clientes)
+  })
 
-      # Definir el nombre del archivo de salida
-      archivo_kaggle <- paste0(carpeta_salida,experimento_id, "_",tipo_modelo, "_",envios, ".csv")
+  # Etiqueta para la curva promedio
+  label_promedio <- sprintf("Promedio: G %,.0f (E %d)",
+                          maximo_promedio$ganancia_total, maximo_promedio$clientes)
 
-      # Grabar el archivo .csv
-      fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
-            file = archivo_kaggle,
-            sep = ",")
+  # 6. Preparar colores y etiquetas para el plot
+  # Un color tenue para cada semilla y uno fuerte para el promedio
+  colores_individuales <- scales::hue_pal()(nrow(maximos_individuales))
+  names(colores_individuales) <- maximos_individuales$semilla
+  
+  colores_plot <- c(colores_individuales, "Promedio" = "black")
+  labels_plot <- c(labels_individuales, "Promedio" = label_promedio)
+  names(labels_plot) <- c(names(colores_individuales), "Promedio")
 
-      log_info(paste0("Archivo generado: ", archivo_kaggle))
-    }
+  # --- Crear y guardar gráfico ---
+  dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
 
-    log_info(paste0("Generación de envíos para '", tipo_modelo, "' finalizada."))
-  }
+  p <- ggplot() +
+    # Curvas individuales con transparencia
+    geom_line(data = tb_todas,
+              aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
+              alpha = 0.4, linewidth = 0.8) +
+    # Curva promedio más gruesa y sólida
+    geom_line(data = tb_promedio,
+              aes(x = clientes, y = ganancia_total, color = "Promedio"),
+              linewidth = 1.2) +
+    # Puntos de ganancia máxima para cada curva individual
+    geom_point(data = maximos_individuales,
+              aes(x = clientes, y = ganancia_total, color = semilla),
+              size = 3, alpha = 0.7) +
+    # Punto de ganancia máxima para la curva promedio
+    geom_point(data = maximo_promedio,
+              aes(x = clientes, y = ganancia_total, color = "Promedio"),
+              size = 4, shape = 18) +
+    # Etiquetas de texto para los envíos en los puntos máximos
+    ggrepel::geom_text_repel(data = maximos_individuales,
+                            aes(x = clientes, y = ganancia_total, label = clientes),
+                            color = "black", size = 3.0,
+                            box.padding = 0.3, point.padding = 0.3,
+                            min.segment.length = 0) +
+    ggrepel::geom_text_repel(data = maximo_promedio,
+                            aes(x = clientes, y = ganancia_total, label = clientes),
+                            color = "black", size = 4.0, fontface = "bold",
+                            box.padding = 0.5, point.padding = 0.5,
+                            min.segment.length = 0) +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(name = "Curvas y sus Máximos",
+                      values = colores_plot,
+                      labels = labels_plot) +
+    labs(
+      title = paste0("Curvas de Ganancia del Ensemble y su Promedio"),
+      subtitle = paste0("Experimento: ", PARAM$experimento),
+      x = "Clientes Contactados (Envíos)",
+      y = "Ganancia Total"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "bottom",
+          plot.margin = margin(10, 10, 10, 10)) +
+    guides(color = guide_legend(ncol = 2))
+
+  # Guardar el gráfico
+  ggsave(
+    paste0(PARAM$carpeta_graficos, "curvas_ensemble_superpuestas_", PARAM$experimento, ".png"),
+    plot = p,
+    width = 12,
+    height = 8
+  )
+
+  log_info("Gráfico de superposición de curvas del ensemble guardado correctamente.")
+}
 
 tryCatch({
   #------------------------------------------------------
@@ -578,7 +680,6 @@ tryCatch({
   lista_predicciones <- list()
   envios_optimos_individuales <- c()
   
-  # <MODIFICACION> Corregir el nombre de la variable de semillas
   for (semilla_actual in PARAM$semillas_ensemble) {
     log_info(paste0("Entrenando modelo del ensamble con semilla: ", semilla_actual))
     param_normalizado$seed <- semilla_actual
@@ -611,7 +712,7 @@ tryCatch({
     envios_optimos_individuales <- c(envios_optimos_individuales, envio_optimo_individual)
   }
   
-  # NUEVO: Calcular el promedio de los envíos óptimos individuales y redondear
+  # Calcular el promedio de los envíos óptimos individuales y redondear
   envio_promedio <- mean(envios_optimos_individuales)
   envio_promedio_redondeado <- round(envio_promedio / 100) * 100
   log_info(paste0("Envíos óptimos individuales: ", paste(envios_optimos_individuales, collapse = ", ")))

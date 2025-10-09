@@ -120,7 +120,7 @@ PARAM$hyperparametertuning$hs <- makeParamSet(
   
   makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
   
-  makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 10000L)
+  makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 10000L),
 
   #makeNumericParam("min_sum_hessian_in_leaf", lower= 0.001, upper= 0.1),
   #makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
@@ -128,7 +128,7 @@ PARAM$hyperparametertuning$hs <- makeParamSet(
   #makeNumericParam("bagging_fraction", lower= 0.0, upper= 1.0),
   #makeIntegerParam("bagging_freq", lower= 0L, upper= 10L),
   makeNumericParam("lambda_l1", lower= 0.0, upper= 100.0),
-  makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0),
+  makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0)
   #makeNumericParam("min_gain_to_split", lower= 0.0, upper= 15.0),
   #makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
   #makeIntegerParam("max_depth", lower= -1L, upper= 20),
@@ -523,6 +523,15 @@ tryCatch({
     max_ganancia_valor <- max(resultados$ganancia_total)
     envios_max_total <- resultados[ganancia_total == max_ganancia_valor, clientes]
     log_info(paste0("Envíos óptimos para [", tipo_modelo, "]: ", paste(envios_max_total, collapse = ", ")))
+
+    # Ganancia privada
+    max_ganancia_private <- max(resultados$ganancia_private)
+    envios_max_private <- resultados[ganancia_private == max_ganancia_private, clientes]
+    log_info(paste0("Envíos óptimos para Ganancia PRIVADA: ", paste(envios_max_private, collapse = ", ")))
+
+    # Combinar ambos resultados y eliminar duplicados
+    envios_optimos_combinados <- unique(c(envios_max_total, envios_max_private))
+    log_info(paste0("Envíos óptimos combinados a retornar: ", paste(sort(envios_optimos_combinados), collapse = ", ")))
     
     # --- Preparar datos para el gráfico ---
     resultados_long <- melt(
@@ -550,11 +559,11 @@ tryCatch({
     dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
     p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
       geom_line(linewidth = 1) +
-      # MODIFICACIÓN 3: Graficar TODOS los puntos máximos
+      # Graficar TODOS los puntos máximos
       geom_point(data = maximos,
                 aes(x = clientes, y = ganancia, color = tipo),
                 size = 3) +
-      # MODIFICACIÓN 4: Añadir etiquetas con el valor de 'envios' a cada punto máximo
+      # Añadir etiquetas con el valor de 'envios' a cada punto máximo
       ggrepel::geom_text_repel(
         data = maximos,
         aes(label = clientes),
@@ -593,7 +602,7 @@ tryCatch({
     )
     log_info(paste0("Gráfico de curvas de ganancia (", tipo_modelo, ") guardado."))
     
-    return(list(envios_optimos = envios_max_total))
+    return(list(envios_optimos = envios_optimos_combinados))
   }
 
   GenerarEnviosKaggle <- function(tb_prediccion,

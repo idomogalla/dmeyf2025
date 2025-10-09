@@ -1,4 +1,12 @@
 experimento: expC01_Prueba03
+dir_experimento: ~/buckets/b1/exp/expC01_Prueba03
+dir_dataset: ~/buckets/b1/datasets/
+carpeta_logs: logs/
+carpeta_bayesiana: Archivos Bayesiana/
+carpeta_kaggle: Kaggle/
+carpeta_kaggle_ensamble: Kaggle_Promediado/
+carpeta_graficos: Plots/
+carpeta_entregables: Entregables/
 semillas_primigenias:
 - 200003.0
 - 300007.0
