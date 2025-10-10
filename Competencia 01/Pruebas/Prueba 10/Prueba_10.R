@@ -54,10 +54,8 @@ gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
 PARAM$experimento <- "expC01_Prueba10"
-#PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
-#PARAM$dir_dataset <- "~/buckets/b1/datasets/"
-PARAM$dir_experimento <- paste0("F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/Pruebas/Prueba 10/", PARAM$experimento)
-PARAM$dir_dataset <- "F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/"
+PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
+PARAM$dir_dataset <- "~/buckets/b1/datasets/"
 
 PARAM$carpeta_logs <- "logs/"
 PARAM$carpeta_bayesiana <- "Archivos Bayesiana/"
@@ -576,13 +574,15 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
   # Etiquetas para las curvas individuales
   labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
     max_info <- maximos_individuales[semilla == sem]
-    sprintf("S %s: G %,.0f (E %d)",
-            sem, max_info$ganancia_total, max_info$clientes)
+    paste0("S ", sem, 
+          ": G ", format(max_info$ganancia_total, big.mark = ".", decimal.mark = ","),
+          " (E ", max_info$clientes, ")")
   })
 
   # Etiqueta para la curva promedio
-  label_promedio <- sprintf("Promedio: G %,.0f (E %d)",
-                          maximo_promedio$ganancia_total, maximo_promedio$clientes)
+  label_promedio <- paste0("Promedio: G ",
+                          format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ","),
+                          " (E ", maximo_promedio$clientes, ")")
 
   # 6. Preparar colores y etiquetas para el plot
   # Un color tenue para cada semilla y uno fuerte para el promedio

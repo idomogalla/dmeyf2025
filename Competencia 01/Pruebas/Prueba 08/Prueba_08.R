@@ -278,7 +278,7 @@ tryCatch({
       # Se calcula el percentil para los negativos y se multiplica por -1 (-1 a 0)
       resultado[idx_neg] <- (frankv(-x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
     }
-    
+    # 
     # 3. Para los valores que son cero, el ranking es cero
     if (length(idx_cero) > 0) {
       resultado[idx_cero] <- 0
@@ -677,17 +677,18 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
   maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
   maximo_promedio <- head(maximo_promedio, 1) # Tomamos solo el primero
 
+  # 5. Crear etiquetas para la leyenda del gráfico
   # Etiquetas para las curvas individuales
   labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
     max_info <- maximos_individuales[semilla == sem]
     paste0("S ", sem, 
-          ": G ", format(max_info$ganancia_total, big.mark = ".", decimal.mark = ",", digits = 0),
+          ": G ", format(max_info$ganancia_total, big.mark = ".", decimal.mark = ","),
           " (E ", max_info$clientes, ")")
   })
 
   # Etiqueta para la curva promedio
   label_promedio <- paste0("Promedio: G ",
-                          format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ",", digits = 0),
+                          format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ","),
                           " (E ", maximo_promedio$clientes, ")")
 
   # 6. Preparar colores y etiquetas para el plot
@@ -706,11 +707,11 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
     # Curvas individuales con transparencia
     geom_line(data = tb_todas,
               aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
-              alpha = 0.4, linewidth = 0.8) +
+              alpha = 0.5, linewidth = 1) +
     # Curva promedio más gruesa y sólida
     geom_line(data = tb_promedio,
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
-              linewidth = 1.2) +
+              linewidth = 1) +
     # Puntos de ganancia máxima para cada curva individual
     geom_point(data = maximos_individuales,
               aes(x = clientes, y = ganancia_total, color = semilla),

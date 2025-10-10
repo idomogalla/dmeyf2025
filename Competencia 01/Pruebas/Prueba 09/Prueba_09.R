@@ -69,7 +69,7 @@ PARAM$carpeta_entregables <- "Entregables/"
 PARAM$semilla_primigenia <- 200003
 PARAM$semillas_ensemble <- c(200003, 300007, 400009, 500009, 600011, 314159, 102191, 111109, 230101, 100129)
 
-# <MODIFICACION> Se definen meses para BO y para entrenamiento final
+# Se definen meses para BO y para entrenamiento final
 PARAM$bo_train <- c(202101, 202102) # Meses para entrenar en la BO
 PARAM$bo_validation <- c(202104) # Meses para validar en la BO
 

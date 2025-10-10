@@ -42,9 +42,6 @@ suppressPackageStartupMessages({
   if (!require("ggrepel"))
     install.packages("ggrepel")
   library("ggrepel")
-  if (!require("stringr"))
-    install.packages("stringr")
-  library("stringr")
   if (!require("scales"))
     install.packages("scales")
   library("scales")
@@ -56,7 +53,7 @@ rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
-PARAM$experimento <- "expC01_Prueba07"
+PARAM$experimento <- "expC01_Prueba12"
 PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
 PARAM$carpeta_logs <- "logs/"
@@ -65,6 +62,8 @@ PARAM$carpeta_kaggle <- "Kaggle/"
 PARAM$carpeta_kaggle_ensamble <- "Kaggle_Promediado/"
 PARAM$carpeta_graficos <- "Plots/"
 PARAM$carpeta_entregables <- "Entregables/"
+PARAM$archivo_summary_log <- "summary.txt"
+
 
 PARAM$semilla_primigenia <- 200003
 PARAM$semillas_ensemble <- c(200003, 300007, 400009, 500009, 600011, 314159, 102191, 111109, 230101, 100129)
@@ -80,35 +79,41 @@ PARAM$trainingstrategy$undersampling <- 0.5
 
 PARAM$hyperparametertuning$xval_folds <- 5
 PARAM$lgbm$param_fijos <- list(
-  boosting = "gbdt",
-  objective = "binary",
-  metric = "auc",
-  first_metric_only = FALSE,
-  boost_from_average = TRUE,
-  feature_pre_filter = FALSE,
-  force_row_wise = TRUE,
-  verbosity = -100,
-  seed = PARAM$semilla_primigenia,
-  max_depth = -1L,
-  min_gain_to_split = 0,
-  min_sum_hessian_in_leaf = 0.001,
-  lambda_l1 = 0.0,
-  lambda_l2 = 0.0,
-  max_bin = 31L,
-  bagging_fraction = 1.0,
-  pos_bagging_fraction = 1.0,
-  neg_bagging_fraction = 1.0,
-  is_unbalance = FALSE,
-  scale_pos_weight = 1.0,
-  drop_rate = 0.1,
-  max_drop = 50,
-  skip_drop = 0.5,
-  extra_trees = FALSE,
-  num_iterations = 1200,
-  learning_rate = 0.02,
-  feature_fraction = 0.5,
-  num_leaves = 750,
-  min_data_in_leaf = 10000,
+  boosting= "gbdt", # puede ir  dart  , ni pruebe random_forest
+  objective= "binary",
+  metric= "auc",
+  first_metric_only= FALSE,
+  boost_from_average= TRUE,
+  feature_pre_filter= FALSE,
+  force_row_wise= TRUE, # para reducir warnings
+  verbosity= -100,
+
+  seed= PARAM$semilla_primigenia,
+
+  max_depth= -1L, # -1 significa no limitar,  por ahora lo dejo fijo
+  min_gain_to_split= 0, # min_gain_to_split >= 0
+  min_sum_hessian_in_leaf= 0.001, #  min_sum_hessian_in_leaf >= 0.0
+  lambda_l1= 0.0, # lambda_l1 >= 0.0
+  lambda_l2= 0.0, # lambda_l2 >= 0.0
+  max_bin= 31L, # lo debo dejar fijo, no participa de la BO
+
+  bagging_fraction= 1.0, # 0.0 < bagging_fraction <= 1.0
+  pos_bagging_fraction= 1.0, # 0.0 < pos_bagging_fraction <= 1.0
+  neg_bagging_fraction= 1.0, # 0.0 < neg_bagging_fraction <= 1.0
+  is_unbalance= FALSE, #
+  scale_pos_weight= 1.0, # scale_pos_weight > 0.0
+
+  drop_rate= 0.1, # 0.0 < neg_bagging_fraction <= 1.0
+  max_drop= 50, # <=0 means no limit
+  skip_drop= 0.5, # 0.0 <= skip_drop <= 1.0
+
+  extra_trees= FALSE,
+
+  num_iterations= 1200,
+  learning_rate= 0.02,
+  feature_fraction= 0.5,
+  num_leaves= 750,
+  min_data_in_leaf= 5000,
   early_stopping_round = 100
 )
 # Bordes de hiperparámetros para BO
@@ -120,20 +125,8 @@ PARAM$hyperparametertuning$hs <- makeParamSet(
   
   makeNumericParam("feature_fraction", lower = 0.1, upper = 1.0),
   
-  makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 10000L),
+  makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 10000L)
 
-  #makeNumericParam("min_sum_hessian_in_leaf", lower= 0.001, upper= 0.1),
-  #makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
-  #makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
-  #makeNumericParam("bagging_fraction", lower= 0.0, upper= 1.0),
-  #makeIntegerParam("bagging_freq", lower= 0L, upper= 10L),
-  makeNumericParam("lambda_l1", lower= 0.0, upper= 100.0),
-  makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0)
-  #makeNumericParam("min_gain_to_split", lower= 0.0, upper= 15.0),
-  #makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
-  #makeIntegerParam("max_depth", lower= -1L, upper= 20),
-  #makeIntegerParam("num_leaves", lower= 2L, upper= 2048L),
-  #makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 10000L)
 )
 PARAM$hyperparametertuning$iteraciones <- 100
 
@@ -152,15 +145,34 @@ log_file <- file.path(PARAM$carpeta_logs, paste0("log_", PARAM$experimento, ".lo
 # Configurar el logger para que escriba en consola y en la ruta absoluta del archivo
 log_appender(appender_tee(log_file))
 
+# Limpio el archivo de resumen al inicio de la ejecución
+summary_log_file_path <- file.path(PARAM$carpeta_logs, PARAM$archivo_summary_log)
+cat(paste0("Resumen del Experimento: ", PARAM$experimento, "\n"),
+    file = summary_log_file_path,
+    append = FALSE)
+cat(paste0("Fecha: ", Sys.time(), "\n\n"),
+    file = summary_log_file_path,
+    append = TRUE)
+
+
 log_info("------------------------------------------------------")
 log_info(paste("Inicio del script. Experimento:", PARAM$experimento))
 log_info(paste("El log se guardará en:", log_file))
+log_info(paste("El resumen se guardará en:", summary_log_file_path))
 log_info("------------------------------------------------------")
 
 #------------------------------------------------------
 # Sección 3: Funciones Auxiliares
 #------------------------------------------------------
 log_info("Iniciando Sección 3: Cargando funciones auxiliares")
+
+# Función para escribir en el log de resumen
+log_summary <- function(message) {
+  cat(paste0(message, "\n"),
+      file = summary_log_file_path,
+      append = TRUE)
+}
+
 particionar <- function(data,
                         division,
                         agrupa = "",
@@ -213,32 +225,6 @@ tryCatch({
   
   log_info("Inicio de Feature Engineering")
   setkey(dataset, numero_de_cliente, foto_mes)
-  # Agrego columnas
-  dataset[, `:=`(
-    # Suma de consumos de tarjetas
-    mtarjetas_consumo = round(rowSums(.SD[, .(mtarjeta_visa_consumo, mtarjeta_master_consumo)], na.rm = TRUE), 1),
-    # Suma de beneficios/descuentos
-    mbeneficios = round(rowSums(.SD[, .(
-      mcajeros_propios_descuentos,
-      mtarjeta_visa_descuentos,
-      mtarjeta_master_descuentos
-    )], na.rm = TRUE), 1),
-    # Suma de ingresos
-    mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
-    # Suma de inversiones
-    minversiones = round(rowSums(.SD[, .(minversion1_pesos, minversion1_dolares, mplazo_fijo_pesos,mplazo_fijo_dolares, minversion2)], na.rm = TRUE), 1),
-    # Diferencia: límite menos consumo para MasterCard
-    diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
-    # Diferencia: límite menos consumo para Visa
-    diff_visa_compra = round(Visa_mlimitecompra - Visa_mconsumospesos, 2)
-  )]
-  
-  dataset[, `:=`(
-    # Diferencia: consumo total menos comisiones
-    diff_comisiones_consumo = round(mtarjetas_consumo - mcomisiones_mantenimiento, 2),
-    # Diferencia: beneficios totales menos comisiones
-    diff_comisiones_beneficios = round(mbeneficios - mcomisiones_mantenimiento, 2)
-  )]
   
   # Columnas a las que se les aplicará el ranking
   cols_a_rankear <- c(
@@ -253,49 +239,32 @@ tryCatch({
     "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
     "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
     "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
-    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo",
-    "mtarjetas_consumo", "mbeneficios", "mingresos", "minversiones", "diff_master_compra", "diff_visa_compra", "diff_comisiones_consumo", "diff_comisiones_beneficios"
+    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo"
   )
   
-  # Nombres para las nuevas columnas de ranking
   nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
   
-  # Funcion para ranking con cero fijo
   rank_con_cero_fijo <- function(x) {
-    # Vector para guardar los resultados
     resultado <- numeric(length(x))
-    
-    # Índices para cada caso
     idx_pos <- which(x > 0)
     idx_neg <- which(x < 0)
     idx_cero <- which(x == 0)
     
-    # 1. Ranking para valores positivos (> 0)
     if (length(idx_pos) > 0) {
-      # Se divide por la cantidad de positivos para obtener el percentil (0 a 1)
       resultado[idx_pos] <- frankv(x[idx_pos], ties.method = "average") / length(idx_pos)
     }
-    
-    # 2. Ranking para valores negativos (< 0)
     if (length(idx_neg) > 0) {
-      # Se calcula el percentil para los negativos y se multiplica por -1 (-1 a 0)
       resultado[idx_neg] <- (frankv(-x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
     }
-    
-    # 3. Para los valores que son cero, el ranking es cero
     if (length(idx_cero) > 0) {
       resultado[idx_cero] <- 0
     }
-    
     return(resultado)
   }
   
-  # Aplicar la función a todas las columnas especificadas, agrupando por mes
   dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
-  # Elimino las columnas que rankee
   dataset[, (cols_a_rankear) := NULL]
   
-  # Genero columnas Lags y Delta Lags de orden 1
   log_info("Inicio de Feature Lags")
   cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
   cols_con_lag <- setdiff(names(dataset), cols_a_excluir)
@@ -306,11 +275,20 @@ tryCatch({
   nombres_nuevas_cols_delta <- paste0(cols_con_lag, "_delta1")
   dataset[, (nombres_nuevas_cols_delta) :=  Map(function(col, col_lag) get(col) - get(col_lag), cols_con_lag, nombres_nuevas_cols_lag)]
 
+  nombres_nuevas_cols_delta_pct <- paste0(cols_con_lag, "_delta_pct1")
+  dataset[, (nombres_nuevas_cols_delta_pct) := Map(
+    function(col, col_lag) {
+      lag_val <- get(col_lag)
+      curr_val <- get(col)
+      delta_pct <- ifelse(is.na(lag_val) | lag_val == 0, NA, (curr_val - lag_val) / abs(lag_val))
+      return(delta_pct)
+    },
+    cols_con_lag, nombres_nuevas_cols_lag
+  )]
+
   log_info("Features de lag y delta generadas.")
-
   dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
-
-  # Armo el dataset de train
+  
   log_info("Generando dataset de entrenamiento.")
   dataset_train <- dataset[foto_mes %in% PARAM$train]
   log_info("Clase convertida a formato binario.")
@@ -341,15 +319,12 @@ tryCatch({
   ))
   
 }, error = function(e) {
-  # Mensaje de error mejorado
   log_error("######################################################")
   log_error("Se ha producido un error fatal en la ejecución.")
-  log_error(
-    "Revisa el último mensaje 'INFO' en el log para identificar la sección donde ocurrió el fallo."
-  )
+  log_error("Revisa el último mensaje 'INFO' en el log para identificar la sección donde ocurrió el fallo.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
-  quit(status = 1) # Detiene el script con un código de error
+  quit(status = 1)
 })
 
 tryCatch({
@@ -358,18 +333,14 @@ tryCatch({
   #------------------------------------------------------
   log_info("Iniciando Sección 5: Optimización Bayesiana de Hiperparámetros.")
   EstimarGanancia_AUC_lightgbm <- function(x) {
-    # x pisa (o agrega) a param_fijos
     param_completo <- modifyList(PARAM$lgbm$param_fijos, x)
-    # Entreno LightGBM
     modelocv <- lgb.cv(
       data = dtrain,
       nfold = PARAM$hyperparametertuning$xval_folds,
       stratified = TRUE,
       param = param_completo
     )
-    # obtengo la ganancia
     AUC <- modelocv$best_score
-    # hago espacio en la memoria
     rm(modelocv)
     gc(full = TRUE, verbose = FALSE)
     log_info(paste(
@@ -383,7 +354,7 @@ tryCatch({
   
   dir.create(PARAM$carpeta_bayesiana, showWarnings = FALSE)
   kbayesiana <- paste0(PARAM$carpeta_bayesiana, "bayesiana.RDATA")
-  funcion_optimizar <- EstimarGanancia_AUC_lightgbm # la funcion que voy a maximizar
+  funcion_optimizar <- EstimarGanancia_AUC_lightgbm
   configureMlr(show.learner.output = FALSE)
   obj.fun <- makeSingleObjectiveFunction(
     fn = funcion_optimizar,
@@ -429,19 +400,9 @@ tryCatch({
   PARAM$out$lgbm$mejores_hiperparametros <- tb_bayesiana[1, setdiff(
     colnames(tb_bayesiana),
     c(
-      "y",
-      "dob",
-      "eol",
-      "error.message",
-      "exec.time",
-      "ei",
-      "error.model",
-      "train.time",
-      "prop.type",
-      "propose.time",
-      "se",
-      "mean",
-      "iter"
+      "y", "dob", "eol", "error.message", "exec.time",
+      "ei", "error.model", "train.time", "prop.type",
+      "propose.time", "se", "mean", "iter"
     )
   ), with = FALSE]
   PARAM$out$lgbm$y <- tb_bayesiana[1, y]
@@ -453,196 +414,270 @@ tryCatch({
   ), collapse = "\n"))
   log_info(paste("Mejor AUC (y):", PARAM$out$lgbm$y))
   
-  #------------------------------------------------------
-  # Funciones para secciones 6 y 7
-  #------------------------------------------------------
-  EvaluarYGraficar <- function(tb_prediccion,
-                               drealidad,
-                               PARAM,
-                               tipo_modelo,
-                               carpeta_salida_kaggle) {
-    log_info(paste0("Iniciando evaluación y graficación para el modelo: ",tipo_modelo))
-    dir.create(carpeta_salida_kaggle, showWarnings = FALSE)
-    resultados <- data.table()
-    
-    # Ordenar las predicciones de mayor a menor probabilidad
-    setorder(tb_prediccion, -prob)
-    
-    # --- Bucle de evaluación por cortes ---
-    for (envios in PARAM$cortes) {
-      tb_prediccion[, Predicted := 0L]
-      tb_prediccion[1:envios, Predicted := 1L] # marco los envios
-      
-      fwrite(
-        tb_prediccion[, list(numero_de_cliente, Predicted)],
-        file = paste0(carpeta_salida_kaggle, PARAM$experimento,"_",envios,".csv"),
-        sep = ","
-      )
-      
-      res <- realidad_evaluar(drealidad, tb_prediccion)
-      
-      resultados <- rbind(
-        resultados,
-        data.table(
-          clientes = envios,
-          ganancia_total = res$total,
-          ganancia_public = res$public,
-          ganancia_private = res$private
-        )
-      )
+  # Escribir resultados de la BO en el log de resumen
+  log_summary("--- Resultados de la Optimización Bayesiana ---")
+  log_summary("Hiperparámetros Óptimos:")
+  hiperparametros_texto <- capture.output(print(PARAM$out$lgbm$mejores_hiperparametros))
+  sapply(hiperparametros_texto, log_summary)
+  log_summary(paste("\nAUC:", format(PARAM$out$lgbm$y, digits = 6)))
+  log_summary("---------------------------------------------\n")
 
-      options(scipen = 999)
-      log_info(
-        sprintf(
-          "Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f",
-          envios,
-          res$total,
-          res$public,
-          res$private
-        )
-      )
-    }
-    
-    # --- Guardar resultados en CSV ---
-    archivo_resultados_csv <- paste0(PARAM$carpeta_bayesiana, "envios_", tipo_modelo, "_", PARAM$experimento, ".csv")
-    resultados_para_csv <- copy(resultados)
-    setnames(
-      resultados_para_csv,
-      old = c(
-        "clientes",
-        "ganancia_total",
-        "ganancia_public",
-        "ganancia_private"
-      ),
-      new = c("ENVIOS", "TOTAL", "PUBLIC", "PRIVATE")
-    )
-    fwrite(resultados_para_csv, file = archivo_resultados_csv)
-    log_info(paste0("Tabla de resultados para [", tipo_modelo, "] guardada en: ", archivo_resultados_csv))
-    
-    # --- Encontrar envíos con ganancia máxima ---
-    max_ganancia_valor <- max(resultados$ganancia_total)
-    envios_max_total <- resultados[ganancia_total == max_ganancia_valor, clientes]
-    log_info(paste0("Envíos óptimos para [", tipo_modelo, "]: ", paste(envios_max_total, collapse = ", ")))
+}, error = function(e) {
+  log_error("######################################################")
+  log_error("Se ha producido un error fatal en la Sección 5: Optimización Bayesiana.")
+  log_error(paste("Mensaje de R:", e$message))
+  log_error("######################################################")
+  quit(status = 1)
+})
 
-    # Ganancia privada
-    max_ganancia_private <- max(resultados$ganancia_private)
-    envios_max_private <- resultados[ganancia_private == max_ganancia_private, clientes]
-    log_info(paste0("Envíos óptimos para Ganancia PRIVADA: ", paste(envios_max_private, collapse = ", ")))
-
-    # Combinar ambos resultados y eliminar duplicados
-    envios_optimos_combinados <- unique(c(envios_max_total, envios_max_private))
-    log_info(paste0("Envíos óptimos combinados a retornar: ", paste(sort(envios_optimos_combinados), collapse = ", ")))
+#------------------------------------------------------
+# Funciones para secciones 6 y 7
+#------------------------------------------------------
+EvaluarYGraficar <- function(tb_prediccion,
+                              drealidad,
+                              PARAM,
+                              tipo_modelo,
+                              carpeta_salida_kaggle) {
+  log_info(paste0("Iniciando evaluación y graficación para el modelo: ",tipo_modelo))
+  dir.create(carpeta_salida_kaggle, showWarnings = FALSE)
+  resultados <- data.table()
+  
+  setorder(tb_prediccion, -prob)
+  
+  for (envios in PARAM$cortes) {
+    tb_prediccion[, Predicted := 0L]
+    tb_prediccion[1:envios, Predicted := 1L]
     
-    # --- Preparar datos para el gráfico ---
-    resultados_long <- melt(
+    res <- realidad_evaluar(drealidad, tb_prediccion)
+    
+    resultados <- rbind(
       resultados,
-      id.vars = "clientes",
-      measure.vars = c("ganancia_total", "ganancia_public", "ganancia_private"),
-      variable.name = "tipo",
-      value.name = "ganancia"
+      data.table(
+        clientes = envios,
+        ganancia_total = res$total,
+        ganancia_public = res$public,
+        ganancia_private = res$private
+      )
     )
-    
-    # Capturar TODOS los puntos con ganancia máxima por tipo
-    maximos <- resultados_long[, .SD[ganancia == max(ganancia)], by = tipo]
-    
-    # Crear etiquetas para la leyenda (mostrando solo el valor de ganancia)
-    maximos_leyenda <- maximos[, .(ganancia = first(ganancia)), by = tipo]
-    etiquetas <- paste0(
-      stringr::str_to_title(gsub("_", " ", maximos_leyenda$tipo)),
-      " (máx = ",
-      format(maximos_leyenda$ganancia, big.mark = ","),
-      ")"
+
+    options(scipen = 999)
+    log_info(
+      sprintf(
+        "Envios=%-5d | TOTAL=%11.0f | Public=%11.0f | Private=%11.0f",
+        envios,
+        res$total,
+        res$public,
+        res$private
+      )
     )
-    names(etiquetas) <- maximos_leyenda$tipo
-    
-    # --- Crear y guardar gráfico ---
-    dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
-    p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
-      geom_line(linewidth = 1) +
-      # Graficar TODOS los puntos máximos
-      geom_point(data = maximos,
-                aes(x = clientes, y = ganancia, color = tipo),
-                size = 3) +
-      # Añadir etiquetas con el valor de 'envios' a cada punto máximo
-      ggrepel::geom_text_repel(
-        data = maximos,
-        aes(label = clientes),
-        color = "black",
-        size = 3.5,
-        box.padding = 0.5,
-        point.padding = 0.5,
-        min.segment.length = 0,
-        segment.color = 'grey50'
-      ) +
-      labs(
-        title = paste0("Curvas de Ganancia (Modelo ", stringr::str_to_title(tipo_modelo), " - ", PARAM$experimento, ")"),
-        x = "Clientes Contactados (Envíos)",
-        y = "Ganancia",
-        color = "Máximos"
-      ) +
-      scale_y_continuous(labels = scales::comma) +
-      scale_color_manual(
-        values = c(
-          "ganancia_total" = "steelblue",
-          "ganancia_public" = "forestgreen",
-          "ganancia_private" = "firebrick"
-        ),
-        labels = etiquetas
-      ) +
-      theme_minimal() +
-      theme(plot.margin = margin(10, 10, 10, 10),
-            legend.position = "bottom") +
-      guides(color = guide_legend(nrow = 3, byrow = TRUE))
-    
-    ggsave(
-      paste0(PARAM$carpeta_graficos, "curvas_", tipo_modelo, "_", PARAM$experimento, ".png"),
-      plot = p,
-      width = 11,
-      height = 7
-    )
-    log_info(paste0("Gráfico de curvas de ganancia (", tipo_modelo, ") guardado."))
-    
-    return(list(envios_optimos = envios_optimos_combinados))
-  }
-
-  GenerarEnviosKaggle <- function(tb_prediccion,
-                                envios_optimos,
-                                tipo_modelo,
-                                carpeta_salida,
-                                experimento_id) {
-
-    log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
-
-    # Se combinan los envíos óptimos y se eliminan duplicados
-    envios_a_generar <- unique(c(envios_optimos, 10500))
-
-    log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
-
-    dir.create(carpeta_salida, showWarnings = FALSE)
-
-    # Asegurar que la tabla de predicción esté ordenada por probabilidad descendente
-    setorder(tb_prediccion, -prob)
-
-    # 3. Bucle para generar cada archivo
-    for (envios in envios_a_generar) {
-      # Marcar los N primeros clientes como 'Predicted = 1'
-      tb_prediccion[, Predicted := 0L]
-      tb_prediccion[1:envios, Predicted := 1L]
-
-      # Definir el nombre del archivo de salida
-      archivo_kaggle <- paste0(carpeta_salida,experimento_id, "_",tipo_modelo, "_",envios, ".csv")
-
-      # Grabar el archivo .csv
-      fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
-            file = archivo_kaggle,
-            sep = ",")
-
-      log_info(paste0("Archivo generado: ", archivo_kaggle))
-    }
-
-    log_info(paste0("Generación de envíos para '", tipo_modelo, "' finalizada."))
   }
   
+  archivo_resultados_csv <- paste0(PARAM$carpeta_bayesiana, "envios_", tipo_modelo, "_", PARAM$experimento, ".csv")
+  resultados_para_csv <- copy(resultados)
+  setnames(
+    resultados_para_csv,
+    old = c("clientes", "ganancia_total", "ganancia_public", "ganancia_private"),
+    new = c("ENVIOS", "TOTAL", "PUBLIC", "PRIVATE")
+  )
+  fwrite(resultados_para_csv, file = archivo_resultados_csv)
+  log_info(paste0("Tabla de resultados para [", tipo_modelo, "] guardada en: ", archivo_resultados_csv))
+  
+  max_ganancia_valor <- max(resultados$ganancia_total)
+  envios_max_total <- resultados[ganancia_total == max_ganancia_valor, clientes]
+  log_info(paste0("Envíos óptimos para [", tipo_modelo, "]: ", paste(envios_max_total, collapse = ", ")))
+  log_info(paste0("Máxima ganancia para [", tipo_modelo, "]: ", max_ganancia_valor)) # Log a la consola
+  
+  # # Ganancia privada
+  # max_ganancia_private <- max(resultados$ganancia_private)
+  # envios_max_private <- resultados[ganancia_private == max_ganancia_private, clientes]
+  # log_info(paste0("Envíos óptimos para Ganancia PRIVADA: ", paste(envios_max_private, collapse = ", ")))
+
+  # envios_optimos_combinados <- unique(c(envios_max_total, envios_max_private))
+  envios_optimos_combinados <- unique(c(envios_max_total))
+  log_info(paste0("Envíos óptimos combinados a retornar: ", paste(sort(envios_optimos_combinados), collapse = ", ")))
+  
+  resultados_long <- melt(
+    resultados,
+    id.vars = "clientes",
+    measure.vars = c("ganancia_total", "ganancia_public", "ganancia_private"),
+    variable.name = "tipo",
+    value.name = "ganancia"
+  )
+  
+  maximos <- resultados_long[, .SD[ganancia == max(ganancia)], by = tipo]
+  
+  maximos_leyenda <- maximos[, .(ganancia = first(ganancia)), by = tipo]
+  etiquetas <- paste0(
+    tools::toTitleCase(gsub("_", " ", maximos_leyenda$tipo)),
+    " (máx = ",
+    format(maximos_leyenda$ganancia, big.mark = ".", decimal.mark = ","),
+    ")"
+  )
+  names(etiquetas) <- maximos_leyenda$tipo
+  
+  dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
+  p <- ggplot(resultados_long, aes(x = clientes, y = ganancia, color = tipo)) +
+    geom_line(linewidth = 1) +
+    geom_point(data = maximos,
+              aes(x = clientes, y = ganancia, color = tipo),
+              size = 3) +
+    ggrepel::geom_text_repel(
+      data = maximos,
+      aes(label = clientes),
+      color = "black",
+      size = 3.5,
+      box.padding = 0.5,
+      point.padding = 0.5,
+      min.segment.length = 0,
+      segment.color = 'grey50'
+    ) +
+    labs(
+      title = paste0("Curvas de Ganancia (Modelo ", tools::toTitleCase(gsub("_", " ", tipo_modelo))," - ",PARAM$experimento,")"),
+      x = "Clientes Contactados (Envíos)",
+      y = "Ganancia",
+      color = "Máximos"
+    ) +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(
+      values = c(
+        "ganancia_total" = "steelblue",
+        "ganancia_public" = "forestgreen",
+        "ganancia_private" = "firebrick"
+      ),
+      labels = etiquetas
+    ) +
+    theme_minimal() +
+    theme(plot.margin = margin(10, 10, 10, 10),
+          legend.position = "bottom") +
+    guides(color = guide_legend(nrow = 3, byrow = TRUE))
+  
+  ggsave(
+    paste0(PARAM$carpeta_graficos, "curvas_", tipo_modelo, "_", PARAM$experimento, ".png"),
+    plot = p,
+    width = 11,
+    height = 7
+  )
+  log_info(paste0("Gráfico de curvas de ganancia (", tipo_modelo, ") guardado."))
+  
+  return(list(envios_optimos = envios_optimos_combinados, max_ganancia = max_ganancia_valor))
+}
+
+GenerarEnviosKaggle <- function(tb_prediccion,
+                              envios_optimos,
+                              tipo_modelo,
+                              carpeta_salida,
+                              experimento_id) {
+
+  log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
+
+  envios_a_generar <- unique(c(envios_optimos, 10500))
+
+  log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
+
+  dir.create(carpeta_salida, showWarnings = FALSE)
+
+  setorder(tb_prediccion, -prob)
+
+  for (envios in envios_a_generar) {
+    tb_prediccion[, Predicted := 0L]
+    tb_prediccion[1:envios, Predicted := 1L]
+
+    archivo_kaggle <- paste0(carpeta_salida,experimento_id, "_",tipo_modelo, "_",envios, ".csv")
+
+    fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
+          file = archivo_kaggle,
+          sep = ",")
+
+    log_info(paste0("Archivo generado: ", archivo_kaggle))
+  }
+
+  log_info(paste0("Generación de envíos para '", tipo_modelo, "' finalizada."))
+}
+
+GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
+  log_info("Iniciando la graficación de la superposición de curvas del ensemble.")
+
+  tb_todas <- rbindlist(lapply(names(lista_resultados), function(sem) {
+    lista_resultados[[sem]][, semilla := as.character(sem)]
+  }))
+
+  tb_promedio <- tb_todas[, .(ganancia_total = mean(ganancia_total)), by = clientes]
+
+  maximos_individuales <- tb_todas[, .SD[ganancia_total == max(ganancia_total)], by = semilla]
+  maximos_individuales <- maximos_individuales[, head(.SD, 1), by = semilla]
+
+  maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
+  maximo_promedio <- head(maximo_promedio, 1)
+
+  labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
+    max_info <- maximos_individuales[semilla == sem]
+    paste0("S ", sem, 
+          ": G ", format(max_info$ganancia_total, big.mark = ".", decimal.mark = ","),
+          " (E ", max_info$clientes, ")")
+  })
+
+  label_promedio <- paste0("Promedio: G ",
+                          format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ","),
+                          " (E ", maximo_promedio$clientes, ")")
+
+  colores_individuales <- scales::hue_pal()(nrow(maximos_individuales))
+  names(colores_individuales) <- maximos_individuales$semilla
+  
+  colores_plot <- c(colores_individuales, "Promedio" = "black")
+  labels_plot <- c(labels_individuales, "Promedio" = label_promedio)
+  names(labels_plot) <- c(names(colores_individuales), "Promedio")
+
+  dir.create(PARAM$carpeta_graficos, showWarnings = FALSE)
+
+  p <- ggplot() +
+    geom_line(data = tb_todas,
+              aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
+              alpha = 0.5, linewidth = 1) +
+    geom_line(data = tb_promedio,
+              aes(x = clientes, y = ganancia_total, color = "Promedio"),
+              linewidth = 1) +
+    geom_point(data = maximos_individuales,
+              aes(x = clientes, y = ganancia_total, color = semilla),
+              size = 3, alpha = 0.7) +
+    geom_point(data = maximo_promedio,
+              aes(x = clientes, y = ganancia_total, color = "Promedio"),
+              size = 4, shape = 18) +
+    ggrepel::geom_text_repel(data = maximos_individuales,
+                            aes(x = clientes, y = ganancia_total, label = clientes),
+                            color = "black", size = 3.0,
+                            box.padding = 0.3, point.padding = 0.3,
+                            min.segment.length = 0) +
+    ggrepel::geom_text_repel(data = maximo_promedio,
+                            aes(x = clientes, y = ganancia_total, label = clientes),
+                            color = "black", size = 4.0, fontface = "bold",
+                            box.padding = 0.5, point.padding = 0.5,
+                            min.segment.length = 0) +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(name = "Curvas y sus Máximos",
+                      values = colores_plot,
+                      labels = labels_plot) +
+    labs(
+      title = paste0("Curvas de Ganancia del Ensemble y su Promedio"),
+      subtitle = paste0("Experimento: ", PARAM$experimento),
+      x = "Clientes Contactados (Envíos)",
+      y = "Ganancia Total"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "bottom",
+          plot.margin = margin(10, 10, 10, 10)) +
+    guides(color = guide_legend(ncol = 2))
+
+  ggsave(
+    paste0(PARAM$carpeta_graficos, "curvas_ensemble_superpuestas_", PARAM$experimento, ".png"),
+    plot = p,
+    width = 12,
+    height = 8
+  )
+
+  log_info("Gráfico de superposición de curvas del ensemble guardado correctamente.")
+}
+
+tryCatch({  
   #------------------------------------------------------
   # Sección 6: Entrenamiento y Predicción (Modelo Único)
   #------------------------------------------------------
@@ -658,19 +693,8 @@ tryCatch({
   param_normalizado$early_stopping_round <- NULL
   param_normalizado$early_stopping_rounds <- NULL
   
-  # Entreno LGBM
   modelo_final <- lgb.train(data = dtrain_final, param = param_normalizado)
   log_info("Entrenamiento del modelo final completado.")
-
-  log_info("Análisis de CV para el modelo final iniciado.")
-  modelocv_unico <- lgb.cv(
-    data = dtrain_final,
-    nfold = PARAM$hyperparametertuning$xval_folds, # Reutilizamos los pliegues de la optimización
-    stratified = TRUE,
-    param = param_normalizado
-  )
-  auc_modelo_unico <- modelocv_unico$best_score
-  log_info(paste("AUC (CV) del Modelo Único:", format(auc_modelo_unico, digits = 6)))
   
   lgb.save(modelo_final, paste0(PARAM$carpeta_bayesiana, "modelo.txt"))
   tb_importancia <- as.data.table(lgb.importance(modelo_final))
@@ -682,16 +706,12 @@ tryCatch({
   
   log_info("Generando predicciones para el Modelo Único...")
   dfuture <- dataset[foto_mes %in% PARAM$future]
-  # Aplico el modelo a los datos nuevos (dfuture)
   prediccion_unica <- predict(modelo_final, data.matrix(dfuture[, campos_buenos, with = FALSE]))
-  # Tabla de predicción
   tb_prediccion_unico <- dfuture[, list(numero_de_cliente, foto_mes)]
   tb_prediccion_unico[, prob := prediccion_unica]
   
-  # Dataset realidad
   drealidad <- realidad_inicializar(dfuture, PARAM)
   
-  # Usamos la función para generar los mejores envios
   resultados_unico <- EvaluarYGraficar(
     tb_prediccion = tb_prediccion_unico,
     drealidad = drealidad,
@@ -701,25 +721,26 @@ tryCatch({
   )
   log_info(paste0("Envíos óptimos del modelo único: ",paste(resultados_unico$envios_optimos, collapse = ", ")))
   
-  # Creo los archivos para entrega
+  # Escribir resultados del modelo único en el log de resumen
+  log_summary("--- Resultados del Modelo Único ---")
+  log_summary(paste("Envíos con ganancia máxima:", paste(resultados_unico$envios_optimos, collapse = ", ")))
+  log_summary(paste("Máxima ganancia:", format(resultados_unico$max_ganancia, big.mark = ".", decimal.mark = ",")))
+  log_summary("-----------------------------------\n")
+
   log_info("Generando los archivos de entrega para el modelo único.")
   dataset_train_final <- dataset[foto_mes %in% PARAM$train_final_kaggle]
   dtrain_final_kaggle <- lgb.Dataset(data = data.matrix(dataset_train_final[, campos_buenos, with = FALSE]), 
                                     label = dataset_train_final[, clase01])
 
-  # Usamos los mismos hiperparámetros ya optimizados
   modelo_final_kaggle <- lgb.train(data = dtrain_final_kaggle, param = param_normalizado)
   log_info("Modelo final para Kaggle re-entrenado con todos los datos.")
 
-  # Generar las predicciones finales sobre el dataset de entrega
   dfuture_entrega <- dataset[foto_mes %in% PARAM$entrega_kaggle]
   prediccion_final <- predict(modelo_final_kaggle, data.matrix(dfuture_entrega[, campos_buenos, with = FALSE]))
 
-  # Crear la tabla de predicción final
   tb_prediccion_final <- dfuture_entrega[, list(numero_de_cliente, foto_mes)]
   tb_prediccion_final[, prob := prediccion_final]
 
-  # Se usa la PREDICCIÓN del modelo final, pero los CORTES ÓPTIMOS de la fase de evaluación
   GenerarEnviosKaggle(
     tb_prediccion = tb_prediccion_final,
     envios_optimos = resultados_unico$envios_optimos,
@@ -733,34 +754,23 @@ tryCatch({
   #------------------------------------------------------
   log_info("Iniciando Sección 7: Entrenamiento del Ensamble de Modelos.")
   lista_predicciones <- list()
-  aucs_ensamble <- c()
   envios_optimos_individuales <- c()
-  
+  lista_resultados_individuales <- list()
+
   for (semilla_actual in PARAM$semillas_ensemble) {
     log_info(paste0("Entrenando modelo del ensamble con semilla: ", semilla_actual))
     param_normalizado$seed <- semilla_actual
-    
-    modelocv_ensamble <- lgb.cv(
-      data = dtrain_final,
-      nfold = PARAM$hyperparametertuning$xval_folds,
-      stratified = TRUE,
-      param = param_normalizado
-    )
-    auc_actual <- modelocv_ensamble$best_score
-    aucs_ensamble <- c(aucs_ensamble, auc_actual)
-    log_info(paste("-> AUC (CV) para semilla", semilla_actual, ":", format(auc_actual, digits = 6)))
-    
+
     modelo <- lgb.train(data = dtrain_final, param = param_normalizado)
     prediccion_individual <- predict(modelo, data.matrix(dfuture[, campos_buenos, with = FALSE]))
-    
+
     tb_pred_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
     tb_pred_individual[, prob := prediccion_individual]
     lista_predicciones[[as.character(semilla_actual)]] <- tb_pred_individual
-    
-    # ----- Bloque para evaluar el modelo individual y encontrar su mejor envío -----
+
     resultados_individual <- data.table()
     setorder(tb_pred_individual, -prob)
-    # Se evalúa cada corte para el modelo actual
+    
     for (envios in PARAM$cortes) {
       tb_pred_individual[, Predicted := 0L]
       tb_pred_individual[1:envios, Predicted := 1L]
@@ -770,18 +780,18 @@ tryCatch({
         data.table(clientes = envios, ganancia_total = res_ind$total)
       )
     }
-    # Se busca la ganancia máxima y el envío MÁS ALTO que la consigue
+    
+    lista_resultados_individuales[[as.character(semilla_actual)]] <- resultados_individual
+    
     max_ganancia_ind <- max(resultados_individual$ganancia_total, na.rm = TRUE)
     envio_optimo_individual <- max(resultados_individual[ganancia_total == max_ganancia_ind, clientes])
-    
+
     log_info(paste0("--> Envío óptimo (más alto) para semilla ", semilla_actual, ": ", envio_optimo_individual))
     envios_optimos_individuales <- c(envios_optimos_individuales, envio_optimo_individual)
   }
 
-  auc_promedio_ensamble <- mean(aucs_ensamble)
-  log_info(paste("AUC Promedio (CV) del Ensemble:", format(auc_promedio_ensamble, digits = 6)))
+  GraficarCurvasEnsemble(lista_resultados_individuales, PARAM)
   
-  # NUEVO: Calcular el promedio de los envíos óptimos individuales y redondear
   envio_promedio <- mean(envios_optimos_individuales)
   envio_promedio_redondeado <- round(envio_promedio / 100) * 100
   log_info(paste0("Envíos óptimos individuales: ", paste(envios_optimos_individuales, collapse = ", ")))
@@ -791,7 +801,6 @@ tryCatch({
   predicciones_todas <- rbindlist(lista_predicciones)
   tb_prediccion_ensamble <- predicciones_todas[, .(prob = mean(prob)), by = .(numero_de_cliente, foto_mes)]
 
-  # Usamos la función de graficar para el ensamble (esto no cambia)
   resultados_ensamble <- EvaluarYGraficar(
     tb_prediccion = tb_prediccion_ensamble,
     drealidad = drealidad,
@@ -800,6 +809,14 @@ tryCatch({
     carpeta_salida_kaggle = PARAM$carpeta_kaggle_ensamble
   )
   log_info(paste0("Envíos óptimos del ensamble promediado:", paste(resultados_ensamble$envios_optimos, collapse = ", ")))
+  
+  # NUEVO: Escribir resultados del modelo ensamble en el log de resumen
+  log_summary("--- Resultados del Modelo Ensamble ---")
+  log_summary(paste("Envíos con ganancia máxima:", paste(resultados_ensamble$envios_optimos, collapse = ", ")))
+  log_summary(paste("Máxima ganancia:", format(resultados_ensamble$max_ganancia, big.mark = ".", decimal.mark = ",")))
+  log_summary(paste("Promedio de envíos individuales (redondeado):", envio_promedio_redondeado))
+  log_summary("--------------------------------------\n")
+
 
   log_info("Generando los archivos finales para entregar, para el ensamble.")
   dataset_train_final_ens <- dataset[foto_mes %in% PARAM$train_final_kaggle]
@@ -827,7 +844,6 @@ tryCatch({
   predicciones_finales_todas <- rbindlist(lista_predicciones_final)
   tb_prediccion_final_ensamble <- predicciones_finales_todas[, .(prob = mean(prob)), by = .(numero_de_cliente, foto_mes)]
 
-  # Combinar los envíos óptimos del ensemble con el envío promedio redondeado
   envios_finales_ensamble <- unique(c(
     resultados_ensamble$envios_optimos,
     envio_promedio_redondeado
@@ -845,15 +861,11 @@ tryCatch({
   log_info("Archivos de entrega para el ensamble generados correctamente.")
 
 }, error = function(e) {
-  # Mensaje de error mejorado
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la ejecución.")
-  log_error(
-    "Revisa el último mensaje 'INFO' en el log para identificar la sección donde ocurrió el fallo."
-  )
+  log_error("Se ha producido un error fatal en las Secciones 6 o 7.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
-  quit(status = 1) # Detiene el script con un código de error
+  quit(status = 1)
 })
 #------------------------------------------------------
 # Sección 8: Finalización
