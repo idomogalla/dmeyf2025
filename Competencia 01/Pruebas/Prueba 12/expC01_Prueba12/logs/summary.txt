@@ -1,0 +1,23 @@
+Resumen del Experimento: expC01_Prueba12
+Fecha: 2025-10-10 04:30:35.071018
+
+--- Resultados de la Optimización Bayesiana ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        751           2945    0.01780188        0.5775665               33
+
+AUC: 0.941624
+---------------------------------------------
+
+--- Resultados del Modelo Único ---
+Envíos con ganancia máxima: 10800
+Máxima ganancia: 348.000.000
+-----------------------------------
+
+--- Resultados del Modelo Ensamble ---
+Envíos con ganancia máxima: 11800
+Máxima ganancia: 348.800.000
+Promedio de envíos individuales (redondeado): 10400
+--------------------------------------
+

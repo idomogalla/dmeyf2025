@@ -108,7 +108,7 @@ PARAM$hyperparametertuning$iteraciones <- 80
 # ----- Configuración del Logger con Ruta Absoluta -----
 # 1. Definir la ruta absoluta del directorio del experimento
 dir_experimento <- paste0(
-  "F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/Pruebas/Prueba 04/",
+  "~/buckets/b1/exp/",
   PARAM$experimento
 )
 # 2. Crear el directorio si no existe (con recursive = TRUE por seguridad)
@@ -172,9 +172,7 @@ tryCatch({
   # Sección 4: Preparación de Datos
   #------------------------------------------------------
   log_info("Iniciando Sección 4: Preparación de Datos.")
-  setwd(
-    "F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/"
-  )
+  setwd("~/buckets/b1/datasets/")
   log_info(paste("Cambiando directorio a:", getwd()))
   dataset <- fread("./competencia_01.csv.gz", stringsAsFactors = TRUE)
   log_info("Dataset cargado correctamente.")
