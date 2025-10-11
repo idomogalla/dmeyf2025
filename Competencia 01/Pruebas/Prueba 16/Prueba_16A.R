@@ -53,7 +53,7 @@ rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
-PARAM$experimento <- "expC01_Prueba13"
+PARAM$experimento <- "expC01_Prueba16"
 PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
 PARAM$carpeta_logs <- "logs/"
@@ -68,14 +68,14 @@ PARAM$archivo_summary_log <- "summary.txt"
 PARAM$semilla_primigenia <- 200003
 PARAM$semillas_ensemble <- c(200003, 300007, 400009, 500009, 600011, 314159, 102191, 111109, 230101, 100129)
 PARAM$train <- c(202101, 202102)
-PARAM$train_final <- c(202101, 202102)
+PARAM$train_final <- c(202101, 202102, 202103)
 PARAM$future <- c(202104)
 PARAM$train_final_kaggle <- c(202101, 202102, 202103, 202104)
 PARAM$entrega_kaggle <- c(202106)
 PARAM$semilla_kaggle <- 314159
 PARAM$cortes <- seq(0, 20000, by = 100)
 
-PARAM$trainingstrategy$undersampling <- 0.5
+PARAM$trainingstrategy$undersampling <- 0.2
 
 PARAM$hyperparametertuning$xval_folds <- 5
 PARAM$lgbm$param_fijos <- list(
@@ -116,7 +116,6 @@ PARAM$lgbm$param_fijos <- list(
   min_data_in_leaf= 5000,
   early_stopping_round = 100
 )
-# Bordes de hiperparámetros para BO
 PARAM$hyperparametertuning$hs <- makeParamSet(
   makeIntegerParam("num_leaves", lower = 10L, upper = 2048L),
   
@@ -127,6 +126,18 @@ PARAM$hyperparametertuning$hs <- makeParamSet(
   
   makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 10000L)
 
+  #makeNumericParam("min_sum_hessian_in_leaf", lower= 0.001, upper= 0.1),
+  #makeNumericParam("learning_rate", lower= 0.005, upper= 0.1),
+  #makeNumericParam("feature_fraction", lower= 0.1, upper= 1.0),
+  #makeNumericParam("bagging_fraction", lower= 0.0, upper= 1.0),
+  #makeIntegerParam("bagging_freq", lower= 0L, upper= 10L),
+  #makeNumericParam("lambda_l1", lower= 0.0, upper= 100.0),
+  #makeNumericParam("lambda_l2", lower= 0.0, upper= 100.0)
+  #makeNumericParam("min_gain_to_split", lower= 0.0, upper= 15.0),
+  #makeIntegerParam("num_iterations", lower= 50L, upper= 3000L),
+  #makeIntegerParam("max_depth", lower= -1L, upper= 20),
+  #makeIntegerParam("num_leaves", lower= 2L, upper= 2048L),
+  #makeIntegerParam("min_data_in_leaf", lower= 1L, upper= 10000L)
 )
 PARAM$hyperparametertuning$iteraciones <- 100
 
@@ -213,24 +224,77 @@ realidad_evaluar <- function(prealidad, pprediccion) {
   return(res)
 }
 
+generar_lags_avanzados <- function(dataset, lags_a_crear, cols_a_excluir, id_col) {
+
+  log_info("Iniciando la generación de features de lags, deltas y deltas pct...")
+
+  # Identificar las columnas a las que se les aplicará el lag
+  cols_con_lag <- setdiff(names(dataset), cols_a_excluir)
+  log_info(paste0("Se crearán features para", length(cols_con_lag), "columnas."))
+
+  # Bucle para crear cada lag y sus derivados
+  for (k in lags_a_crear) {
+    log_info(paste0("--- Generando lag ", k, " y sus derivados ---"))
+
+    # Nombres para las nuevas columnas de este lag
+    nombres_lag <- paste0(cols_con_lag, "_lag", k)
+    nombres_delta <- paste0(cols_con_lag, "_delta", k)
+    nombres_delta_pct <- paste0(cols_con_lag, "_delta_pct", k)
+
+    # --- Creación de Lags ---
+    dataset[, (nombres_lag) := shift(.SD, k, NA, "lag"), by = id_col, .SDcols = cols_con_lag]
+
+    # --- Creación de Deltas (diferencia) ---
+    dataset[, (nombres_delta) := Map(function(col, col_lag) get(col) - get(col_lag), cols_con_lag, nombres_lag)]
+
+    # --- Creación de Deltas Porcentuales ---
+    # dataset[, (nombres_delta_pct) := Map(
+    #   function(col, col_lag) {
+    #     lag_val <- get(col_lag)
+    #     curr_val <- get(col)
+    #     # Se evita la división por cero o por NA
+    #     delta_pct <- ifelse(is.na(lag_val) | lag_val == 0, NA, (curr_val - lag_val) / abs(lag_val))
+    #     return(delta_pct)
+    #   },
+    #   cols_con_lag, nombres_lag
+    # )]
+  }
+
+  log_info("Generación de lags finalizada.")
+  return(dataset)
+}
+
+#------------------------------------------------------
+# Sección 4: Preparación de Datos
+#------------------------------------------------------
 tryCatch({
-  #------------------------------------------------------
-  # Sección 4: Preparación de Datos
-  #------------------------------------------------------
   log_info("Iniciando Sección 4: Preparación de Datos.")
-  log_info(paste("Leyendo dataset desde:", PARAM$dir_dataset))
+  log_info(paste0("Leyendo dataset desde:", PARAM$dir_dataset))
   dataset <- fread(file.path(PARAM$dir_dataset, "competencia_01.csv.gz"),
                    stringsAsFactors = TRUE)
   log_info("Dataset cargado correctamente.")
   
   log_info("Inicio de Feature Engineering")
   setkey(dataset, numero_de_cliente, foto_mes)
-  
+
+ 
   # Columnas a las que se les aplicará el ranking
   cols_a_rankear <- c(
-    "mcomisiones_mantenimiento", "Master_Fvencimiento", "Visa_fultimo_cierre", "Master_fultimo_cierre", "mpayroll", "cpayroll_trx"
+    "mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen",
+    "mcuenta_corriente_adicional", "mcuenta_corriente", "mcaja_ahorro", "mcaja_ahorro_adicional", "mcaja_ahorro_dolares",
+    "mcuentas_saldo", "mautoservicio", "mtarjeta_visa_consumo", "mtarjeta_master_consumo", "mprestamos_personales", "mprestamos_prendarios",
+    "mprestamos_hipotecarios", "mplazo_fijo_dolares", "mplazo_fijo_pesos", "minversion1_pesos", "minversion1_dolares", "minversion2", "mpayroll", "mpayroll2",
+    "mcuenta_debitos_automaticos", "mttarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
+    "mcajeros_propios_descuentos", "mtarjeta_visa_descuentos", "mtarjeta_master_descuentos", "mcomisiones_mantenimiento", "mcomisiones_otras", "mforex_buy",
+    "mforex_sell", "mtransferencias_recibidas", "mtransferencias_emitidas", "mextraccion_autoservicio", "mcheques_depositados", "mcheques_emitidos", 
+    "mcheques_depositados_rechazados", "mcheques_emitidos_rechazados", "matm", "matm_other", "Master_mfinanciacion_limite",
+    "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
+    "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
+    "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
+    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo"
   )
   
+  # Nombres para las nuevas columnas de ranking
   nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
   
   rank_con_cero_fijo <- function(x) {
@@ -253,29 +317,19 @@ tryCatch({
   
   dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
   dataset[, (cols_a_rankear) := NULL]
-  
-  log_info("Inicio de Feature Lags")
-  cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
-  cols_con_lag <- setdiff(names(dataset), cols_a_excluir)
 
-  nombres_nuevas_cols_lag <- paste0(cols_con_lag, "_lag1")
-  dataset[, (nombres_nuevas_cols_lag) := shift(.SD, 1, NA, "lag"), by = numero_de_cliente, .SDcols = cols_con_lag]
+  lags_deseados <- c(1, 2)
+  columnas_a_ignorar <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
+  id_cliente <- "numero_de_cliente"
 
-  nombres_nuevas_cols_delta <- paste0(cols_con_lag, "_delta1")
-  dataset[, (nombres_nuevas_cols_delta) :=  Map(function(col, col_lag) get(col) - get(col_lag), cols_con_lag, nombres_nuevas_cols_lag)]
+  # Genero lags
+  dataset <- generar_lags_avanzados(
+    dataset = dataset,
+    lags_a_crear = lags_deseados,
+    cols_a_excluir = columnas_a_ignorar,
+    id_col = id_cliente
+  )
 
-  nombres_nuevas_cols_delta_pct <- paste0(cols_con_lag, "_delta_pct1")
-  dataset[, (nombres_nuevas_cols_delta_pct) := Map(
-    function(col, col_lag) {
-      lag_val <- get(col_lag)
-      curr_val <- get(col)
-      delta_pct <- ifelse(is.na(lag_val) | lag_val == 0, NA, (curr_val - lag_val) / abs(lag_val))
-      return(delta_pct)
-    },
-    cols_con_lag, nombres_nuevas_cols_lag
-  )]
-
-  log_info("Features de lag y delta generadas.")
   dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
   
   log_info("Generando dataset de entrenamiento.")
@@ -316,10 +370,10 @@ tryCatch({
   quit(status = 1)
 })
 
+#------------------------------------------------------
+# Sección 5: Optimización Bayesiana
+#------------------------------------------------------
 tryCatch({
-  #------------------------------------------------------
-  # Sección 5: Optimización Bayesiana
-  #------------------------------------------------------
   log_info("Iniciando Sección 5: Optimización Bayesiana de Hiperparámetros.")
   EstimarGanancia_AUC_lightgbm <- function(x) {
     param_completo <- modifyList(PARAM$lgbm$param_fijos, x)
@@ -559,7 +613,7 @@ GenerarEnviosKaggle <- function(tb_prediccion,
 
   log_info(paste0("Iniciando generación de envíos para Kaggle del modelo: '", tipo_modelo, "'"))
 
-  envios_a_generar <- unique(c(envios_optimos, 10500))
+  envios_a_generar <- unique(c(envios_optimos, 10500, envios_optimos+100))
 
   log_info(paste0("Se generarán archivos para los siguientes envíos: ", paste(envios_a_generar, collapse = ", ")))
 
@@ -666,10 +720,10 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM) {
   log_info("Gráfico de superposición de curvas del ensemble guardado correctamente.")
 }
 
+#------------------------------------------------------
+# Sección 6: Entrenamiento y Predicción (Modelo Único)
+#------------------------------------------------------
 tryCatch({  
-  #------------------------------------------------------
-  # Sección 6: Entrenamiento y Predicción (Modelo Único)
-  #------------------------------------------------------
   log_info("Iniciando Sección 6: Entrenamiento del Modelo Único.")
   dataset_train <- dataset[foto_mes %in% PARAM$train_final]
   dtrain_final <- lgb.Dataset(data = data.matrix(dataset_train[, campos_buenos, with = FALSE]), label = dataset_train[, clase01])
@@ -685,7 +739,7 @@ tryCatch({
   modelo_final <- lgb.train(data = dtrain_final, param = param_normalizado)
   log_info("Entrenamiento del modelo final completado.")
   
-  lgb.save(modelo_final, paste0(PARAM$carpeta_bayesiana, "modelo.txt"))
+  #lgb.save(modelo_final, paste0(PARAM$carpeta_bayesiana, "modelo.txt"))
   tb_importancia <- as.data.table(lgb.importance(modelo_final))
   fwrite(
     tb_importancia,
@@ -712,8 +766,8 @@ tryCatch({
   
   # Escribir resultados del modelo único en el log de resumen
   log_summary("--- Resultados del Modelo Único ---")
-  log_summary(paste("Envíos con ganancia máxima:", paste(resultados_unico$envios_optimos, collapse = ", ")))
-  log_summary(paste("Máxima ganancia:", format(resultados_unico$max_ganancia, big.mark = ".", decimal.mark = ",")))
+  log_summary(paste0("Envíos con ganancia máxima:", paste(resultados_unico$envios_optimos, collapse = ", ")))
+  log_summary(paste0("Máxima ganancia:", format(resultados_unico$max_ganancia, big.mark = ".", decimal.mark = ",")))
   log_summary("-----------------------------------\n")
 
   log_info("Generando los archivos de entrega para el modelo único.")
@@ -737,10 +791,18 @@ tryCatch({
     carpeta_salida = PARAM$carpeta_entregables,
     experimento_id = PARAM$experimento
   )
+}, error = function(e) {
+  log_error("######################################################")
+  log_error("Se ha producido un error fatal en la Sección 6.")
+  log_error(paste("Mensaje de R:", e$message))
+  log_error("######################################################")
+  quit(status = 1)
+})
 
-  #------------------------------------------------------
-  # Sección 7: Entrenamiento y Predicción (Ensemble)
-  #------------------------------------------------------
+#------------------------------------------------------
+# Sección 7: Entrenamiento y Predicción (Ensemble)
+#------------------------------------------------------
+tryCatch({
   log_info("Iniciando Sección 7: Entrenamiento del Ensamble de Modelos.")
   lista_predicciones <- list()
   envios_optimos_individuales <- c()
@@ -800,10 +862,11 @@ tryCatch({
   log_info(paste0("Envíos óptimos del ensamble promediado:", paste(resultados_ensamble$envios_optimos, collapse = ", ")))
   
   # Escribir resultados del modelo ensamble en el log de resumen
-  log_summary("--- Resultados del Modelo Ensamble ---")
-  log_summary(paste("Envíos con ganancia máxima:", paste(resultados_ensamble$envios_optimos, collapse = ", ")))
-  log_summary(paste("Máxima ganancia:", format(resultados_ensamble$max_ganancia, big.mark = ".", decimal.mark = ",")))
-  log_summary(paste("Promedio de envíos individuales (redondeado):", envio_promedio_redondeado))
+log_summary("--- Resultados del Modelo Ensamble ---")
+  log_summary(paste0("Envios según cada modelo de ensamble:", paste(envios_optimos_individuales, collapse = ", ")))
+  log_summary(paste0("Promedio de envíos individuales (redondeado):", envio_promedio_redondeado))
+  log_summary(paste0("Envíos con ganancia máxima con ensamble promediado:", paste(resultados_ensamble$envios_optimos, collapse = ", ")))
+  log_summary(paste0("Máxima ganancia obtenida:", format(resultados_ensamble$max_ganancia, big.mark = ".", decimal.mark = ",")))
   log_summary("--------------------------------------\n")
 
 
@@ -851,7 +914,7 @@ tryCatch({
 
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en las Secciones 6 o 7.")
+  log_error("Se ha producido un error fatal en la Sección 7.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
   quit(status = 1)
