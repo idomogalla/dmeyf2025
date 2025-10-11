@@ -1,0 +1,19 @@
+--- INICIO DEL EXPERIMENTO DE COMPARACIÓN ---
+Fecha: 2025-10-11 13:12:56.019679 
+
+Iter: 001 | Semilla: 590819 | Ganancia M1:    162666667 | Ganancia M2:    165333333 | p-value: 1.000000
+Iter: 002 | Semilla: 526937 | Ganancia M1:    133333333 | Ganancia M2:    152000000 | p-value: 0.500000
+Iter: 003 | Semilla: 753937 | Ganancia M1:    157333333 | Ganancia M2:    162666667 | p-value: 0.250000
+Iter: 004 | Semilla: 101173 | Ganancia M1:    152000000 | Ganancia M2:    170666667 | p-value: 0.125000
+Iter: 005 | Semilla: 715727 | Ganancia M1:    162666667 | Ganancia M2:    165333333 | p-value: 0.057907
+Iter: 006 | Semilla: 522959 | Ganancia M1:    160000000 | Ganancia M2:    170666667 | p-value: 0.035522
+
+
+--- CONCLUSIONES DEL TEST DE WILCOXON ---
+La ESTRATEGIA 2 es estadísticamente MEJOR que la ESTRATEGIA 1. 
+Semillas utilizadas: 6 de 30
+P-value final: 0.035522
+Ganancia promedio Estrategia 1:    154666667
+Ganancia promedio Estrategia 2:    164444444
+-----------------------------------------
+--- FIN DEL EXPERIMENTO ---
