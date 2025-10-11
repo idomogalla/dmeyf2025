@@ -323,7 +323,7 @@ tryCatch({
 
   # Columnas a las que se les aplicará el ranking
   cols_a_rankear <- c(
-    "mcomisiones_mantenimiento", "Master_Fvencimiento", "Visa_fultimo_cierre", "Master_fultimo_cierre"
+    "mcomisiones_mantenimiento", "Master_Fvencimiento", "Visa_fultimo_cierre", "Master_fultimo_cierre", "mpayroll", "cpayroll_trx"
   )
   
   # Nombres para las nuevas columnas de ranking
