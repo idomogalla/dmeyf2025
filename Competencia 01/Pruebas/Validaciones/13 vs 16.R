@@ -18,25 +18,12 @@ PARAM$semilla_primigenia <- 200003
 PARAM$qsemillas_tope <- 30
 PARAM$training_pct <- 70L
 PARAM$envios_cutoff <- 11000
-PARAM$archivo_salida <- "resultados_wilcoxon 8 vs 13.txt" # <--- ARCHIVO DE SALIDA
+PARAM$archivo_salida <- "resultados_wilcoxon 13 vs 14.txt" # <--- ARCHIVO DE SALIDA
 PARAM$dataset <- "F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/competencia_01.csv.gz"
 
 
-# Modelo 1 (Prueba 8): Hiperparámetros de tu optimización
+# Modelo 1 (Prueba 13): Hiperparámetros de tu optimización
 PARAM$lgbm1 <- list(
-  boosting_type = "gbdt", objective = "binary", metric = "auc",
-  max_depth = -1L, first_metric_only=FALSE, boost_from_average=TRUE, feature_pre_filter=FALSE,
-  force_row_wise=TRUE, max_depth = -1, min_gain_to_split=0.0, min_sum_hessian_in_leaf = 0.001,
-  lambda_l1=1.8536492, lambda_l2=22.5693091, max_bin = 31, bagging_fraction = 1.0, 
-  pos_bagging_fraction = 1.0, neg_bagging_fraction = 1.0, is_unbalance = FALSE,
-  scale_pos_weight = 1.0, drop_rate = 0.1, max_drop = 50.0, skip_drop = 0.5, extra_trees = FALSE,
-  num_leaves = 381, num_iterations = 988, learning_rate = 0.0197839, feature_fraction = 0.0197839,
-  min_data_in_leaf = 114
-)
-
-
-# Modelo 2 (Prueba 13): Hiperparámetros de una alternativa
-PARAM$lgbm2 <- list(
   boosting_type = "gbdt", objective = "binary", metric = "auc",
   max_depth = -1L, first_metric_only=FALSE, boost_from_average=TRUE, feature_pre_filter=FALSE,
   force_row_wise=TRUE, max_depth = -1, min_gain_to_split=0.0, min_sum_hessian_in_leaf = 0.001,
@@ -47,6 +34,19 @@ PARAM$lgbm2 <- list(
   min_data_in_leaf = 40
 )
 
+
+# Modelo 2 (Prueba 16): Hiperparámetros de una alternativa
+PARAM$lgbm2 <- list(
+  boosting_type = "gbdt", objective = "binary", metric = "auc",
+  max_depth = -1L, first_metric_only=FALSE, boost_from_average=TRUE, feature_pre_filter=FALSE,
+  force_row_wise=TRUE, max_depth = -1, min_gain_to_split=0.0, min_sum_hessian_in_leaf = 0.001,
+  lambda_l1=0.0, lambda_l2=0.0, max_bin = 31, bagging_fraction = 1.0, 
+  pos_bagging_fraction = 1.0, neg_bagging_fraction = 1.0, is_unbalance = FALSE,
+  scale_pos_weight = 1.0, drop_rate = 0.1, max_drop = 50.0, skip_drop = 0.5, extra_trees = FALSE,
+  num_leaves = 904, num_iterations = 1797, learning_rate = 0.0156368, feature_fraction = 0.6575693,
+  min_data_in_leaf = 50
+)
+
 #------------------------------------------------------
 # Sección 3: Funciones de Feature Engineering
 # (Las funciones preparar_datos_modelo1 y preparar_datos_modelo2 no cambian)
@@ -54,116 +54,6 @@ PARAM$lgbm2 <- list(
 
 # --- ESTRATEGIA DE FEATURE ENGINEERING PARA EL MODELO 1 ---
 preparar_datos_modelo1 <- function(d) {
-    datos <- copy(d)
-    setkey(datos, numero_de_cliente, foto_mes)
-    # Agrego columnas
-    datos[, `:=`(
-    # Suma de consumos de tarjetas
-    mtarjetas_consumo = round(rowSums(.SD[, .(mtarjeta_visa_consumo, mtarjeta_master_consumo)], na.rm = TRUE), 1),
-    # Suma de beneficios/descuentos
-    mbeneficios = round(rowSums(.SD[, .(
-        mcajeros_propios_descuentos,
-        mtarjeta_visa_descuentos,
-        mtarjeta_master_descuentos
-    )], na.rm = TRUE), 1),
-    # Suma de ingresos
-    mingresos = round(rowSums(.SD[, .(mpayroll, mpayroll2, mtransferencias_recibidas)], na.rm = TRUE), 1),
-    # Suma de inversiones
-    minversiones = round(rowSums(.SD[, .(minversion1_pesos, minversion1_dolares, mplazo_fijo_pesos,mplazo_fijo_dolares, minversion2)], na.rm = TRUE), 1),
-    # Diferencia: límite menos consumo para MasterCard
-    diff_master_compra = round(Master_mlimitecompra - Master_mconsumospesos, 2),
-    # Diferencia: límite menos consumo para Visa
-    diff_visa_compra = round(Visa_mlimitecompra - Visa_mconsumospesos, 2)
-    )]
-
-    datos[, `:=`(
-    # Diferencia: consumo total menos comisiones
-    diff_comisiones_consumo = round(mtarjetas_consumo - mcomisiones_mantenimiento, 2),
-    # Diferencia: beneficios totales menos comisiones
-    diff_comisiones_beneficios = round(mbeneficios - mcomisiones_mantenimiento, 2)
-    )]
-
-    # Columnas a las que se les aplicará el ranking
-    cols_a_rankear <- c(
-    "mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen",
-    "mcuenta_corriente_adicional", "mcuenta_corriente", "mcaja_ahorro", "mcaja_ahorro_adicional", "mcaja_ahorro_dolares",
-    "mcuentas_saldo", "mautoservicio", "mtarjeta_visa_consumo", "mtarjeta_master_consumo", "mprestamos_personales", "mprestamos_prendarios",
-    "mprestamos_hipotecarios", "mplazo_fijo_dolares", "mplazo_fijo_pesos", "minversion1_pesos", "minversion1_dolares", "minversion2", "mpayroll", "mpayroll2",
-    "mcuenta_debitos_automaticos", "mttarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
-    "mcajeros_propios_descuentos", "mtarjeta_visa_descuentos", "mtarjeta_master_descuentos", "mcomisiones_mantenimiento", "mcomisiones_otras", "mforex_buy",
-    "mforex_sell", "mtransferencias_recibidas", "mtransferencias_emitidas", "mextraccion_autoservicio", "mcheques_depositados", "mcheques_emitidos", 
-    "mcheques_depositados_rechazados", "mcheques_emitidos_rechazados", "matm", "matm_other", "Master_mfinanciacion_limite",
-    "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
-    "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
-    "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
-    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo",
-    "mtarjetas_consumo", "mbeneficios", "mingresos", "minversiones", "diff_master_compra", "diff_visa_compra", "diff_comisiones_consumo", "diff_comisiones_beneficios"
-    )
-
-    # Nombres para las nuevas columnas de ranking
-    nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
-
-    # Funcion para ranking con cero fijo
-    rank_con_cero_fijo <- function(x) {
-    # Vector para guardar los resultados
-    resultado <- numeric(length(x))
-
-    # Índices para cada caso
-    idx_pos <- which(x > 0)
-    idx_neg <- which(x < 0)
-    idx_cero <- which(x == 0)
-
-    # 1. Ranking para valores positivos (> 0)
-    if (length(idx_pos) > 0) {
-        # Se divide por la cantidad de positivos para obtener el percentil (0 a 1)
-        resultado[idx_pos] <- frankv(x[idx_pos], ties.method = "average") / length(idx_pos)
-    }
-
-    # 2. Ranking para valores negativos (< 0)
-    if (length(idx_neg) > 0) {
-        # Se calcula el percentil para los negativos y se multiplica por -1 (-1 a 0)
-        resultado[idx_neg] <- (frankv(-x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
-    }
-    # 
-    # 3. Para los valores que son cero, el ranking es cero
-    if (length(idx_cero) > 0) {
-        resultado[idx_cero] <- 0
-    }
-    
-    return(resultado)
-  }
-  
-  # Aplicar la función a todas las columnas especificadas, agrupando por mes
-  datos[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
-  # Elimino las columnas que rankee
-  datos[, (cols_a_rankear) := NULL]
-  
-  # Genero columnas Lags y Delta Lags de orden 1
-  cols_a_excluir <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
-  cols_con_lag <- setdiff(names(datos), cols_a_excluir)
-
-  nombres_nuevas_cols_lag <- paste0(cols_con_lag, "_lag1")
-  datos[, (nombres_nuevas_cols_lag) := shift(.SD, 1, NA, "lag"), by = numero_de_cliente, .SDcols = cols_con_lag]
-
-  nombres_nuevas_cols_delta <- paste0(cols_con_lag, "_delta1")
-  datos[, (nombres_nuevas_cols_delta) :=  Map(function(col, col_lag) get(col) - get(col_lag), cols_con_lag, nombres_nuevas_cols_lag)]
-
-  nombres_nuevas_cols_delta_pct <- paste0(cols_con_lag, "_delta_pct1")
-  datos[, (nombres_nuevas_cols_delta_pct) := Map(
-    function(col, col_lag) {
-      lag_val <- get(col_lag)
-      curr_val <- get(col)
-      # Para evitar división por cero
-      delta_pct <- ifelse(is.na(lag_val) | lag_val == 0, NA, (curr_val - lag_val) / abs(lag_val))
-      return(delta_pct)
-    },
-    cols_con_lag, nombres_nuevas_cols_lag
-  )]
-  return(datos)
-}
-
-# --- ESTRATEGIA DE FEATURE ENGINEERING PARA EL MODELO 2 ---
-preparar_datos_modelo2 <- function(d) {
     datos <- copy(d)
     setkey(datos, numero_de_cliente, foto_mes)
 
@@ -217,6 +107,110 @@ preparar_datos_modelo2 <- function(d) {
   return(datos)
 }
 
+# --- ESTRATEGIA DE FEATURE ENGINEERING PARA EL MODELO 2 ---
+
+generar_lags_avanzados <- function(d, lags_a_crear, cols_a_excluir, id_col) {
+  
+  datos <- copy(d) # Se trabaja sobre una copia
+  
+  # Identificar las columnas a las que se les aplicará el lag
+  # IMPORTANTE: Se usa names(datos) para incluir las columnas creadas previamente
+  cols_con_lag <- setdiff(names(datos), cols_a_excluir)
+  
+  # Bucle para crear cada lag y sus derivados
+  for (k in lags_a_crear) {
+    
+    # Nombres para las nuevas columnas de este lag
+    nombres_lag <- paste0(cols_con_lag, "_lag", k)
+    nombres_delta <- paste0(cols_con_lag, "_delta", k)
+    
+    # --- Creación de Lags ---
+    datos[, (nombres_lag) := shift(.SD, k, NA, "lag"), by = id_col, .SDcols = cols_con_lag]
+    
+    # --- Creación de Deltas (diferencia) ---
+    datos[, (nombres_delta) := Map(function(col, col_lag) get(col) - get(col_lag), cols_con_lag, nombres_lag)]
+    
+    # --- (Opcional) Creación de Deltas Porcentuales ---
+    # Descomentar si se desea utilizar
+    # nombres_delta_pct <- paste0(cols_con_lag, "_delta_pct", k)
+    # datos[, (nombres_delta_pct) := Map(
+    #   function(col, col_lag) {
+    #     lag_val <- get(col_lag)
+    #     curr_val <- get(col)
+    #     delta_pct <- ifelse(is.na(lag_val) | lag_val == 0, NA, (curr_val - lag_val) / abs(lag_val))
+    #     return(delta_pct)
+    #   },
+    #   cols_con_lag, nombres_lag
+    # )]
+  }
+  
+  return(datos)
+}
+
+
+#------------------------------------------------------
+# ESTRATEGIA DE FEATURE ENGINEERING PARA EL MODELO 2
+#------------------------------------------------------
+preparar_datos_modelo2 <- function(d) {
+    # 1. Se trabaja sobre una copia para no modificar el dataset original
+    datos <- copy(d)
+    setkey(datos, numero_de_cliente, foto_mes)
+    
+    # Columnas a las que se les aplicará el ranking
+    cols_a_rankear <- c(
+    "mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen",
+    "mcuenta_corriente_adicional", "mcuenta_corriente", "mcaja_ahorro", "mcaja_ahorro_adicional", "mcaja_ahorro_dolares",
+    "mcuentas_saldo", "mautoservicio", "mtarjeta_visa_consumo", "mtarjeta_master_consumo", "mprestamos_personales", "mprestamos_prendarios",
+    "mprestamos_hipotecarios", "mplazo_fijo_dolares", "mplazo_fijo_pesos", "minversion1_pesos", "minversion1_dolares", "minversion2", "mpayroll", "mpayroll2",
+    "mcuenta_debitos_automaticos", "mttarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
+    "mcajeros_propios_descuentos", "mtarjeta_visa_descuentos", "mtarjeta_master_descuentos", "mcomisiones_mantenimiento", "mcomisiones_otras", "mforex_buy",
+    "mforex_sell", "mtransferencias_recibidas", "mtransferencias_emitidas", "mextraccion_autoservicio", "mcheques_depositados", "mcheques_emitidos", 
+    "mcheques_depositados_rechazados", "mcheques_emitidos_rechazados", "matm", "matm_other", "Master_mfinanciacion_limite",
+    "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
+    "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
+    "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
+    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo"
+  )
+  
+  # Nombres para las nuevas columnas de ranking
+  nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
+  
+  rank_con_cero_fijo <- function(x) {
+    resultado <- numeric(length(x))
+    idx_pos <- which(x > 0)
+    idx_neg <- which(x < 0)
+    idx_cero <- which(x == 0)
+    
+    if (length(idx_pos) > 0) {
+      resultado[idx_pos] <- frankv(x[idx_pos], ties.method = "average") / length(idx_pos)
+    }
+    if (length(idx_neg) > 0) {
+      resultado[idx_neg] <- (frankv(-x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
+    }
+    if (length(idx_cero) > 0) {
+      resultado[idx_cero] <- 0
+    }
+    return(resultado)
+  }
+  
+  datos[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
+  datos[, (cols_a_rankear) := NULL]
+
+  lags_deseados <- c(1, 2)
+  columnas_a_ignorar <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
+  id_cliente <- "numero_de_cliente"
+
+  # Genero lags
+  datos <- generar_lags_avanzados(
+    dataset = datos,
+    lags_a_crear = lags_deseados,
+    cols_a_excluir = columnas_a_ignorar,
+    id_col = id_cliente
+  )
+    
+    # 5. Se devuelve el dataset procesado
+    return(datos)
+}
 #------------------------------------------------------
 # Sección 4: Carga de Datos y Funciones de Comparación
 # (Las funciones de carga y comparación no cambian en su lógica interna)
@@ -275,7 +269,7 @@ CompararModelosLGBM <- function(qsemillas_tope, training_pct, param_lgbm1, param
   set.seed(PARAM$semilla_primigenia)
   semillas <- sample(primos, qsemillas_tope)
   pvalue <- 1.0; isem <- 1; vgan1 <- c(); vgan2 <- c()
-  while (isem <= qsemillas_tope & pvalue > 0.05) {
+  while (isem <= qsemillas_tope & (is.na(pvalue) || pvalue > 0.05)) {
     res <- DosModelosLGBMEstimarGanancia(semillas[isem], training_pct, param_lgbm1, param_lgbm2)
     vgan1 <- c(vgan1, res$ganancia1); vgan2 <- c(vgan2, res$ganancia2)
     if (length(vgan1) > 1) { wt <- wilcox.test(vgan1, vgan2, paired = TRUE); pvalue <- wt$p.value }

@@ -290,6 +290,8 @@ tryCatch({
     
     log_info(paste("Mejores hiperparámetros para semilla", semilla_actual, "(n_iter:", nrounds_optimo, "):"))
     log_info(paste(capture.output(print(mejores_hiperparametros)), collapse = "\n"))
+    rm(bayesiana_salida, tb_bayesiana, ctrl, surr.km, obj.fun)
+    gc(full = TRUE, verbose = FALSE)
   }
   
   log_info("--- FIN PASO 1: Optimización Bayesiana completada para todas las semillas. ---")
