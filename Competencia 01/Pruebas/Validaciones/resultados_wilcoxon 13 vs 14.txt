@@ -1,3 +1,6 @@
 --- INICIO DEL EXPERIMENTO DE COMPARACIÓN ---
-Fecha: 2025-10-11 23:28:44.451427 
+Fecha: 2025-10-11 23:51:06.601981 
 
+Iter: 001 | Semilla: 590819 | Ganancia M1:    165333333 | Ganancia M2:    165333333 | p-value: 1.000000
+Iter: 002 | Semilla: 526937 | Ganancia M1:    152000000 | Ganancia M2:    152000000 | p-value: NaN
+Iter: 003 | Semilla: 753937 | Ganancia M1:    162666667 | Ganancia M2:    162666667 | p-value: NaN

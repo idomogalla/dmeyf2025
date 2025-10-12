@@ -1,0 +1,32 @@
+--- INICIO DEL EXPERIMENTO DE COMPARACIÓN ---
+Fecha: 2025-10-12 01:01:55.011496 
+
+Iter: 001 | Semilla: 590819 | Ganancia M1:    165333333 | Ganancia M2:    165333333 | p-value: 1.000000
+Iter: 002 | Semilla: 526937 | Ganancia M1:    152000000 | Ganancia M2:    152000000 | p-value: 1.000000
+Iter: 003 | Semilla: 753937 | Ganancia M1:    162666667 | Ganancia M2:    162666667 | p-value: 1.000000
+Iter: 004 | Semilla: 101173 | Ganancia M1:    170666667 | Ganancia M2:    170666667 | p-value: 1.000000
+Iter: 005 | Semilla: 715727 | Ganancia M1:    165333333 | Ganancia M2:    165333333 | p-value: 1.000000
+Iter: 006 | Semilla: 522959 | Ganancia M1:    170666667 | Ganancia M2:    170666667 | p-value: 1.000000
+Iter: 007 | Semilla: 975883 | Ganancia M1:    170666667 | Ganancia M2:    173333333 | p-value: 1.000000
+Iter: 008 | Semilla: 703657 | Ganancia M1:    157333333 | Ganancia M2:    157333333 | p-value: 1.000000
+Iter: 009 | Semilla: 631469 | Ganancia M1:    144000000 | Ganancia M2:    144000000 | p-value: 1.000000
+Iter: 010 | Semilla: 662617 | Ganancia M1:    176000000 | Ganancia M2:    176000000 | p-value: 1.000000
+Iter: 011 | Semilla: 552031 | Ganancia M1:    160000000 | Ganancia M2:    162666667 | p-value: 0.371093
+Iter: 012 | Semilla: 195281 | Ganancia M1:    170666667 | Ganancia M2:    173333333 | p-value: 0.173568
+Iter: 013 | Semilla: 326999 | Ganancia M1:    181333333 | Ganancia M2:    181333333 | p-value: 0.173568
+Iter: 014 | Semilla: 452269 | Ganancia M1:    170666667 | Ganancia M2:    170666667 | p-value: 0.173568
+Iter: 015 | Semilla: 576221 | Ganancia M1:    170666667 | Ganancia M2:    170666667 | p-value: 0.173568
+Iter: 016 | Semilla: 293729 | Ganancia M1:    176000000 | Ganancia M2:    176000000 | p-value: 0.173568
+Iter: 017 | Semilla: 658079 | Ganancia M1:    173333333 | Ganancia M2:    176000000 | p-value: 0.088973
+Iter: 018 | Semilla: 341461 | Ganancia M1:    168000000 | Ganancia M2:    168000000 | p-value: 0.088973
+Iter: 019 | Semilla: 193873 | Ganancia M1:    181333333 | Ganancia M2:    184000000 | p-value: 0.047715
+
+
+--- CONCLUSIONES DEL TEST DE WILCOXON ---
+La ESTRATEGIA 2 (Prueba 16) es estadísticamente MEJOR que la ESTRATEGIA 1 (Prueba 13). 
+Semillas utilizadas: 19 de 30
+P-value final: 0.047715
+Ganancia promedio Estrategia 1 (Prueba 13):    167719298
+Ganancia promedio Estrategia 2 (Prueba 16):    168421053
+-----------------------------------------
+--- FIN DEL EXPERIMENTO ---
