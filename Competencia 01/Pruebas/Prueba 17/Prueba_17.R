@@ -65,7 +65,7 @@ PARAM$carpeta_entregables <- "Entregables/"
 PARAM$archivo_summary_log <- "summary.txt"
 
 
-PARAM$semillas_ensemble <- c(200003, 314159, 102191, 111109, 230101, 100129)
+PARAM$semillas_ensemble <- c(200003, 314159, 102191, 111109, 230101, 100129, 378399, 100992)
 PARAM$train <- c(202101, 202102)
 PARAM$train_final <- c(202101, 202102)
 PARAM$future <- c(202104)

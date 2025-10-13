@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 #------------------------------------------------------
-# Sección 1: Carga de Librerías
+# Sección 0: Carga de Librerías
 #------------------------------------------------------
 suppressPackageStartupMessages({
   if (!require("logger"))
@@ -47,7 +47,7 @@ suppressPackageStartupMessages({
   library("scales")
 })
 #------------------------------------------------------
-# Sección 2: Configuración Inicial y Parámetros
+# Sección 1: Configuración Inicial y Parámetros
 #------------------------------------------------------
 rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
@@ -121,13 +121,13 @@ PARAM$hyperparametertuning$hs <- makeParamSet(
 PARAM$hyperparametertuning$iteraciones <- 30
 
 # ----- Configuración del Logger -----
-dir.create(PARAM$dir_experimento, showWarnings = FALSE, recursive = TRUE)
-setwd(PARAM$dir_experimento)
-dir.create(PARAM$carpeta_logs, showWarnings = FALSE, recursive = TRUE)
-log_file <- file.path(PARAM$carpeta_logs, paste0("log_", PARAM$experimento, ".log"))
+dir.create(file.path(PARAM$dir_experimento, PARAM$carpeta_logs), showWarnings = FALSE, recursive = TRUE)
+
+log_file <- file.path(PARAM$dir_experimento, PARAM$carpeta_logs, paste0("log_", PARAM$experimento, ".log"))
 log_appender(appender_tee(log_file))
 
-summary_log_file_path <- file.path(PARAM$carpeta_logs, PARAM$archivo_summary_log)
+summary_log_file_path <- file.path(PARAM$dir_experimento, PARAM$carpeta_logs, PARAM$archivo_summary_log)
+
 cat(paste0("Resumen del Experimento: ", PARAM$experimento, "\n"), file = summary_log_file_path, append = FALSE)
 cat(paste0("Fecha: ", Sys.time(), "\n\n"), file = summary_log_file_path, append = TRUE)
 
@@ -136,6 +136,62 @@ log_info(paste("Inicio del script. Experimento:", PARAM$experimento))
 log_info(paste("El log se guardará en:", log_file))
 log_info(paste("El resumen se guardará en:", summary_log_file_path))
 log_info("------------------------------------------------------")
+
+#------------------------------------------------------
+# Sección 3: Funciones Auxiliares
+#------------------------------------------------------
+tryCatch({
+  log_info("Creación clase ternaria iniciada.")
+  dataset <- fread(paste0(PARAM$dir_dataset,"competencia_01_crudo.csv"))
+
+  # calculo el periodo0 consecutivo
+  dsimple <- dataset[, list(
+      "pos" = .I,
+      numero_de_cliente,
+      periodo0 = as.integer(foto_mes/100)*12 +  foto_mes%%100 ) ]
+
+
+  # ordeno
+  setorder( dsimple, numero_de_cliente, periodo0 )
+
+  # calculo topes
+  periodo_ultimo <- dsimple[, max(periodo0) ]
+  periodo_anteultimo <- periodo_ultimo - 1
+
+  # calculo los leads de orden 1 y 2
+  dsimple[, c("periodo1", "periodo2") :=
+      shift(periodo0, n=1:2, fill=NA, type="lead"),  numero_de_cliente ]
+
+  # assign most common class values = "CONTINUA"
+  dsimple[ periodo0 < periodo_anteultimo, clase_ternaria := "CONTINUA" ]
+
+  # calculo BAJA+1
+  dsimple[ periodo0 < periodo_ultimo &
+      ( is.na(periodo1) | periodo0 + 1 < periodo1 ),
+      clase_ternaria := "BAJA+1" ]
+
+  # calculo BAJA+2
+  dsimple[ periodo0 < periodo_anteultimo & (periodo0+1 == periodo1 )
+      & ( is.na(periodo2) | periodo0 + 2 < periodo2 ),
+      clase_ternaria := "BAJA+2" ]
+
+
+  # pego el resultado en el dataset original y grabo
+  setorder( dsimple, pos )
+  dataset[, clase_ternaria := dsimple$clase_ternaria ]
+
+  fwrite( dataset,
+      file =  paste0(PARAM$dir_dataset,"competencia_01.csv.gz"),
+      sep = ","
+  )
+
+  rm(list=ls(all.names=TRUE)) # remove all objects
+  gc(full=TRUE, verbose=FALSE) # garbage collection
+  log_info("Creación clase ternaria finalizada.")
+}, error = function(e) {
+  log_error("Error fatal en la creación de la clase ternaria. Mensaje: ", e$message)
+  quit(status = 1)
+})
 
 #------------------------------------------------------
 # Sección 3: Funciones Auxiliares
@@ -181,15 +237,6 @@ generar_lags_avanzados <- function(dataset, lags_a_crear, cols_a_excluir, id_col
     nombres_delta_pct <- paste0(cols_con_lag, "_delta_pct", k)
     dataset[, (nombres_lag) := shift(.SD, k, NA, "lag"), by = id_col, .SDcols = cols_con_lag]
     dataset[, (nombres_delta) := Map(function(col, col_lag) get(col) - get(col_lag), cols_con_lag, nombres_lag)]
-    # dataset[, (nombres_delta_pct) := Map(
-    #   function(col, col_lag) {
-    #     lag_val <- get(col_lag)
-    #     curr_val <- get(col)
-    #     delta_pct <- ifelse(is.na(lag_val) | lag_val == 0, NA, (curr_val - lag_val) / abs(lag_val))
-    #     return(delta_pct)
-    #   },
-    #   cols_con_lag, nombres_lag
-    # )]
   }
   log_info("Generación de lags finalizada.")
   return(dataset)

@@ -1,0 +1,6 @@
+Resumen del Experimento: expC03_Prueba18
+Fecha: 2025-10-12 02:24:45.970614
+
+--- Resultados de la Búsqueda del Corte (Paso 2) ---
+Máxima ganancia simulada en 202104: 362,400,000
+Número de envíos que la producen: 8600, 10000

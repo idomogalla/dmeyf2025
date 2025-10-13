@@ -18,8 +18,8 @@ PARAM$semilla_primigenia <- 200003
 PARAM$qsemillas_tope <- 30
 PARAM$training_pct <- 70L
 PARAM$envios_cutoff <- 11000
-PARAM$archivo_salida <- "resultados_wilcoxon_13_vs_16_corregido.txt" # <--- ARCHIVO DE SALIDA
-PARAM$dataset <- "F:/OneDrive/Documentos/Educación/UBA/Maestría en Explotación de Datos y Descubrimiento del Conocimiento/Data Mining en Economía y Finanzas/dmeyf2025/Competencia 01/competencia_01.csv.gz"
+PARAM$archivo_salida <- "resultados_wilcoxon_13_vs_16.txt"
+PARAM$dataset <- "~/buckets/b1/datasets/"
 
 
 # Modelo 1 (Prueba 13): Hiperparámetros de tu optimización

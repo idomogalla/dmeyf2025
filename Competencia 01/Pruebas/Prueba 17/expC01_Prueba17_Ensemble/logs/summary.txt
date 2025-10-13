@@ -1,0 +1,120 @@
+Resumen del Experimento: expC01_Prueba17_Ensemble
+Fecha: 2025-10-12 19:16:16.453932
+
+--- Resultados BO para Semilla: 200003 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        504           2826    0.01008778        0.2635809                5
+
+AUC: 0.941163
+---------------------------------------------
+
+--- Resultados BO para Semilla: 314159 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        236           2739    0.02450241        0.6511165                1
+
+AUC: 0.940519
+---------------------------------------------
+
+--- Resultados BO para Semilla: 102191 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        544           1671    0.02189969        0.6190136                5
+
+AUC: 0.939757
+---------------------------------------------
+
+--- Resultados BO para Semilla: 111109 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        616           2740    0.02271419        0.5245646               15
+
+AUC: 0.940877
+---------------------------------------------
+
+--- Resultados BO para Semilla: 230101 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        278           2450    0.01054746         0.419681                1
+
+AUC: 0.941298
+---------------------------------------------
+
+--- Resultados BO para Semilla: 100129 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        567           1907    0.01970692        0.3486961                4
+
+AUC: 0.940237
+---------------------------------------------
+
+--- Resultados BO para Semilla: 378399 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:       1024           2800    0.09093159        0.5848303               17
+
+AUC: 0.939936
+---------------------------------------------
+
+--- Resultados BO para Semilla: 100992 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        344           2887    0.01258459        0.4387907                1
+
+AUC: 0.941667
+---------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 200003) ---
+Envíos con ganancia máxima: 9300
+Máxima ganancia: 359.600.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 314159) ---
+Envíos con ganancia máxima: 6400
+Máxima ganancia: 337.600.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 102191) ---
+Envíos con ganancia máxima: 12100
+Máxima ganancia: 345.200.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 111109) ---
+Envíos con ganancia máxima: 11200
+Máxima ganancia: 337.600.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 230101) ---
+Envíos con ganancia máxima: 9400
+Máxima ganancia: 353.600.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 100129) ---
+Envíos con ganancia máxima: 9500
+Máxima ganancia: 347.600.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 378399) ---
+Envíos con ganancia máxima: 8300
+Máxima ganancia: 334.800.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 100992) ---
+Envíos con ganancia máxima: 11100
+Máxima ganancia: 347.600.000
+----------------------------------------------------
+
+--- Resultados del Modelo Ensemble ---
+Envíos con ganancia máxima: 8400, 11400
+Máxima ganancia: 354.400.000
+---------------------------------------
+

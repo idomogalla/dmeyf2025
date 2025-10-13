@@ -1,0 +1,7 @@
+mejores_hiperparametros:
+  num_leaves: 618
+  num_iterations: 2172
+  learning_rate: 0.0257238
+  feature_fraction: 0.7833984
+  min_data_in_leaf: 24
+'y': 0.9393818

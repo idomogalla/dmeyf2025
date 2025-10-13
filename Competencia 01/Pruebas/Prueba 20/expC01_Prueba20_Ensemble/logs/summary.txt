@@ -1,0 +1,78 @@
+Resumen del Experimento: expC01_Prueba20_Ensemble
+Fecha: 2025-10-12 17:35:46.043792
+
+--- Resultados BO para Semilla: 200003 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        356           1254    0.02745121        0.6018057               18
+
+AUC: 0.940271
+---------------------------------------------
+
+--- Resultados BO para Semilla: 275677 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        708           2847     0.0101869         0.499348               19
+
+AUC: 0.941622
+---------------------------------------------
+
+--- Resultados BO para Semilla: 102191 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        795            448    0.04734162        0.4288131                3
+
+AUC: 0.939349
+---------------------------------------------
+
+--- Resultados BO para Semilla: 111109 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:       1280            740    0.02171505        0.6351524               12
+
+AUC: 0.940061
+---------------------------------------------
+
+--- Resultados BO para Semilla: 230101 ---
+Hiperparámetros Óptimos:
+   num_leaves num_iterations learning_rate feature_fraction min_data_in_leaf
+        <int>          <int>         <num>            <num>            <int>
+1:        490           1400     0.0106783        0.8407706                9
+
+AUC: 0.939946
+---------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 200003) ---
+Envíos con ganancia máxima: 10500
+Máxima ganancia: 3,58e+08
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 275677) ---
+Envíos con ganancia máxima: 10300
+Máxima ganancia: 3,62e+08
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 102191) ---
+Envíos con ganancia máxima: 10700
+Máxima ganancia: 3,62e+08
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 111109) ---
+Envíos con ganancia máxima: 9100, 11700
+Máxima ganancia: 358.800.000
+----------------------------------------------------
+
+--- Resultados Modelo Individual (Semilla: 230101) ---
+Envíos con ganancia máxima: 11100
+Máxima ganancia: 369.200.000
+----------------------------------------------------
+
+--- Resultados del Modelo Ensemble ---
+Envíos con ganancia máxima: 9600, 10400, 10600
+Máxima ganancia: 3,72e+08
+---------------------------------------
+
