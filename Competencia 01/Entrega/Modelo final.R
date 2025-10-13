@@ -185,8 +185,6 @@ tryCatch({
       sep = ","
   )
 
-  rm(list=ls(all.names=TRUE)) # remove all objects
-  gc(full=TRUE, verbose=FALSE) # garbage collection
   log_info("Creación clase ternaria finalizada.")
 }, error = function(e) {
   log_error("Error fatal en la creación de la clase ternaria. Mensaje: ", e$message)
