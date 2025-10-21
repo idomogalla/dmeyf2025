@@ -185,6 +185,6 @@ project/target
 
 # Archivos propios
 *.ods
-*dmeyf-venv/
+dmeyf/*
 **/modelo.txt
 **/modelo_*.txt
