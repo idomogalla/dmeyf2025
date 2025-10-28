@@ -45,6 +45,9 @@ suppressPackageStartupMessages({
   if (!require("scales"))
     install.packages("scales")
   library("scales")
+  if (!require("here"))
+    install.packages("here")
+  library("here")
 })
 #------------------------------------------------------
 # Sección 2: Configuración Inicial y Parámetros
@@ -165,7 +168,7 @@ log_info("------------------------------------------------------")
 # Sección 3: Funciones Auxiliares
 #------------------------------------------------------
 log_info("Iniciando Sección 3: Cargando funciones auxiliares")
-source("funciones_auxiliares.R")
+source(here::here("Competencia 01", "Análisis post competencia", "funciones_auxiliares.R"))
 log_info("Funciones auxiliares cargadas desde 'funciones_auxiliares.R'")
 
 tryCatch({
