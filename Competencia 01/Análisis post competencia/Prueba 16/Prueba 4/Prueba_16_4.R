@@ -53,7 +53,7 @@ rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
-PARAM$experimento <- "expC01_Prueba16"
+PARAM$experimento <- "expC01_Prueba16_4"
 PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
 PARAM$carpeta_logs <- "logs/"
@@ -262,47 +262,48 @@ tryCatch({
   setkey(dataset, numero_de_cliente, foto_mes)
 
  
-  # # Columnas a las que se les aplicará el ranking
-  # cols_a_rankear <- c(
-  #   "mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen",
-  #   "mcuenta_corriente_adicional", "mcuenta_corriente", "mcaja_ahorro", "mcaja_ahorro_adicional", "mcaja_ahorro_dolares",
-  #   "mcuentas_saldo", "mautoservicio", "mtarjeta_visa_consumo", "mtarjeta_master_consumo", "mprestamos_personales", "mprestamos_prendarios",
-  #   "mprestamos_hipotecarios", "mplazo_fijo_dolares", "mplazo_fijo_pesos", "minversion1_pesos", "minversion1_dolares", "minversion2", "mpayroll", "mpayroll2",
-  #   "mcuenta_debitos_automaticos", "mttarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
-  #   "mcajeros_propios_descuentos", "mtarjeta_visa_descuentos", "mtarjeta_master_descuentos", "mcomisiones_mantenimiento", "mcomisiones_otras", "mforex_buy",
-  #   "mforex_sell", "mtransferencias_recibidas", "mtransferencias_emitidas", "mextraccion_autoservicio", "mcheques_depositados", "mcheques_emitidos", 
-  #   "mcheques_depositados_rechazados", "mcheques_emitidos_rechazados", "matm", "matm_other", "Master_mfinanciacion_limite",
-  #   "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
-  #   "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
-  #   "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
-  #   "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo"
-  # )
+  # Columnas a las que se les aplicará el ranking
+  cols_a_rankear <- c(
+    "mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen",
+    "mcuenta_corriente_adicional", "mcuenta_corriente", "mcaja_ahorro", "mcaja_ahorro_adicional", "mcaja_ahorro_dolares",
+    "mcuentas_saldo", "mautoservicio", "mtarjeta_visa_consumo", "mtarjeta_master_consumo", "mprestamos_personales", "mprestamos_prendarios",
+    "mprestamos_hipotecarios", "mplazo_fijo_dolares", "mplazo_fijo_pesos", "minversion1_pesos", "minversion1_dolares", "minversion2", "mpayroll", "mpayroll2",
+    "mcuenta_debitos_automaticos", "mttarjeta_visa_debitos_automaticos", "mttarjeta_master_debitos_automaticos", "mpagodeservicios", "mpagomiscuentas",
+    "mcajeros_propios_descuentos", "mtarjeta_visa_descuentos", "mtarjeta_master_descuentos", "mcomisiones_mantenimiento", "mcomisiones_otras", "mforex_buy",
+    "mforex_sell", "mtransferencias_recibidas", "mtransferencias_emitidas", "mextraccion_autoservicio", "mcheques_depositados", "mcheques_emitidos", 
+    "mcheques_depositados_rechazados", "mcheques_emitidos_rechazados", "matm", "matm_other", "Master_mfinanciacion_limite",
+    "Master_msaldototal", "Master_msaldopesos", "Master_msaldodolares", "Master_mconsumospesos", "Master_mconsumosdolares", "Master_mlimitecompra", "Master_madelantopesos", "Master_madelantodolares",
+    "Master_mpagado", "Master_mpagospesos", "Master_mpagosdolares", "Master_mconsumototal", "Master_mpagominimo", "Visa_mfinanciacion_limite", 
+    "Visa_msaldototal", "Visa_msaldopesos", "Visa_msaldodolares", "Visa_mconsumospesos", "Visa_mconsumosdolares", "Visa_mlimitecompra", "Visa_madelantopesos", "Visa_madelantodolares",
+    "Visa_mpagado", "Visa_mpagospesos", "Visa_mpagosdolares", "Visa_mconsumototal", "Visa_mpagominimo"
+  )
   
-  # # Nombres para las nuevas columnas de ranking
-  # nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
+  # Nombres para las nuevas columnas de ranking
+  nuevas_cols_rank <- paste0(cols_a_rankear, "_rank")
   
-  # rank_con_cero_fijo <- function(x) {
-  #   resultado <- numeric(length(x))
-  #   idx_pos <- which(x > 0)
-  #   idx_neg <- which(x < 0)
-  #   idx_cero <- which(x == 0)
+  rank_con_cero_fijo <- function(x) {
+    resultado <- numeric(length(x))
+    idx_pos <- which(x > 0)
+    idx_neg <- which(x < 0)
+    idx_cero <- which(x == 0)
     
-  #   if (length(idx_pos) > 0) {
-  #     resultado[idx_pos] <- frankv(x[idx_pos], ties.method = "average") / length(idx_pos)
-  #   }
-  #   if (length(idx_neg) > 0) {
-  #     resultado[idx_neg] <- (frankv(-x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
-  #   }
-  #   if (length(idx_cero) > 0) {
-  #     resultado[idx_cero] <- 0
-  #   }
-  #   return(resultado)
-  # }
+    if (length(idx_pos) > 0) {
+      resultado[idx_pos] <- frankv(x[idx_pos], ties.method = "average") / length(idx_pos)
+    }
+    if (length(idx_neg) > 0) {
+      resultado[idx_neg] <- (frankv(-x[idx_neg], ties.method = "average") / length(idx_neg)) * -1
+    }
+    if (length(idx_cero) > 0) {
+      resultado[idx_cero] <- 0
+    }
+    return(resultado)
+  }
   
-  # dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
-  # dataset[, (cols_a_rankear) := NULL]
+  dataset[, (nuevas_cols_rank) := lapply(.SD, rank_con_cero_fijo), by = foto_mes, .SDcols = cols_a_rankear]
+  dataset[, (cols_a_rankear) := NULL]
 
-  lags_deseados <- c(1, 2)
+  # lags_deseados <- c(1, 2)
+  lags_deseados <- c(1)
   columnas_a_ignorar <- c("numero_de_cliente", "foto_mes", "clase_ternaria")
   id_cliente <- "numero_de_cliente"
 

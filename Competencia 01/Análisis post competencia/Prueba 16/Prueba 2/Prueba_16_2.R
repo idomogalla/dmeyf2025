@@ -53,7 +53,7 @@ rm(list = ls(all.names = TRUE))
 gc(full = TRUE, verbose = FALSE)
 
 PARAM <- list()
-PARAM$experimento <- "expC01_Prueba16"
+PARAM$experimento <- "expC01_Prueba16_2"
 PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
 PARAM$carpeta_logs <- "logs/"
