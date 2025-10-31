@@ -261,6 +261,55 @@ tryCatch({
   log_info("Inicio de Feature Engineering")
   setkey(dataset, numero_de_cliente, foto_mes)
 
+  #------------------------------------------------------
+  # Inicio: Lógica para "Clientes que Regresan"
+  #------------------------------------------------------
+  log_info("Aplicando lógica de clientes que regresan...")
+  
+  # El script carga con stringsAsFactors=TRUE, por lo que 'clase_ternaria' es un factor.
+  # Es necesario convertirla a character para poder asignar el nuevo valor "CONTINUA".
+  log_info("Convirtiendo 'clase_ternaria' a character para su modificación.")
+  dataset[, clase_ternaria := as.character(clase_ternaria)]
+
+  # Identificar si el cliente tiene al menos un evento de "baja".
+  dataset[, tiene_baja := any(clase_ternaria %in% c("BAJA+1", "BAJA+2")), by = numero_de_cliente]
+
+  # Identificar si el cliente "regresa".
+  # Dado que la data está ordenada por foto_mes, podemos usar shift(-1)
+  # para ver si existe un registro posterior (un "lead").
+  dataset[, tiene_registro_posterior := !is.na(shift(foto_mes, n = 1L, type = "lead")), by = numero_de_cliente]
+
+  # Encontrar la primera foto_mes donde ocurre una baja.
+  dataset[tiene_baja == TRUE, primera_foto_baja := min(foto_mes[clase_ternaria %in% c("BAJA+1", "BAJA+2")]), by = numero_de_cliente]
+
+  # Encontrar la última foto_mes donde el cliente tiene un registro.
+  dataset[, ultima_foto_aparicion := max(foto_mes), by = numero_de_cliente]
+
+  # Identificar los IDs de los clientes que regresan.
+  # Un cliente "regresa" si su última aparición es POSTERIOR a su primera baja.
+  clientes_que_regresan_ids <- dataset[
+    tiene_baja == TRUE & primera_foto_baja < ultima_foto_aparicion,
+    unique(numero_de_cliente)
+  ]
+
+  # Actualizar la clase_ternaria para ESOS clientes.
+  if (length(clientes_que_regresan_ids) > 0) {
+    log_info(paste0("Se identificaron ", length(clientes_que_regresan_ids), 
+                    " clientes que regresaron. Se modificará toda su 'clase_ternaria' a 'CONTINUA'."))
+    dataset[numero_de_cliente %in% clientes_que_regresan_ids, clase_ternaria := "CONTINUA"]
+
+    log_info("Actualización de 'clientes que regresan' completada.")
+  } else {
+    log_info("No se encontraron clientes que se vayan y regresen.")
+  }
+
+  # 8. Limpiar columnas auxiliares
+  dataset[, c("tiene_baja", "tiene_registro_posterior", "primera_foto_baja", "ultima_foto_aparicion") := NULL]
+  
+  #------------------------------------------------------
+  # Fin: Lógica para "Clientes que Regresan"
+  #------------------------------------------------------
+
  
   # Columnas a las que se les aplicará el ranking
   cols_a_rankear <- c(
@@ -315,7 +364,6 @@ tryCatch({
   )
 
   dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
-  dataset[, numero_de_cliente := NULL]
   
   log_info("Generando dataset de entrenamiento.")
   dataset_train <- dataset[foto_mes %in% PARAM$train]
