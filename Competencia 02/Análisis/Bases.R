@@ -277,7 +277,7 @@ for (feature in features_to_plot) {
       local_metric_labels <- c("prop_1s" = "Proporción 1s", "max_val" = "Máximo", "min_val" = "Mínimo")
       local_facet_labels  <- c("prop_1s" = "Proporción 1s", "max_val" = "Máximo", "min_val" = "Mínimo")
       
-      # <-- ¡NUEVO! Usar formato decimal simple para proporciones
+      # <-- Usar formato decimal simple para proporciones
       local_label_formatter <- scales::label_number(accuracy = 0.001) 
       
     } else {
@@ -287,7 +287,7 @@ for (feature in features_to_plot) {
       local_metric_labels <- c("mean_val" = "Media", "max_val" = "Máximo", "min_val" = "Mínimo")
       local_facet_labels  <- c("mean_val" = "Media", "max_val" = "Máximo", "min_val" = "Mínimo")
       
-      # <-- ¡NUEVO! Usar formato SI (K, M) para números grandes
+      # <-- Usar formato SI (K, M) para números grandes
       local_label_formatter <- scales::label_number(
                                  accuracy = 0.1,
                                  scale_cut = scales::cut_si("")

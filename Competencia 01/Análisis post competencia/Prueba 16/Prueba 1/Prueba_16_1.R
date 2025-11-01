@@ -514,7 +514,7 @@ EvaluarYGraficar <- function(tb_prediccion,
   log_info(paste0("Envíos óptimos para [", tipo_modelo, "]: ", paste(envios_max_total, collapse = ", ")))
   log_info(paste0("Máxima ganancia para [", tipo_modelo, "]: ", max_ganancia_valor)) # Log a la consola
   
-  # # Ganancia privada
+  # Ganancia privada
   # max_ganancia_private <- max(resultados$ganancia_private)
   # envios_max_private <- resultados[ganancia_private == max_ganancia_private, clientes]
   # log_info(paste0("Envíos óptimos para Ganancia PRIVADA: ", paste(envios_max_private, collapse = ", ")))
