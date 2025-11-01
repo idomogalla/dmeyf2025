@@ -222,7 +222,7 @@ for (feature in features_to_plot) {
     unique_vals <- unique(feature_values)
     is_binary_01 <- all(unique_vals %in% c(0, 1))
 
-    # --- Cálculo de sumario condicional ---
+# --- Cálculo de sumario condicional ---
     summary_data <- dataset[, {
       vals <- get(feature)
       all_na <- all(is.na(vals))
@@ -230,15 +230,23 @@ for (feature in features_to_plot) {
       calc_list <- list()
       
       if (is_binary_01) {
-        # ---- ES BINARIA: Calcular Proporción de 1s ----
+        # ---- ES BINARIA: Calcular Proporción de 1s (NA se trata como 0) ----
         calc_list$mean_val <- if (all_na) NA_real_ else sum(vals == 1, na.rm = TRUE) / .N
+        
       } else {
-        # ---- NO ES BINARIA: Calcular Media estándar ----
-        calc_list$mean_val <- if (all_na) NA_real_ else as.numeric(mean(vals, na.rm = TRUE))
+        # ---- NO ES BINARIA: Calcular Media estándar (NA se trata como 0) ----
+        calc_list$mean_val <- if (all_na) NA_real_ else sum(vals, na.rm = TRUE) / .N
       }
       
-      calc_list$max_val  <- if (all_na) NA_real_ else as.numeric(max(vals, na.rm = TRUE))
-      calc_list$min_val  <- if (all_na) NA_real_ else as.numeric(min(vals, na.rm = TRUE))
+      # Limpiamos los as.numeric() redundantes
+      calc_list$max_val  <- if (all_na) NA_real_ else max(vals, na.rm = TRUE)
+      calc_list$min_val  <- if (all_na) NA_real_ else min(vals, na.rm = TRUE)
+      
+      # Asegurarnos de que todos los valores sean 'numeric' (double) para evitar problemas
+      # con 'integer' y 'NA_real_' (aunque max/min ya suelen devolver numeric si hay NAs)
+      calc_list$mean_val <- as.numeric(calc_list$mean_val)
+      calc_list$max_val  <- as.numeric(calc_list$max_val)
+      calc_list$min_val  <- as.numeric(calc_list$min_val)
       
       calc_list
     }, by = foto_mes]
