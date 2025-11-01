@@ -10,35 +10,95 @@ gc(full = TRUE, verbose = FALSE)
 if (!requireNamespace("data.table", quietly = TRUE)) {
   stop("data.table package is not installed.")
 }
-# 'zlightgbm' se carga más adelante si es necesario.
-# 'ggplot2' y 'ggrepel' son necesarios para 'EvaluarYGraficar', 
-# pero para este grid search usaremos una lógica de evaluación más simple.
 library(data.table)
-
-# --- NUEVO: Cargar funciones auxiliares ---
-# Asegúrate de que la ruta a este archivo sea correcta
-tryCatch({
-  source("funciones_auxiliares.R") 
-  message("INFO: 'funciones_auxiliares.R' cargado correctamente.")
-}, error = function(e) {
-  stop("Error: No se pudo encontrar o cargar 'funciones_auxiliares.R'. 
-       Asegúrate de que el archivo esté en la ruta correcta. \n", e)
-})
 
 # Load zlightgbm
 if (!requireNamespace("zlightgbm", quietly = TRUE)) {
-    message("Installing zlightgbm...")
+    message("Installing zlightgbm...") # 'message' es apropiado aquí
     install.packages("https://storage.googleapis.com/open-courses/dmeyf2025-e4a2/zlightgbm_4.6.0.99.tar.gz",
                    repos = NULL, type = "source")
 }
 library(zlightgbm)
+
+# Custom log function
+log_message <- function(message) {
+  cat(format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), message, "\n")
+}
+
+log_message("Initialization and libraries loaded.")
+
+#------------------------------------------------------------------------------
+# 1.5. Auxiliary Functions (Integradas)
+#------------------------------------------------------------------------------
+
+particionar <- function(data,
+                        division,
+                        agrupa = "",
+                        campo = "fold",
+                        start = 1,
+                        seed = NA) {
+  if (!is.na(seed))
+    set.seed(seed, "L'Ecuyer-CMRG")
+  bloque <- unlist(mapply(function(x, y) {
+    rep(y, x)
+  }, division, seq(
+    from = start, length.out = length(division)
+  )))
+  data[, (campo) := sample(rep(bloque, ceiling(.N / length(bloque))))[1:.N], by = agrupa]
+}
+
+realidad_inicializar <- function(pfuture, pparam) {
+  drealidad <- pfuture[, list(numero_de_cliente, foto_mes, clase_ternaria)]
+  particionar(
+    drealidad,
+    division = c(3, 7), # Asumiendo 30% public, 70% private
+    agrupa = "clase_ternaria",
+    seed = pparam$semilla_kaggle
+  )
+  return(drealidad)
+}
+
+realidad_evaluar <- function(prealidad, pprediccion) {
+  # Asegurarse de que 'predicted' no exista antes del join
+  if ("predicted" %in% colnames(prealidad)) {
+    prealidad[, predicted := NULL]
+  }
+  
+  prealidad[pprediccion, on = c("numero_de_cliente", "foto_mes"), predicted := i.Predicted]
+  
+  # Manejar NAs en predicted (clientes no presentes en pprediccion, aunque no debería pasar)
+  prealidad[is.na(predicted), predicted := 0L]
+  
+  tbl <- prealidad[, list("qty" = .N), list(fold, predicted, clase_ternaria)]
+  
+  res <- list()
+  
+  # Ganancia (780k si BAJA+2, -20k si CONTINUA o BAJA+1)
+  ganancia_baja2 <- 780000
+  costo_error <- -20000
+  
+  res$public <- tbl[fold == 1 &
+                      predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", ganancia_baja2, costo_error))] / 0.3
+  
+  res$private <- tbl[fold == 2 &
+                       predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", ganancia_baja2, costo_error))] / 0.7
+  
+  res$total <- tbl[predicted == 1L, sum(qty * ifelse(clase_ternaria == "BAJA+2", ganancia_baja2, costo_error))]
+  
+  # Limpiar la columna 'predicted' de prealidad para la prox iteración
+  prealidad[, predicted := NULL]
+  
+  return(res)
+}
+
+log_message("Auxiliary functions (particionar, realidad_inicializar, realidad_evaluar) defined.")
 
 #------------------------------------------------------------------------------
 # 2. Configuration
 #------------------------------------------------------------------------------
 
 PARAM <- list()
-PARAM$experimento <- "zmuerte-50-gridsearch"
+PARAM$experimento <- "zmuerte-50-gridsearch-v2"
 PARAM$semilla_primigenia <- 974411
 
 # Paths
@@ -46,17 +106,16 @@ PARAM$path$root <- "~/buckets/b1"
 PARAM$path$exp <- file.path(PARAM$path$root, "exp", PARAM$experimento)
 PARAM$path$datasets <- file.path(PARAM$path$root, "datasets")
 PARAM$path$dataset_crudo <- file.path(PARAM$path$datasets, "competencia_01_crudo.csv")
-# --- NUEVO: Ruta para el log del Grid Search ---
-PARAM$path$gridsearch_log <- file.path(PARAM$path$exp, "gridsearch_results.csv")
+PARAM$path$gridsearch_log <- file.path(PARAM$path$exp, "gridsearch_results_v2.csv")
 
 
-# --- NUEVO: Definición de Train/Validation y Grid Search ---
+# Definición de Train/Validation y Evaluación
 PARAM$train$meses <- c(202101, 202102)
 PARAM$train$undersampling <- 0.50
 PARAM$validation$meses <- c(202104) # Testeamos contra 202104
 PARAM$eval$cortes <- seq(8000, 13000, by = 100) # Rango de envíos para buscar el óptimo
 
-# --- NUEVO: Grid de Hiperparámetros ---
+# Grid de Hiperparámetros (Actualizado)
 PARAM$gridsearch <- list(
   canaritos = c(50, 100, 150),
   gradient_bound = c(0.05, 0.1, 0.25, 0.5),
@@ -86,11 +145,8 @@ PARAM$lgbm_base <- list(
 # Create experiment folder
 dir.create(PARAM$path$exp, showWarnings = FALSE, recursive = TRUE)
 
-# Custom log function
-log_message <- function(message) {
-  cat(format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), message, "\n")
-}
-
+log_message(paste("Configuration loaded. Experiment:", PARAM$experimento))
+log_message(paste("Grid search log will be saved to:", PARAM$path$gridsearch_log))
 
 #------------------------------------------------------------------------------
 # 3. Preprocessing (Se hace UNA SOLA VEZ)
@@ -167,12 +223,11 @@ log_message("Preprocessing finished.")
 
 log_message("Starting Grid Search...")
 
-# --- NUEVO: Preparar el grid ---
-grid <- expand.grid(PARAM$gridsearch)
+# Preparar el grid
+grid <- expand.grid(PARAM$gridsearch, KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
 log_message(paste("Total iterations in grid search:", nrow(grid)))
 
-# --- NUEVO: Preparar drealidad (dataset de validación) UNA SOLA VEZ ---
-# Usamos las funciones de funciones_auxiliares.R
+# Preparar drealidad (dataset de validación) UNA SOLA VEZ
 log_message(paste("Preparing validation reality data for month:", PARAM$validation$meses))
 dataset_validation_base <- dataset[foto_mes %in% PARAM$validation$meses]
 drealidad_base <- realidad_inicializar(
@@ -182,7 +237,7 @@ drealidad_base <- realidad_inicializar(
 log_message("Validation reality data prepared.")
 
 
-# --- NUEVO: Inicializar archivo de log del Grid Search ---
+# Inicializar archivo de log del Grid Search
 log_file_path <- PARAM$path$gridsearch_log
 if (file.exists(log_file_path)) {
   log_message(paste("Removing old log file:", log_file_path))
@@ -201,7 +256,7 @@ fwrite(header, file = log_file_path, append = FALSE, col.names = TRUE)
 log_message(paste("Grid search log initialized at:", log_file_path))
 
 
-# --- NUEVO: Bucle principal del Grid Search ---
+# Bucle principal del Grid Search
 for (i in 1:nrow(grid)) {
   
   # --- 4.1. Configuración de la Iteración ---
@@ -260,6 +315,7 @@ for (i in 1:nrow(grid)) {
     label = dataset_train[training == 1L, clase01],
     free_raw_data = FALSE
   )
+  log_message("dtrain created.")
   
   
   # --- 4.3. Entrenar Modelo ---
@@ -275,6 +331,7 @@ for (i in 1:nrow(grid)) {
     data = dtrain,
     param = lgbm_params_iter
   )
+  log_message("Model trained.")
   
   
   # --- 4.4. Preparar Datos de Validación (con canaritos dinámicos) ---
@@ -303,13 +360,13 @@ for (i in 1:nrow(grid)) {
   # Crear tabla de predicción
   tb_prediccion <- dataset_validation[, list(numero_de_cliente, foto_mes)]
   tb_prediccion[, prob := prediccion]
+  log_message("Predictions generated.")
   
   
   # --- 4.6. Evaluar Ganancia (Lógica de funciones_auxiliares.R) ---
   log_message("Evaluating gain...")
   
   # Copiamos drealidad_base para que 'realidad_evaluar' pueda modificarla
-  # (ya que 'realidad_evaluar' modifica su input por referencia con ':=')
   drealidad_iter <- copy(drealidad_base)
   
   resultados_iter <- data.table()
@@ -320,7 +377,7 @@ for (i in 1:nrow(grid)) {
     tb_prediccion[, Predicted := 0L]
     tb_prediccion[1:envios, Predicted := 1L]
     
-    # Usamos la función del archivo auxiliar
+    # Usamos la función interna
     res <- realidad_evaluar(drealidad_iter, tb_prediccion)
     
     resultados_iter <- rbind(
@@ -371,14 +428,14 @@ for (i in 1:nrow(grid)) {
 #------------------------------------------------------------------------------
 
 log_message("Grid Search finished.")
-log_message("Final results are saved in:")
-log_message(log_file_path)
+log_message(paste("Final results are saved in:", log_file_path))
 
 # Mostrar resultados finales en consola
 try({
   final_results <- fread(log_file_path)
-  log_message("--- Final Grid Search Summary ---")
+  log_message("--- Final Grid Search Summary (ordered by max_ganancia) ---")
   setorder(final_results, -max_ganancia)
+  # 'print' es la forma correcta de mostrar un data.table en la consola
   print(final_results)
 })
 
