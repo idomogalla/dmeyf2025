@@ -1,13 +1,4 @@
 log_info("Inicio 9_Optimización_Bayesiana.R")
-
-# Optimizacion de Hipeparámetros
-log_info("Creando dtrain")
-dtrain <- lgb.Dataset(
-  data= data.matrix(dataset[training == 1L, campos_buenos, with = FALSE]),
-  label= dataset[training == 1L, clase01],
-  free_raw_data= TRUE
-)
-
 # Notar que se recorren algunos hiperparametros en forma logaritmica
 # y que con forbidden se tiene en cuenta el juego que hay entre min_data_in_leaf y num_leaves
 PARAM$hipeparametertuning$hs <- makeParamSet(
@@ -17,6 +8,14 @@ PARAM$hipeparametertuning$hs <- makeParamSet(
   makeNumericParam("min_data_in_leaf", lower= 0.0, upper= log2(nrow(dtrain)/2), trafo= function(x) as.integer(round(2^x)) ),
   makeNumericParam("num_leaves", lower= 1.0, upper= 10.0, trafo= function(x) as.integer(round(2^x)) ),
   forbidden = quote( (2^min_data_in_leaf)*(2^num_leaves) > nrow(dtrain) )
+)
+
+# Optimizacion de Hipeparámetros
+log_info("Creando dtrain")
+dtrain <- lgb.Dataset(
+  data= data.matrix(dataset[training == 1L, campos_buenos, with = FALSE]),
+  label= dataset[training == 1L, clase01],
+  free_raw_data= TRUE
 )
 
 log_info(paste("dtrain filas:", nrow(dtrain), "columnas:", ncol(dtrain)))

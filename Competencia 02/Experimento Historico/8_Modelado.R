@@ -1,8 +1,8 @@
 log_info("Inicio 8_Modelado.R")
 # Target Engineering
 # paso la clase a binaria que tome valores {0,1}  enteros
-#  BAJA+1 y BAJA+2  son  1,   CONTINUA es 0
-#  a partir de ahora ya NO puedo cortar  por prob(BAJA+2) > 1/40
+# BAJA+1 y BAJA+2 son  1, CONTINUA es 0
+# a partir de ahora ya NO puedo cortar  por prob(BAJA+2) > 1/40
 log_info("Creando clase01")
 dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)]
 
