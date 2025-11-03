@@ -231,6 +231,6 @@ log_info("---------------------------")
 source("10_Evaluacion_Ensamble.R")
 log_info("---------------------------")
 
-source("11_Modelo_Final.R")
+#source("11_Modelo_Final.R")
 log_info("---------------------------")
 log_info("Workflow finalizado")
