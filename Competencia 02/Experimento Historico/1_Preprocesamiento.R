@@ -58,7 +58,7 @@ if(PARAM$generar_ternaria){
 
     # Grabo el dataset con la clase_ternaria
     fwrite( dataset,
-        file =  paste0(PARAM$dir_dataset,"competencia_02.csv.gz"),
+        file =  file.path(PARAM$dir_dataset, "competencia_02.csv.gz"),
         sep = ","
     )
     log_info("clase_ternaria generada y guardada")

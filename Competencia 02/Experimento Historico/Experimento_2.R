@@ -27,6 +27,9 @@ require("ggplot2")
 require("ggrepel")
 require("scales")
 
+# Guardo el directorio de origen
+home_dir <- getwd()
+
 # Defino los parámetros del workflow
 PARAM <- list()
 
@@ -52,7 +55,7 @@ setwd(PARAM$experimento_folder)
 PARAM$FE_hist <- list()
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1,3) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 3) # Número de lags a crear
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- 6
@@ -129,7 +132,7 @@ PARAM$hipeparametertuning$BO_iteraciones <- 50
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
 # mayor a 1, se hace un  k-Ensemble Semillerio
-PARAM$hipeparametertuning$ksemillerio <- 1L
+PARAM$hipeparametertuning$ksemillerio <- 50L
 # El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
 # Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
 # Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization
@@ -178,8 +181,6 @@ PARAM$train_final$training <- c(
 )
 PARAM$train_final$undersampling <- 0.10
 PARAM$train_final$ksemillerio <- 30
-set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
-PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
 
 # Parámetros para la generación del archivo de Kaggle
 PARAM$kaggle <- list()
@@ -194,43 +195,43 @@ dir.create(PARAM$experimento_folder, showWarnings = FALSE)
 
 # Configuro el logger
 log_file <- file.path(PARAM$experimento_folder, paste0("log_", PARAM$experimento, ".txt"))
-log_appender(appender_file(log_file))
+log_appender(appender_tee(log_file))
 log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_folder))
 
 log_info("Iniciando el workflow")
 log_info("---------------------------")
 # Ejecuto los scripts del workflow
 # Cada script es autocontenido y se ejecuta en el entorno global
-source("1_Preprocesamiento.R")
+source(file.path(home_dir, "1_Preprocesamiento.R"))
 log_info("---------------------------")
 
-source("2_Data_Quality.R")
+source(file.path(home_dir, "2_Data_Quality.R"))
 log_info("---------------------------")
 
-source("3_Data_Drifting.R")
+source(file.path(home_dir, "3_Data_Drifting.R"))
 log_info("---------------------------")
 
-#source("4_Feature_Engineering_Intra_Mes.R")
+#source(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"))
 log_info("---------------------------")
 
-source("5_Feature_Engineering_Historico.R")
+source(file.path(home_dir, "5_Feature_Engineering_Historico.R"))
 log_info("---------------------------")
 
-#source("6_Feature_Engineering_RF.R")
+#source(file.path(home_dir, "6_Feature_Engineering_RF.R"))
 log_info("---------------------------")
 
-source("7_Reduccion_Dimensionalidad_Canaritos.R")
+source(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"))
 log_info("---------------------------")
 
-source("8_Modelado.R")
+source(file.path(home_dir, "8_Modelado.R"))
 log_info("---------------------------")
 
-source("9_Optimizacion_Bayesiana.R")
+source(file.path(home_dir, "9_Optimizacion_Bayesiana.R"))
 log_info("---------------------------")
 
-source("10_Evaluacion_Ensamble.R")
+source(file.path(home_dir, "10_Evaluacion_Ensamble.R"))
 log_info("---------------------------")
 
-#source("11_Modelo_Final.R")
+#source(file.path(home_dir, "11_Modelo_Final.R"))
 log_info("---------------------------")
 log_info("Workflow finalizado")

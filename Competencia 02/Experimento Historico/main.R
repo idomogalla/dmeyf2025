@@ -27,12 +27,15 @@ require("ggplot2")
 require("ggrepel")
 require("scales")
 
+# Guardo el directorio de origen
+home_dir <- getwd()
+
 # Defino los parámetros del workflow
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "seg-001"
-PARAM$semilla_primigenia <- 102191
+PARAM$experimento <- "colaborativo_001"
+PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
@@ -54,7 +57,7 @@ PARAM$FE_hist <- list()
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- 6
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
@@ -63,7 +66,7 @@ PARAM$FE_hist$Tendencias$promedio <- FALSE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
-PARAM$FE_hist$MovingAverages$run <- TRUE # Activar o desactivar Moving Averages
+PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
 PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
 PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
@@ -178,8 +181,6 @@ PARAM$train_final$training <- c(
 )
 PARAM$train_final$undersampling <- 0.10
 PARAM$train_final$ksemillerio <- 30
-set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
-PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
 
 # Parámetros para la generación del archivo de Kaggle
 PARAM$kaggle <- list()
@@ -194,43 +195,43 @@ dir.create(PARAM$experimento_folder, showWarnings = FALSE)
 
 # Configuro el logger
 log_file <- file.path(PARAM$experimento_folder, paste0("log_", PARAM$experimento, ".txt"))
-log_appender(appender_file(log_file))
+log_appender(appender_tee(log_file))
 log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_folder))
 
 log_info("Iniciando el workflow")
 log_info("---------------------------")
 # Ejecuto los scripts del workflow
 # Cada script es autocontenido y se ejecuta en el entorno global
-source("1_Preprocesamiento.R")
+source(file.path(home_dir, "1_Preprocesamiento.R"))
 log_info("---------------------------")
 
-source("2_Data_Quality.R")
+source(file.path(home_dir, "2_Data_Quality.R"))
 log_info("---------------------------")
 
-source("3_Data_Drifting.R")
+source(file.path(home_dir, "3_Data_Drifting.R"))
 log_info("---------------------------")
 
-source("4_Feature_Engineering_Intra_Mes.R")
+#source(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"))
 log_info("---------------------------")
 
-source("5_Feature_Engineering_Historico.R")
+source(file.path(home_dir, "5_Feature_Engineering_Historico.R"))
 log_info("---------------------------")
 
-source("6_Feature_Engineering_RF.R")
+#source(file.path(home_dir, "6_Feature_Engineering_RF.R"))
 log_info("---------------------------")
 
-source("7_Reduccion_Dimensionalidad_Canaritos.R")
+source(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"))
 log_info("---------------------------")
 
-source("8_Modelado.R")
+source(file.path(home_dir, "8_Modelado.R"))
 log_info("---------------------------")
 
-source("9_Optimizacion_Bayesiana.R")
+source(file.path(home_dir, "9_Optimizacion_Bayesiana.R"))
 log_info("---------------------------")
 
-source("10_Evaluacion_Ensamble.R")
+source(file.path(home_dir, "10_Evaluacion_Ensamble.R"))
 log_info("---------------------------")
 
-source("11_Modelo_Final.R")
+#source(file.path(home_dir, "11_Modelo_Final.R"))
 log_info("---------------------------")
 log_info("Workflow finalizado")

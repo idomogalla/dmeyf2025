@@ -105,7 +105,7 @@ PARAM$semilla_primigenia <- 974411
 PARAM$path$root <- "~/buckets/b1"
 PARAM$path$exp <- file.path(PARAM$path$root, "exp", PARAM$experimento)
 PARAM$path$datasets <- file.path(PARAM$path$root, "datasets")
-PARAM$path$dataset_crudo <- file.path(PARAM$path$datasets, "competencia_02_csv.gz")
+PARAM$path$dataset_crudo <- file.path(PARAM$path$datasets, "competencia_02.csv.gz")
 PARAM$path$gridsearch_log <- file.path(PARAM$path$exp, "gridsearch_results_v2.csv")
 
 
