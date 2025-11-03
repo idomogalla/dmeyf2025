@@ -38,7 +38,7 @@ PARAM$experimento <- "colaborativo_001"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- TRUE
+PARAM$generar_ternaria <- FALSE
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
 #PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
 PARAM$dataset_name <- "competencia_02.csv.gz"
@@ -50,6 +50,9 @@ PARAM$output_folder <- "~/buckets/b1/exp/"
 PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
 dir.create(PARAM$experimento_folder, showWarnings=FALSE)
 setwd(PARAM$experimento_folder)
+
+PARAM$carpeta_graficos <- "Plots/"
+PARAM$carpeta_entregables <- "Entregables/"
 
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
@@ -124,6 +127,7 @@ PARAM$trainingstrategy$testing <- c(202106)
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria","clase01","azar")
+PARAM$trainingstrategy$importancias <- 50
 
 # Parámetros de Optimización de Hiperparámetros (Bayesian Optimization)
 PARAM$hipeparametertuning <- list()

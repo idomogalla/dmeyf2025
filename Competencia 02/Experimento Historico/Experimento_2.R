@@ -51,6 +51,9 @@ PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
 dir.create(PARAM$experimento_folder, showWarnings=FALSE)
 setwd(PARAM$experimento_folder)
 
+PARAM$carpeta_graficos <- "Plots/"
+PARAM$carpeta_entregables <- "Entregables/"
+
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
 # Lags
@@ -124,6 +127,7 @@ PARAM$trainingstrategy$testing <- c(202106)
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria","clase01","azar")
+PARAM$trainingstrategy$importancias <- 50
 
 # Parámetros de Optimización de Hiperparámetros (Bayesian Optimization)
 PARAM$hipeparametertuning <- list()

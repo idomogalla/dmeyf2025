@@ -58,6 +58,28 @@ realidad_evaluar <- function(prealidad, pprediccion) {
   return(res)
 }
 
+# Función para graficar y guardar la importancia de features
+GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico) {
+  
+  # Ordenar por ganancia y tomar top_n
+  importancia_top <- importancia[order(-Gain)][1:top_n]
+  
+  # Crear el gráfico
+  p <- ggplot(importancia_top, aes(x = reorder(Feature, Gain), y = Gain)) +
+    geom_bar(stat = "identity", fill = "skyblue") +
+    coord_flip() +
+    labs(
+      title = paste("Top", top_n, "Feature Importance"),
+      x = "Features",
+      y = "Gain"
+    ) +
+    theme_minimal()
+  
+  # Guardar el gráfico
+  ggsave(ruta_grafico, plot = p, width = 10, height = 8)
+  log_info(paste("Gráfico de importancia de features guardado en:", ruta_grafico))
+}
+
 # Función GraficarCurvasEnsemble
 GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   log_info("Iniciando la graficación de la superposición de curvas del ensemble.")
@@ -99,8 +121,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   labels_plot <- c(labels_individuales, "Promedio" = label_promedio)
   names(labels_plot) <- c(names(colores_individuales), "Promedio")
 
-  # Creación de la carpeta de gráficos
-  dir.create(PARAM_plot$carpeta_graficos, showWarnings = FALSE)
+
 
   # --- Generación del Gráfico ggplot ---
   p <- ggplot() +
@@ -219,63 +240,81 @@ tryCatch({
   )
   
   param_entrenamiento <- copy(param_mejores)
+
+  # Crear carpeta de gráficos si no existe
+  dir.create(paste0(PARAM$experimento_folder, PARAM$carpeta_graficos), recursive = TRUE, showWarnings = FALSE)
   
   log_info(paste0("Iniciando evaluación de ", length(semillas_a_evaluar), " semillas..."))
   
   for (semilla_actual in semillas_a_evaluar) {
     log_info(paste0("--- Procesando semilla: ", semilla_actual, " ---"))
-    
+
     # Asignar semilla
     param_entrenamiento$seed <- semilla_actual
-    
+
     # Entrenar modelo
     # 'dtrain' es el dataset de training definido en 8_Modelado.R
     modelo <- lgb.train(data = dtrain, param = param_entrenamiento)
-    
+
+    # --- Feature Importance ---
+    # Obtener y guardar importancia de features
+    imp <- lgb.importance(modelo, percentage = TRUE)
+    imp_ordenada <- imp[order(-Gain)]
+
+    ruta_csv_imp <- paste0(PARAM$experimento_folder, "feature_importance_semilla_", semilla_actual, ".csv")
+    fwrite(imp_ordenada, file = ruta_csv_imp)
+    log_info(paste("Importancia de features para semilla", semilla_actual, "guardada en:", ruta_csv_imp))
+
+    # Graficar y guardar importancia de features
+    ruta_grafico_imp <- paste0(PARAM$experimento_folder, PARAM$carpeta_graficos, "feature_importance_semilla_", semilla_actual, ".png")
+    GraficarImportancia(imp_ordenada, top_n = PARAM$trainingstrategy$importancias, ruta_grafico = ruta_grafico_imp)
+
     # Predecir sobre datos de testing
     prediccion_individual <- predict(modelo, mfuture)
-    
+
     tb_pred_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
     tb_pred_individual[, prob := prediccion_individual]
-    
+
     # Guardar predicción
     lista_predicciones[[as.character(semilla_actual)]] <- tb_pred_individual
-    
+
     # Evaluar en todos los cortes
     resultados_individual <- data.table()
     setorder(tb_pred_individual, -prob)
-    
+
     for (envios in cortes_evaluacion) {
       if (envios > 0 && envios <= nrow(tb_pred_individual)) {
         tb_pred_individual[, Predicted := 0L]
         tb_pred_individual[1:envios, Predicted := 1L]
-        
+
         res_ind <- realidad_evaluar(drealidad, tb_pred_individual)
-        
+
         resultados_individual <- rbind(
           resultados_individual,
           data.table(clientes = envios, ganancia_total = res_ind$total)
         )
       } else if (envios == 0) {
-         resultados_individual <- rbind(
+        resultados_individual <- rbind(
           resultados_individual,
           data.table(clientes = 0, ganancia_total = 0)
         )
       }
     }
-    
+
     # Guardar la curva de ganancia de esta semilla
     lista_resultados_individuales[[as.character(semilla_actual)]] <- resultados_individual
-    
+
     # Calcular y guardar resumen de la semilla
     max_ganancia_ind <- max(resultados_individual$ganancia_total, na.rm = TRUE)
     envios_optimos_ind <- resultados_individual[ganancia_total == max_ganancia_ind, clientes]
     envios_optimos_str <- paste(sort(unique(envios_optimos_ind)), collapse = ", ")
-    
-    log_info(paste0("Semilla ", semilla_actual, ": Ganancia Máx = ", 
-                   format(max_ganancia_ind, big.mark = ".", decimal.mark = ","), 
-                   " en envíos: [", envios_optimos_str, "]"))
-                   
+
+    log_info(paste0(
+      "Semilla ", semilla_actual, ": Ganancia Máx = ",
+      format(max_ganancia_ind, big.mark = ".", decimal.mark = ","),
+      " en envíos: [", envios_optimos_str, "]"
+    ))
+
     resumen_ganancias <- rbind(
       resumen_ganancias,
       data.table(
@@ -340,11 +379,8 @@ tryCatch({
   )
 
   # --- 5. Generar Salidas ---
-
-  # Crear carpeta de gráficos
-  dir.create("Plots", showWarnings = FALSE)
   PARAM_plot <- list(
-    carpeta_graficos = "Plots/",
+    carpeta_graficos = paste0(PARAM$experimento_folder, PARAM$carpeta_graficos),
     experimento = PARAM$experimento
   )
 
