@@ -198,17 +198,16 @@
     # Agrego los lags
     log_info(paste0("Creando lags para los valores: ", paste(PARAM$FE_hist$lags$n_lags, collapse = ", ")))
     if (PARAM$FE_hist$lags$run) {
-      for (i in PARAM$FE_hist$lags$lag_values) {
+      for (i in PARAM$FE_hist$lags$n_lags) {
         dataset[,
           paste0(cols_lagueables, "_lag", i) := shift(.SD, i, NA, "lag"),
           by = numero_de_cliente,
           .SDcols = cols_lagueables
         ]
       }
-      
-      # Agrego los delta lags
+    # Agrego los delta lags
       log_info(paste0("Creando delta lags para los valores: ", paste(PARAM$FE_hist$lags$n_lags, collapse = ", ")))
-      for (i in PARAM$FE_hist$lags$lag_values) {
+      for (i in PARAM$FE_hist$lags$n_lags) {
         for (vcol in cols_lagueables)
         {
           # La columna de lag podría no existir
@@ -219,6 +218,60 @@
         }
       }
     }
+    # ########################################################
+    # INICIO BLOQUE DE DEPURACIÓN (LOGS DE MUESTRA)
+    # ########################################################
+    log_info("--- Muestra de Lags y Deltas Creados ---")
+
+    tryCatch({
+      # 1. Seleccionar la PRIMERA columna lagueable como ejemplo
+      col_ejemplo <- cols_lagueables[6]
+      log_info(paste("Mostrando ejemplos para la columna:", col_ejemplo))
+
+      # 2. Seleccionar 5 IDs de cliente al azar
+      ids_unicos <- unique(dataset$numero_de_cliente)
+      n_sample <- min(5, length(ids_unicos)) # Tomar 5 (o menos, si hay menos de 5 IDs)
+      ids_sample <- sample(ids_unicos, n_sample)
+
+      log_info(paste("Mostrando IDs de muestra:", paste(ids_sample, collapse = ", ")))
+
+      # 3. Definir todas las columnas que queremos mostrar
+      lags_a_mostrar <- paste0(col_ejemplo, "_lag", PARAM$FE_hist$lags$n_lags)
+      deltas_a_mostrar <- paste0(col_ejemplo, "_delta", PARAM$FE_hist$lags$n_lags)
+
+      cols_a_mostrar <- c(
+        "numero_de_cliente", "foto_mes", col_ejemplo,
+        lags_a_mostrar, deltas_a_mostrar
+      )
+
+      # 4. Crear la tabla de muestra
+      # Tomamos las últimas 6 filas por cada cliente
+      dt_sample <- dataset[numero_de_cliente %in% ids_sample,
+      tail(.SD, 6L),
+      by = numero_de_cliente,
+      .SDcols = intersect(cols_a_mostrar, colnames(dataset))]
+
+      # 5. Capturar el 'print' de la tabla y mandarlo al log
+      if (nrow(dt_sample) > 0) {
+        log_info(
+          paste(
+              capture.output(print(dt_sample, nrows = 30)), # 30 = 5 IDs * 6 filas
+              collapse = "\n"
+            )
+        )
+      } else {
+        log_info("No se pudo generar la tabla de muestra (dt_sample está vacía).")
+      }
+
+    }, error = function(e) {
+      log_error(paste("Error al generar log de muestra:", e$message))
+    })
+
+    log_info("--- Fin Muestra ---")
+    # ########################################################
+    # FIN BLOQUE DE DEPURACIÓN
+    # ########################################################
+
     log_info("Lags creados.")
 
     # Tendencias
