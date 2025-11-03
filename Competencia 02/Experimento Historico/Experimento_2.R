@@ -131,7 +131,7 @@ PARAM$trainingstrategy$importancias <- 50
 
 # Parámetros de Optimización de Hiperparámetros (Bayesian Optimization)
 PARAM$hipeparametertuning <- list()
-PARAM$hipeparametertuning$BO_iteraciones <- 50
+PARAM$hipeparametertuning$BO_iteraciones <- 30 # 50 seria mas razonable
 
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
