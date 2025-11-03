@@ -38,21 +38,20 @@ PARAM$experimento <- "colaborativo_002"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- FALSE
-PARAM$dir_dataset <- "~/buckets/b1/datasets/"
-#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-PARAM$dataset_name <- "competencia_02.csv.gz"
-PARAM$input_dataset <- paste0(PARAM$dir_dataset, PARAM$dataset_name)
+PARAM$generar_ternaria <- TRUE
+PARAM$dir_dataset <- "~/buckets/b1/datasets"
+PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+#PARAM$dataset_name <- "competencia_02.csv.gz"
+PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
 # La carpeta se crea relativo al script main.R
-PARAM$output_folder <- "~/buckets/b1/exp/"
+PARAM$output_folder <- "~/buckets/b1/exp"
 PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
 dir.create(PARAM$experimento_folder, showWarnings=FALSE)
-setwd(PARAM$experimento_folder)
 
-PARAM$carpeta_graficos <- "Plots/"
-PARAM$carpeta_entregables <- "Entregables/"
+PARAM$carpeta_graficos <- "Plots"
+PARAM$carpeta_entregables <- "Entregables"
 
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
@@ -136,7 +135,7 @@ PARAM$hipeparametertuning$BO_iteraciones <- 30 # 50 seria mas razonable
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
 # mayor a 1, se hace un  k-Ensemble Semillerio
-PARAM$hipeparametertuning$ksemillerio <- 50L
+PARAM$hipeparametertuning$ksemillerio <- 1L
 # El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
 # Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
 # Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization

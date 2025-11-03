@@ -27,7 +27,8 @@ trytryCatch({
 
   # leo el archivo donde quedaron los hiperparametros optimos
   log_info("Leyendo mejores hiperparámetros de BO_log.txt")
-  tb_BO <-  fread("BO_log.txt")
+  log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+  tb_BO <-  fread(log_bo_file)
   setorder( tb_BO, -metrica)  # ordeno por metrica descendente
   log_info(paste("Mejores hiperparámetros:", tb_BO[1]))
 
@@ -54,13 +55,14 @@ trytryCatch({
 
   # genero los modelitos
   log_info("Generando modelos para hacer ensemble de semillas.")
-  dir.create( "modelitos", showWarnings= FALSE)
+  dir_modelitos <- file.path(PARAM$experimento_folder, "modelitos")
+  dir.create( dir_modelitos, showWarnings= FALSE)
 
   param_completo <- copy( PARAM$train_final$param_mejores)
 
   for( sem in PARAM$train_final$semillas ) {
 
-    arch_modelo <- paste0("./modelitos/mod_", sem, ".txt")
+    arch_modelo <- file.path(dir_modelitos, paste0("mod_", sem, ".txt"))
     if( !file.exists( arch_modelo ) )
     {
       log_info(paste("Entrenando modelo con semilla:", sem))
@@ -86,9 +88,11 @@ trytryCatch({
   vpred_acum <- rep(0.0, nrow(dfuture))
   qacumulados <- 0
 
+  dir_modelitos <- file.path(PARAM$experimento_folder, "modelitos")
+
   for( sem in PARAM$train_final$semillas ) {
 
-    arch_modelo <- paste0("./modelitos/mod_", sem, ".txt")
+    arch_modelo <- file.path(dir_modelitos, paste0("mod_", sem, ".txt"))
     if( file.exists( arch_modelo ) )
     {
       log_info(paste("Aplicando modelo con semilla:", sem))
@@ -111,15 +115,17 @@ trytryCatch({
   tb_prediccion[, prob := vpred_acum ]
 
   # grabo las probabilidad del modelo
+  file_prediccion <- file.path(PARAM$experimento_folder, "prediccion.txt")
   fwrite(tb_prediccion,
-    file= "prediccion.txt",
+    file= file_prediccion,
     sep= "\t"
   )
-  log_info("Tabla de predicción guardada en prediccion.txt")
+  log_info(paste("Tabla de predicción guardada en:", file_prediccion))
 
   # genero archivos con los  "envios" mejores
-  log_info("Generando archivo para Kaggle")
-  dir.create("kaggle", showWarnings=FALSE)
+  log_info("Generando archivo para Entregar")
+  dir_kaggle <- file.path(PARAM$experimento_folder, PARAM$carpeta_entregables)
+  dir.create(dir_kaggle, showWarnings=FALSE)
 
   # ordeno por probabilidad descendente
   setorder(tb_prediccion, -prob)
@@ -130,7 +136,7 @@ trytryCatch({
     tb_prediccion[, Predicted := 0L]
     tb_prediccion[1:envio, Predicted := 1L]
 
-    archivo_kaggle <- paste0("./kaggle/KA", PARAM$experimento, "_", envio, ".csv")
+    archivo_kaggle <- file.path(dir_kaggle, paste0("KA", PARAM$experimento, "_", envio, ".csv"))
 
     # grabo el archivo
     fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],

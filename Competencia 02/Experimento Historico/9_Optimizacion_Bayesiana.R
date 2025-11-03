@@ -93,9 +93,10 @@ tryCatch({
   gmejor$iter <- 0
   gmejor$gan <- -Inf
 
+  log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
   giter <- 0
-  if( file.exists("BO_log.txt") ){
-    tb_BO <- fread("BO_log.txt")
+  if( file.exists(log_bo_file) ){
+    tb_BO <- fread(log_bo_file)
     giter <- nrow(tb_BO) -1 
   }
 
@@ -152,7 +153,7 @@ tryCatch({
 
       # grabo importancia de variables
       fwrite( lgb.importance(gmodelo),
-        file= paste0("impo_", giter, ".txt"),
+        file= file.path(PARAM$experimento_folder, paste0("impo_", giter, ".txt")), # <--- Ruta absoluta
         sep= "\t"
       )
     }
@@ -164,7 +165,7 @@ tryCatch({
     xx$metrica_sd <- sd(vgan_mesetas)
     xx$metrica <- gan_mesetas_prom
 
-    loguear( xx, "BO_log.txt")
+    loguear( xx, log_bo_file)
     set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")  # le reordeno a mlrMBO
 
     return( gan_mesetas_prom ) #tiempo_corrida
@@ -172,7 +173,7 @@ tryCatch({
 
   # Aqui comienza la configuracion de la Bayesian Optimization
   # en este archivo quedan la evolucion binaria de la BO
-  kbayesiana <- "bayesiana.RDATA"
+  kbayesiana <- file.path(PARAM$experimento_folder, "bayesiana.RDATA")
 
   funcion_optimizar <- EstimarGanancia_lightgbm # la funcion que voy a maximizar
 

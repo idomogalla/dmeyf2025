@@ -33,7 +33,7 @@ AgregaVarRandomForest <- function() {
 
   log_info("Fin construccion RandomForest")
   # grabo el modelo, achivo .model
-  lgb.save(modelo, file="modelo.model" )
+  lgb.save(modelo, file=file.path(PARAM$experimento_folder, "modelo.model") )
 
   qarbolitos <- copy(PARAM$FE_rf$lgb_param$num_iterations)
 

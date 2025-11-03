@@ -188,11 +188,12 @@ tryCatch({
   
   # --- 1. Cargar Mejores Hiperparámetros ---
   log_info("Cargando mejores hiperparámetros de BO_log.txt")
-  if (!file.exists("BO_log.txt")) {
+  log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+  if (!file.exists(log_bo_file)) {
     stop("No se encontró el archivo BO_log.txt. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
   }
   
-  tb_BO <- fread("BO_log.txt")
+  tb_BO <- fread(log_bo_file)
   setorder(tb_BO, -metrica) # Ordenar por la métrica de la BO
   
   # Identificar los parámetros de LightGBM
@@ -380,7 +381,7 @@ tryCatch({
 
   # --- 5. Generar Salidas ---
   PARAM_plot <- list(
-    carpeta_graficos = paste0(PARAM$experimento_folder, PARAM$carpeta_graficos),
+    carpeta_graficos = file.path(PARAM$experimento_folder, PARAM$carpeta_graficos),
     experimento = PARAM$experimento
   )
 
@@ -392,7 +393,7 @@ tryCatch({
   GraficarCurvasEnsemble(lista_plot, PARAM_plot)
 
   # Guardar Resumen TXT
-  ruta_resumen_txt <- "evaluacion_ensemble_resumen.txt"
+  ruta_resumen_txt <- file.path(PARAM$experimento_folder, "evaluacion_ensemble_resumen.txt")
   fwrite(resumen_ganancias, file = ruta_resumen_txt, sep = "\t")
   log_info(paste0("Resumen de ganancias guardado en: ", ruta_resumen_txt))
 

@@ -53,7 +53,7 @@ tryCatch({
 
       # Grabo en un archivo la cantidad de BAJA+1, BAJA+2 y CONTINUA
       fwrite(dataset[, .N, list(foto_mes, clase_ternaria)],
-        file = "class_ternaria_summary.txt",
+        file = file.path(PARAM$experimento_folder, "class_ternaria_summary.txt"),
         sep = "\t"
       )
 
