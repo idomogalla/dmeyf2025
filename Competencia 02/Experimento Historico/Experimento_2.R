@@ -31,7 +31,7 @@ require("scales")
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_001"
+PARAM$experimento <- "colaborativo_002"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -52,7 +52,7 @@ setwd(PARAM$experimento_folder)
 PARAM$FE_hist <- list()
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1,3) # Número de lags a crear
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- 6

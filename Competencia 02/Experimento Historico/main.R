@@ -31,8 +31,8 @@ require("scales")
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_001"
-PARAM$semilla_primigenia <- 200003
+PARAM$experimento <- "seg-001"
+PARAM$semilla_primigenia <- 102191
 
 # Path a los datos de entrada
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
@@ -54,7 +54,7 @@ PARAM$FE_hist <- list()
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- 6
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
@@ -63,7 +63,7 @@ PARAM$FE_hist$Tendencias$promedio <- FALSE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
-PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
+PARAM$FE_hist$MovingAverages$run <- TRUE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
 PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
 PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
@@ -210,13 +210,13 @@ log_info("---------------------------")
 source("3_Data_Drifting.R")
 log_info("---------------------------")
 
-#source("4_Feature_Engineering_Intra_Mes.R")
+source("4_Feature_Engineering_Intra_Mes.R")
 log_info("---------------------------")
 
 source("5_Feature_Engineering_Historico.R")
 log_info("---------------------------")
 
-#source("6_Feature_Engineering_RF.R")
+source("6_Feature_Engineering_RF.R")
 log_info("---------------------------")
 
 source("7_Reduccion_Dimensionalidad_Canaritos.R")

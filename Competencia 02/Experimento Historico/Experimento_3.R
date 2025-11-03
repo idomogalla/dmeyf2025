@@ -31,7 +31,7 @@ require("scales")
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_001"
+PARAM$experimento <- "colaborativo_003"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -52,7 +52,7 @@ setwd(PARAM$experimento_folder)
 PARAM$FE_hist <- list()
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1,3) # Número de lags a crear
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- 6
@@ -64,7 +64,7 @@ PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
-PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
+PARAM$FE_hist$MovingAverages$windows <- c(3, 6, 12) # Ventanas de moving averages
 PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
 PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
 

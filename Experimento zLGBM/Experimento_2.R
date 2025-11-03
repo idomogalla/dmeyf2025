@@ -20,6 +20,13 @@ if (!requireNamespace("zlightgbm", quietly = TRUE)) {
 }
 library(zlightgbm)
 
+# Load primes for seed generation
+if (!requireNamespace("primes", quietly = TRUE)) {
+  message("Installing primes...")
+  install.packages("primes")
+}
+library(primes)
+
 # Custom log function
 log_message <- function(message) {
   cat(format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), message, "\n")
@@ -98,8 +105,12 @@ log_message("Auxiliary functions (particionar, realidad_inicializar, realidad_ev
 #------------------------------------------------------------------------------
 
 PARAM <- list()
-PARAM$experimento <- "exp_zlgbm_1"
+PARAM$experimento <- "exp_zlgbm_2"
 PARAM$semilla_primigenia <- 974411
+
+# Parámetros del ensamble
+PARAM$ensemble <- list()
+PARAM$ensemble$semillerio_size <- 10 # Cantidad de modelos en el ensamble
 
 # Paths
 PARAM$path$root <- "~/buckets/b1"
@@ -246,14 +257,35 @@ for (i in 1:nrow(grid)) {
   ))
   
   
-  # --- 4.2. Preparar Datos de Entrenamiento (con canaritos dinámicos) ---
-  log_message("Preparing training data...")
-  
-  # Copiamos para no modificar el 'dataset' original
-  dataset_train <- dataset[foto_mes %in% PARAM$train$meses, .SD]
-  
+  # --- 4.2. Generación de Semillas para Ensamble ---
+log_message("Generating seeds for ensemble...")
+primos <- generate_primes(min = 100000, max = 1000000)
+set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+semillas_ensamble <- sample(primos, PARAM$ensemble$semillerio_size)
+log_message(paste("Generated", length(semillas_ensamble), "seeds:", paste(semillas_ensamble, collapse = ", ")))
+
+# --- 4.3. Preparar Datos de Entrenamiento (con canaritos dinámicos) ---
+log_message("Preparing training data...")
+dataset_train_base <- dataset[foto_mes %in% PARAM$train$meses, .SD]
+dataset_train_base[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
+
+campos_buenos <- setdiff(
+  colnames(dataset_train_base),
+  c("clase_ternaria", "clase01")
+)
+
+# --- 4.4. Entrenamiento y Predicción del Ensamble ---
+log_message("Starting ensemble training and prediction...")
+
+predicciones_ensamble <- list()
+for (semilla in semillas_ensamble) {
+  log_message(paste("Training model with seed:", semilla))
+
+  # Copiamos para no modificar el 'dataset_train_base'
+  dataset_train <- copy(dataset_train_base)
+
   # (Undersampling)
-  set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+  set.seed(semilla, kind = "L'Ecuyer-CMRG")
   dataset_train[, azar := runif(.N)]
   dataset_train[, training := 0L]
   dataset_train[
@@ -261,79 +293,70 @@ for (i in 1:nrow(grid)) {
     training := 1L
   ]
   dataset_train[, azar := NULL]
-  
-  # (Target Engineering)
-  dataset_train[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2", "BAJA+1"), 1L, 0L)]
-  
+
   # (Canaritos Dinámicos)
   cols_canaritos_new <- character(0)
   if (p_canaritos > 0) {
-    log_message(paste("Adding", p_canaritos, "canaritos to training data..."))
     filas_train <- nrow(dataset_train)
     for (j in seq_len(p_canaritos)) {
       col_name <- paste0("canarito_", j)
+      set.seed(semilla + j, kind = "L'Ecuyer-CMRG") # Semilla distinta para cada canarito
       dataset_train[, (col_name) := runif(filas_train)]
       cols_canaritos_new <- c(cols_canaritos_new, col_name)
     }
   }
-  
+
   # (Preparar dtrain para LightGBM)
-  campos_buenos <- setdiff(
-    colnames(dataset_train),
-    c("clase_ternaria", "clase01", "training")
-  )
+  campos_buenos_iter <- c(campos_buenos, cols_canaritos_new)
   
   dtrain <- lgb.Dataset(
-    data = data.matrix(dataset_train[training == 1L, campos_buenos, with = FALSE]),
+    data = data.matrix(dataset_train[training == 1L, campos_buenos_iter, with = FALSE]),
     label = dataset_train[training == 1L, clase01],
     free_raw_data = FALSE
   )
-  log_message("dtrain created.")
-  
-  
-  # --- 4.3. Entrenar Modelo ---
-  log_message("Training LightGBM model...")
-  
-  # Configurar parámetros de LGBM para esta iteración
+
+  # (Entrenar Modelo)
   lgbm_params_iter <- PARAM$lgbm_base
   lgbm_params_iter$canaritos <- p_canaritos
   lgbm_params_iter$gradient_bound <- p_gradient_bound
   lgbm_params_iter$min_data_in_leaf <- p_min_data_in_leaf
-  
+  lgbm_params_iter$seed <- semilla
+
   modelo <- lgb.train(
     data = dtrain,
     param = lgbm_params_iter
   )
-  log_message("Model trained.")
-  
-  
-  # --- 4.4. Preparar Datos de Validación (con canaritos dinámicos) ---
-  log_message("Preparing validation data...")
-  
-  # Copiamos para no modificar 'dataset_validation_base'
-  dataset_validation <- dataset_validation_base[, .SD]
-  
-  # (Añadir Canaritos) - Deben ser los mismos que en train
+
+  # (Preparar Datos de Validación)
+  dataset_validation <- copy(dataset_validation_base)
   if (p_canaritos > 0) {
-    log_message(paste("Adding", p_canaritos, "canaritos to validation data..."))
     filas_val <- nrow(dataset_validation)
-    for (col_name in cols_canaritos_new) {
+    for (j in seq_len(p_canaritos)) {
+      col_name <- paste0("canarito_", j)
+      set.seed(semilla + j, kind = "L'Ecuyer-CMRG") # Misma semilla que en train
       dataset_validation[, (col_name) := runif(filas_val)]
     }
   }
-  
-  
-  # --- 4.5. Predecir ---
-  log_message("Generating predictions on validation set...")
+
+  # (Predecir)
   prediccion <- predict(
     modelo,
-    data.matrix(dataset_validation[, campos_buenos, with = FALSE])
+    data.matrix(dataset_validation[, campos_buenos_iter, with = FALSE])
   )
-  
-  # Crear tabla de predicción
-  tb_prediccion <- dataset_validation[, list(numero_de_cliente, foto_mes)]
-  tb_prediccion[, prob := prediccion]
-  log_message("Predictions generated.")
+  predicciones_ensamble[[as.character(semilla)]] <- prediccion
+
+  rm(dataset_train, dtrain, modelo, dataset_validation)
+  gc()
+}
+
+# --- 4.5. Promediar Predicciones del Ensamble ---
+log_message("Averaging ensemble predictions...")
+prediccion_final <- Reduce(`+`, predicciones_ensamble) / length(predicciones_ensamble)
+
+# Crear tabla de predicción final
+tb_prediccion <- dataset_validation_base[, list(numero_de_cliente, foto_mes)]
+tb_prediccion[, prob := prediccion_final]
+log_message("Ensemble predictions generated.")
   
   
   # --- 4.6. Evaluar Ganancia (Lógica de funciones_auxiliares.R) ---
@@ -390,7 +413,7 @@ for (i in 1:nrow(grid)) {
   
   # --- 4.8. Limpieza de la iteración ---
   log_message("Cleaning up iteration...")
-  rm(modelo, dtrain, dataset_train, dataset_validation, tb_prediccion, resultados_iter, drealidad_iter)
+  rm(tb_prediccion, resultados_iter, drealidad_iter, predicciones_ensamble, prediccion_final, dataset_train_base, semillas_ensamble)
   gc(full = TRUE, verbose = FALSE)
   
 } # --- Fin del bucle Grid Search ---
