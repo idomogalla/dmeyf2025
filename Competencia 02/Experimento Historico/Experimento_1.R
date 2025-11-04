@@ -136,7 +136,7 @@ PARAM$hipeparametertuning$BO_iteraciones <- 30 # 50 seria mas razonable
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
 # mayor a 1, se hace un  k-Ensemble Semillerio
-PARAM$hipeparametertuning$ksemillerio <- 1L
+PARAM$hipeparametertuning$ksemillerio <- 50L
 # El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
 # Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
 # Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization
@@ -184,7 +184,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104, 202105, 202106
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 30
+PARAM$train_final$ksemillerio <- 50
 
 # Parámetros para la generación del archivo de Kaggle
 PARAM$kaggle <- list()

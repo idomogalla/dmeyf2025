@@ -184,7 +184,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104, 202105, 202106
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 30
+PARAM$train_final$ksemillerio <- 50
 
 # Parámetros para la generación del archivo de Kaggle
 PARAM$kaggle <- list()

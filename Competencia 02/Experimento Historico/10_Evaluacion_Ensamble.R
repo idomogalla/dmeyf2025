@@ -20,7 +20,7 @@ particionar <- function(data,
   data[, (campo) := sample(rep(bloque, ceiling(.N / length(bloque))))[1:.N], by = agrupa]
 }
 
-# Función realidad_inicializar
+# Función realidad_inicializar (Adaptada para usar semilla_primigenia de PARAM)
 realidad_inicializar <- function(pfuture, pparam) {
   drealidad <- pfuture[, list(numero_de_cliente, foto_mes, clase_ternaria)]
   
@@ -61,7 +61,6 @@ realidad_evaluar <- function(prealidad, pprediccion) {
 }
 
 #--- Funciones de Gráficos ---
-
 # Función para graficar y guardar la importancia de features
 GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico, subtitulo = "") {
   
@@ -230,12 +229,12 @@ tryCatch({
   imp_primigenia <- lgb.importance(modelo_primigenia, percentage = TRUE)
   imp_ordenada_primigenia <- imp_primigenia[order(-Gain)]
   
-  # Guardar CSV (nombre corto)
+  # Guardar CSV
   ruta_csv_imp_pri <- file.path(PARAM$experimento_folder, "fi_primigenia.csv")
   fwrite(imp_ordenada_primigenia, file = ruta_csv_imp_pri)
   log_info(paste("Importancia de features (primigenia) guardada en:", ruta_csv_imp_pri))
   
-  # Guardar Gráfico (nombre corto)
+  # Guardar Gráfico
   ruta_grafico_imp_pri <- file.path(dir_graficos, "fi_primigenia.png")
   GraficarImportancia(imp_ordenada_primigenia, 
                       top_n = PARAM$trainingstrategy$importancias, 
@@ -247,15 +246,21 @@ tryCatch({
   gc()
 
   # --- 3. Bucle de Entrenamiento y Evaluación del Ensamble ---
-  log_info(paste("Generando", PARAM$train_final$ksemillerio, "semillas para el ensamble final."))
-  set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
-  semillas_a_evaluar <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
+  # Usamos las semillas que generó el Script 9
+  if (!exists("PARAM$BO$semillas") || length(PARAM$BO$semillas) == 0) {
+    stop("PARAM$BO$semillas no está definido o está vacío. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
+  }
   
+  # Usamos las semillas de la BO
+  semillas_a_evaluar <- PARAM$BO$semillas
+  
+  log_info(paste0("Evaluando ", length(semillas_a_evaluar), 
+                 " semilla(s) de la Optimización Bayesiana (ksemillerio * repe)."))
   log_info(paste(
-    "Semillas para el ensamble final:", 
+    "Semillas de la BO a evaluar:", 
     paste(semillas_a_evaluar, collapse = ", ")
   ))
-  
+
   lista_predicciones <- list()
   lista_resultados_individuales <- list()
   lista_importancia <- list() 
@@ -399,7 +404,7 @@ tryCatch({
 
   # --- 5. Generar Salidas ---
   PARAM_plot <- list(
-    carpeta_graficos = dir_graficos, # Usar la variable ya creada
+    carpeta_graficos = dir_graficos,
     experimento = PARAM$experimento
   )
 
@@ -418,4 +423,4 @@ tryCatch({
   log_error("######################################################")
 })
 
-log_info("Fin Evaluación del Ensamble")
+log_info("Fin 10_Evaluacion_Ensamble.R")
