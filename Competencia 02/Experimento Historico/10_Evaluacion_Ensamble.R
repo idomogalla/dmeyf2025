@@ -242,13 +242,28 @@ tryCatch({
   tb_BO <- fread(log_bo_file)
   setorder(tb_BO, -metrica) 
   
-  param_lgbm <- union(names(PARAM$lgbm$param_fijos), names(PARAM$hipeparametertuning$hs$pars))
-  param_mejores <- as.list(tb_BO[1, param_lgbm, with = FALSE])
+  #Obtener los nombres de los parámetros que fueron optimizados
+  nombres_params_optimizados <- names(PARAM$hipeparametertuning$hs$pars)
+
+  # Extraer de tb_BO SOLO los valores de esos parámetros
+  columnas_opt_existentes <- intersect(nombres_params_optimizados, names(tb_BO))
+  
+  if (length(columnas_opt_existentes) == 0) {
+     stop(paste("tb_BO (cargado o regenerado desde RDATA) no contiene ninguna columna de hiperparámetro optimizable",
+                "(ej. num_iterations, learning_rate). Revisa el archivo bayesiana.RDATA o BO_log.txt."))
+  }
+  
+  # Obtenemos la lista de los mejores parámetros OPTIMIZADOS
+  best_opt_params <- as.list(tb_BO[1, ..columnas_opt_existentes])
+  
+  # Construir la lista 'param_mejores' final
+  # Empezamos con los fijos y sobrescribimos/añadimos los optimizados
+  param_mejores <- modifyList(PARAM$lgbm$param_fijos, best_opt_params)
   
   log_info("Hiperparámetros óptimos cargados:")
   log_info(paste(capture.output(print(param_mejores)), collapse = "\n"))
   
-  # --- 2. Preparar Datos ---
+  # --- Preparar Datos ---
   if (!exists("dtrain") || !exists("campos_buenos")) {
     stop("Los objetos 'dtrain' o 'campos_buenos' no existen. Asegúrate de que 8_Modelado.R se haya ejecutado.")
   }
