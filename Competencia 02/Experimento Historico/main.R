@@ -51,6 +51,7 @@ PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
 dir.create(PARAM$experimento_folder, showWarnings=FALSE)
 
 PARAM$carpeta_bayesiana <- "Bayesiana"
+PARAM$carpeta_evaluacion <- "Evaluacion"
 PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 

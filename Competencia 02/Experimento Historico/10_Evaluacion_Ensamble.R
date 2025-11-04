@@ -61,6 +61,7 @@ realidad_evaluar <- function(prealidad, pprediccion) {
 }
 
 #--- Funciones de Gráficos ---
+
 # Función para graficar y guardar la importancia de features
 GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico, subtitulo = "") {
   
@@ -137,7 +138,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
               size = 4, shape = 18) +
     
-    # Añadir anotación del máximo promedio
+    # Añadir anotación del máximo promedio (como en la imagen de referencia)
     geom_label(data = maximo_promedio,
               aes(x = clientes, y = ganancia_total, 
                   label = paste0("Máximo\n", format(ganancia_total, big.mark = ".", decimal.mark = ","))),
@@ -214,9 +215,17 @@ tryCatch({
   drealidad <- realidad_inicializar(dfuture, PARAM)
   cortes_evaluacion <- seq(0, 20000, by = 100)
   
-  # Crear carpeta de gráficos
+  # --- Crear directorios ---
+  # Directorio para Gráficos (PNGs)
   dir_graficos <- file.path(PARAM$experimento_folder, PARAM$carpeta_graficos)
   dir.create(dir_graficos, recursive = TRUE, showWarnings = FALSE)
+  
+  # Directorio para Evaluación (CSVs, TXT)
+  dir_evaluacion <- file.path(PARAM$experimento_folder, PARAM$carpeta_evaluacion)
+  dir.create(dir_evaluacion, recursive = TRUE, showWarnings = FALSE)
+  
+  log_info(paste("Directorio de Gráficos (PNGs) creado en:", dir_graficos))
+  log_info(paste("Directorio de Evaluación (CSVs) creado en:", dir_evaluacion))
 
   # --- Feature Importance de la Semilla Primigenia ---
   log_info(paste("Generando Feature Importance para la semilla primigenia:", PARAM$semilla_primigenia))
@@ -229,12 +238,12 @@ tryCatch({
   imp_primigenia <- lgb.importance(modelo_primigenia, percentage = TRUE)
   imp_ordenada_primigenia <- imp_primigenia[order(-Gain)]
   
-  # Guardar CSV
-  ruta_csv_imp_pri <- file.path(PARAM$experimento_folder, "fi_primigenia.csv")
+  # --- Guardar CSV en /Evaluacion ---
+  ruta_csv_imp_pri <- file.path(dir_evaluacion, "fi_primigenia.csv")
   fwrite(imp_ordenada_primigenia, file = ruta_csv_imp_pri)
   log_info(paste("Importancia de features (primigenia) guardada en:", ruta_csv_imp_pri))
   
-  # Guardar Gráfico
+  # Guardar Gráfico (PNG) en /Plots
   ruta_grafico_imp_pri <- file.path(dir_graficos, "fi_primigenia.png")
   GraficarImportancia(imp_ordenada_primigenia, 
                       top_n = PARAM$trainingstrategy$importancias, 
@@ -246,12 +255,12 @@ tryCatch({
   gc()
 
   # --- 3. Bucle de Entrenamiento y Evaluación del Ensamble ---
-  # Usamos las semillas que generó el Script 9
+  
+  # Usamos las semillas de la BO (Script 9)
   if (!exists("PARAM$BO$semillas") || length(PARAM$BO$semillas) == 0) {
     stop("PARAM$BO$semillas no está definido o está vacío. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
   }
   
-  # Usamos las semillas de la BO
   semillas_a_evaluar <- PARAM$BO$semillas
   
   log_info(paste0("Evaluando ", length(semillas_a_evaluar), 
@@ -284,6 +293,22 @@ tryCatch({
     # Acumular Feature Importance
     imp <- lgb.importance(modelo, percentage = TRUE)
     lista_importancia[[as.character(semilla_actual)]] <- imp
+
+    # --- Guardar FI individual de esta semilla ---
+    imp_ordenada_ind <- imp[order(-Gain)]
+    
+    # Guardar CSV individual en /Evaluacion
+    ruta_csv_ind <- file.path(dir_evaluacion, paste0("fi_semilla_", semilla_actual, ".csv"))
+    fwrite(imp_ordenada_ind, file = ruta_csv_ind)
+    
+    # Guardar Gráfico individual en /Plots
+    ruta_grafico_ind <- file.path(dir_graficos, paste0("fi_semilla_", semilla_actual, ".png"))
+    GraficarImportancia(imp_ordenada_ind, 
+                        top_n = PARAM$trainingstrategy$importancias, 
+                        ruta_grafico = ruta_grafico_ind,
+                        subtitulo = paste(PARAM$experimento, "- Semilla:", semilla_actual))
+    
+    rm(imp_ordenada_ind) # Limpiar
 
     # Predecir sobre datos de testing
     prediccion_individual <- predict(modelo, mfuture)
@@ -321,7 +346,7 @@ tryCatch({
 
     log_info(paste0(
       "Semilla ", semilla_actual, ": Ganancia Máx = ",
-      format(max_ganancia_ind, big.mark = ".", decimal.mark = ","),
+      format(max_ganG_ind, big.mark = ".", decimal.mark = ","),
       " en envíos: [", envios_optimos_str, "]"
     ))
 
@@ -344,12 +369,12 @@ tryCatch({
   imp_promediada <- imp_todas[, .(Gain = mean(Gain), Cover = mean(Cover), Frequency = mean(Frequency)), by = Feature]
   imp_ordenada <- imp_promediada[order(-Gain)]
   
-  # Guardar CSV
-  ruta_csv_imp <- file.path(PARAM$experimento_folder, "fi_ensemble.csv")
+  # --- Guardar CSV en /Evaluacion ---
+  ruta_csv_imp <- file.path(dir_evaluacion, "fi_ensemble.csv")
   fwrite(imp_ordenada, file = ruta_csv_imp)
   log_info(paste("Importancia de features (promediada) guardada en:", ruta_csv_imp))
   
-  # Guardar Gráfico
+  # Guardar Gráfico (PNG) en /Plots
   ruta_grafico_imp <- file.path(dir_graficos, "fi_ensemble.png")
   GraficarImportancia(imp_ordenada, 
                       top_n = PARAM$trainingstrategy$importancias, 
@@ -404,15 +429,15 @@ tryCatch({
 
   # --- 5. Generar Salidas ---
   PARAM_plot <- list(
-    carpeta_graficos = dir_graficos,
+    carpeta_graficos = dir_graficos, # Usar la variable ya creada
     experimento = PARAM$experimento
   )
 
   # Generar Gráfico
   GraficarCurvasEnsemble(lista_resultados_individuales, PARAM_plot)
 
-  # Guardar Resumen TXT
-  ruta_resumen_txt <- file.path(PARAM$experimento_folder, "eval_resumen.txt")
+  # --- Guardar Resumen TXT en /Evaluacion ---
+  ruta_resumen_txt <- file.path(dir_evaluacion, "eval_resumen.txt")
   fwrite(resumen_ganancias, file = ruta_resumen_txt, sep = "\t")
   log_info(paste0("Resumen de ganancias (leíble para Wilcoxon) guardado en: ", ruta_resumen_txt))
 
@@ -423,4 +448,4 @@ tryCatch({
   log_error("######################################################")
 })
 
-log_info("Fin 10_Evaluacion_Ensamble.R")
+log_info("Fin Evaluación del Ensamble.")
