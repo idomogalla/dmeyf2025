@@ -178,16 +178,65 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
 tryCatch({
   log_info("Iniciando la evaluación del ensamble en datos de testing.")
   
-  # --- 1. Cargar Mejores Hiperparámetros ---
+  # --- Cargar Mejores Hiperparámetros ---
   log_info("Cargando mejores hiperparámetros de BO_log.txt")
   dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
   log_bo_file <- file.path(dir_bayesiana, "BO_log.txt")
   
+  # Levanto el archivo BO_log.txt, o lo regenero desde bayesiana.RDATA si no existe
   if (!file.exists(log_bo_file)) {
-    log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
-    if (!file.exists(log_bo_file)) {
-      stop("No se encontró el archivo BO_log.txt. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
+    log_warn(paste("No se encontró BO_log.txt. Intentando REGENERAR desde bayesiana.RDATA..."))
+
+    rdata_file <- file.path(dir_bayesiana, "bayesiana.RDATA")
+    if (!file.exists(rdata_file)) {
+      stop(paste("FALLO FATAL: No se encontró ni BO_log.txt ni", rdata_file, "para regenerarlo."))
     }
+
+    log_info(paste("Cargando", rdata_file, "..."))
+
+    # Cargamos el .RDATA en un entorno separado para evitar conflictos de nombres
+    env_bo <- new.env()
+    load(rdata_file, envir = env_bo)
+
+    # Comprobamos que el objeto (guardado en Script 9) exista
+    if (!exists("bayesiana_salida", envir = env_bo)) {
+      stop(paste("El archivo", rdata_file, "no contiene el objeto 'bayesiana_salida'.",
+                "Asegúrate de modificar el Script 9 para que guarde 'bayesiana_salida' al finalizar."))
+    }
+
+    mbo_result <- env_bo$bayesiana_salida
+
+    # Extraemos el historial de optimización (el $opt.path)
+    # mlrMBO guarda el historial en $opt.path$env$path
+    if (is.null(mbo_result$opt.path$env$path)) {
+      stop("No se pudo encontrar el historial ($opt.path$env$path) dentro de bayesiana.RDATA.")
+    }
+
+    tb_BO_regen <- as.data.table(mbo_result$opt.path$env$path)
+
+    # mlrMBO guarda la métrica de resultado en la columna "y"
+    if ("y" %in% names(tb_BO_regen)) {
+      # Renombramos "y" a "metrica" para que coincida con tu loguear()
+      setnames(tb_BO_regen, "y", "metrica")
+    } else {
+      stop("El historial de optimización no tiene columna 'y'. No se puede regenerar la métrica.")
+    }
+
+    # Añadimos columnas NA para las que tu loguear() crea pero mlrMBO no
+    # (Script 10 solo ordena por 'metrica', así que esto es por completitud)
+    if (!"metrica_mejor" %in% names(tb_BO_regen)) tb_BO_regen[, metrica_mejor := NA_real_]
+    if (!"metrica_sd" %in% names(tb_BO_regen)) tb_BO_regen[, metrica_sd := NA_real_]
+
+    # Guardamos el log regenerado
+    fwrite(tb_BO_regen, file = log_bo_file)
+    log_info(paste("BO_log.txt regenerado y guardado en:", log_bo_file))
+
+    tb_BO <- tb_BO_regen
+      
+  } else {
+    # Si el archivo existía (Intento 1 o 2), simplemente lo leemos
+    log_info(paste("Cargando BO_log.txt encontrado en:", log_bo_file))
+    tb_BO <- fread(log_bo_file)
   }
   
   tb_BO <- fread(log_bo_file)

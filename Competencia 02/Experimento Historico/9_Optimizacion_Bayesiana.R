@@ -229,6 +229,10 @@ tryCatch({
     bayesiana_salida <- mboContinue(kbayesiana) # retomo en caso que ya exista
   }
   log_info("Fin optimización bayesiana")
+
+  log_info("Guardando el objeto de resultado final de la BO en bayesiana.RDATA")
+  # Sobrescribimos el checkpoint con el objeto de resultado final completo
+  save(bayesiana_salida, file = kbayesiana)
 }, error = function(e) {
   log_error("######################################################")
   log_error("Se ha producido un error fatal en la Sección 9: Optimización Bayesiana.")
