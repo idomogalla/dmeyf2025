@@ -1,4 +1,4 @@
-log_info("Inicio Evaluación del Ensamble")
+log_info("Inicio 10_Evaluacion_Ensamble.R")
 
 #--- Funciones de Evaluación ---
 # Función particionar (requerida por realidad_inicializar)
@@ -448,4 +448,4 @@ tryCatch({
   log_error("######################################################")
 })
 
-log_info("Fin Evaluación del Ensamble.")
+log_info("Fin 10_Evaluacion_Ensamble.R")
