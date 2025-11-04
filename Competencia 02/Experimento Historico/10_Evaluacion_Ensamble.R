@@ -254,8 +254,7 @@ tryCatch({
   rm(modelo_primigenia, imp_primigenia, imp_ordenada_primigenia)
   gc()
 
-  # --- 3. Bucle de Entrenamiento y Evaluación del Ensamble ---
-  
+  # --- Bucle de Entrenamiento y Evaluación del Ensamble ---
   # Usamos las semillas de la BO (Script 9)
   if (!exists("PARAM$BO$semillas") || length(PARAM$BO$semillas) == 0) {
     stop("PARAM$BO$semillas no está definido o está vacío. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")

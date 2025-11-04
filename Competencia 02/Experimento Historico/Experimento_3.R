@@ -170,6 +170,7 @@ PARAM$lgbm$param_fijos <- list(
   skip_drop = 0.5,
   max_bin = 31
 )
+PARAM$BO <- list()
 
 PARAM$eval_ensamble <- list()
 
