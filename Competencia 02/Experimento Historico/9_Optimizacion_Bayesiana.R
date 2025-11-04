@@ -41,7 +41,8 @@ tryCatch({
   primos <- generate_primes(min = 100000, max = 1000000)
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   # me quedo con PARAM$semillerio  primos al azar
-  PARAM$BO$semillas <<- sample(primos)[seq( PARAM$hipeparametertuning$ksemillerio * PARAM$hipeparametertuning$repe )]
+  PARAM$BO$semillas <- sample(primos)[seq( PARAM$hipeparametertuning$ksemillerio * PARAM$hipeparametertuning$repe )]
+  assign("PARAM", PARAM, envir = .GlobalEnv) # TryCatch no me permite asignar valores por fuera
 
   log_info(paste("Semillas:", paste(PARAM$BO$semillas, collapse = ", ")))
 
