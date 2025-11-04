@@ -178,92 +178,28 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
 tryCatch({
   log_info("Iniciando la evaluación del ensamble en datos de testing.")
   
-  # --- Cargar Mejores Hiperparámetros ---
+  # --- 1. Cargar Mejores Hiperparámetros ---
   log_info("Cargando mejores hiperparámetros de BO_log.txt")
   dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
   log_bo_file <- file.path(dir_bayesiana, "BO_log.txt")
   
-  # Levanto el archivo BO_log.txt, o lo regenero desde bayesiana.RDATA si no existe
   if (!file.exists(log_bo_file)) {
-    log_warn(paste("No se encontró BO_log.txt. Intentando REGENERAR desde bayesiana.RDATA..."))
-
-    rdata_file <- file.path(dir_bayesiana, "bayesiana.RDATA")
-    if (!file.exists(rdata_file)) {
-      stop(paste("FALLO FATAL: No se encontró ni BO_log.txt ni", rdata_file, "para regenerarlo."))
+    log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+    if (!file.exists(log_bo_file)) {
+      stop("No se encontró el archivo BO_log.txt. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
     }
-
-    log_info(paste("Cargando", rdata_file, "..."))
-
-    # Cargamos el .RDATA en un entorno separado para evitar conflictos de nombres
-    env_bo <- new.env()
-    load(rdata_file, envir = env_bo)
-
-    # Comprobamos que el objeto (guardado en Script 9) exista
-    if (!exists("bayesiana_salida", envir = env_bo)) {
-      stop(paste("El archivo", rdata_file, "no contiene el objeto 'bayesiana_salida'.",
-                "Asegúrate de modificar el Script 9 para que guarde 'bayesiana_salida' al finalizar."))
-    }
-
-    mbo_result <- env_bo$bayesiana_salida
-
-    # Extraemos el historial de optimización (el $opt.path)
-    # mlrMBO guarda el historial en $opt.path$env$path
-    if (is.null(mbo_result$opt.path$env$path)) {
-      stop("No se pudo encontrar el historial ($opt.path$env$path) dentro de bayesiana.RDATA.")
-    }
-
-    tb_BO_regen <- as.data.table(mbo_result$opt.path$env$path)
-
-    # mlrMBO guarda la métrica de resultado en la columna "y"
-    if ("y" %in% names(tb_BO_regen)) {
-      # Renombramos "y" a "metrica" para que coincida con tu loguear()
-      setnames(tb_BO_regen, "y", "metrica")
-    } else {
-      stop("El historial de optimización no tiene columna 'y'. No se puede regenerar la métrica.")
-    }
-
-    # Añadimos columnas NA para las que tu loguear() crea pero mlrMBO no
-    # (Script 10 solo ordena por 'metrica', así que esto es por completitud)
-    if (!"metrica_mejor" %in% names(tb_BO_regen)) tb_BO_regen[, metrica_mejor := NA_real_]
-    if (!"metrica_sd" %in% names(tb_BO_regen)) tb_BO_regen[, metrica_sd := NA_real_]
-
-    # Guardamos el log regenerado
-    fwrite(tb_BO_regen, file = log_bo_file)
-    log_info(paste("BO_log.txt regenerado y guardado en:", log_bo_file))
-
-    tb_BO <- tb_BO_regen
-      
-  } else {
-    # Si el archivo existía (Intento 1 o 2), simplemente lo leemos
-    log_info(paste("Cargando BO_log.txt encontrado en:", log_bo_file))
-    tb_BO <- fread(log_bo_file)
   }
   
   tb_BO <- fread(log_bo_file)
   setorder(tb_BO, -metrica) 
   
-  #Obtener los nombres de los parámetros que fueron optimizados
-  nombres_params_optimizados <- names(PARAM$hipeparametertuning$hs$pars)
-
-  # Extraer de tb_BO SOLO los valores de esos parámetros
-  columnas_opt_existentes <- intersect(nombres_params_optimizados, names(tb_BO))
-  
-  if (length(columnas_opt_existentes) == 0) {
-     stop(paste("tb_BO (cargado o regenerado desde RDATA) no contiene ninguna columna de hiperparámetro optimizable",
-                "(ej. num_iterations, learning_rate). Revisa el archivo bayesiana.RDATA o BO_log.txt."))
-  }
-  
-  # Obtenemos la lista de los mejores parámetros OPTIMIZADOS
-  best_opt_params <- as.list(tb_BO[1, ..columnas_opt_existentes])
-  
-  # Construir la lista 'param_mejores' final
-  # Empezamos con los fijos y sobrescribimos/añadimos los optimizados
-  param_mejores <- modifyList(PARAM$lgbm$param_fijos, best_opt_params)
+  param_lgbm <- union(names(PARAM$lgbm$param_fijos), names(PARAM$hipeparametertuning$hs$pars))
+  param_mejores <- as.list(tb_BO[1, param_lgbm, with = FALSE])
   
   log_info("Hiperparámetros óptimos cargados:")
   log_info(paste(capture.output(print(param_mejores)), collapse = "\n"))
   
-  # --- Preparar Datos ---
+  # --- 2. Preparar Datos ---
   if (!exists("dtrain") || !exists("campos_buenos")) {
     stop("Los objetos 'dtrain' o 'campos_buenos' no existen. Asegúrate de que 8_Modelado.R se haya ejecutado.")
   }
