@@ -1,4 +1,6 @@
-log_info("Inicio de la evaluación del ensamble")
+log_info("Inicio Evaluación del Ensamble")
+
+#--- Funciones de Evaluación ---
 # Función particionar (requerida por realidad_inicializar)
 particionar <- function(data,
                         division,
@@ -18,7 +20,7 @@ particionar <- function(data,
   data[, (campo) := sample(rep(bloque, ceiling(.N / length(bloque))))[1:.N], by = agrupa]
 }
 
-# Función realidad_inicializar (Adaptada para usar semilla_primigenia de PARAM)
+# Función realidad_inicializar
 realidad_inicializar <- function(pfuture, pparam) {
   drealidad <- pfuture[, list(numero_de_cliente, foto_mes, clase_ternaria)]
   
@@ -58,11 +60,13 @@ realidad_evaluar <- function(prealidad, pprediccion) {
   return(res)
 }
 
+#--- Funciones de Gráficos ---
+
 # Función para graficar y guardar la importancia de features
-GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico) {
+GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico, subtitulo = "") {
   
   # Ordenar por ganancia y tomar top_n
-  importancia_top <- importancia[order(-Gain)][1:top_n]
+  importancia_top <- importancia[order(-Gain)][1:min(top_n, nrow(importancia))]
   
   # Crear el gráfico
   p <- ggplot(importancia_top, aes(x = reorder(Feature, Gain), y = Gain)) +
@@ -70,6 +74,7 @@ GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico) {
     coord_flip() +
     labs(
       title = paste("Top", top_n, "Feature Importance"),
+      subtitle = subtitulo,
       x = "Features",
       y = "Gain"
     ) +
@@ -103,10 +108,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
 
   # --- Creación de Etiquetas para la Leyenda ---
   labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
-    max_info <- maximos_individuales[semilla == sem]
-    paste0("S ", sem, 
-          ": G ", format(max_info$ganancia_total, big.mark = ".", decimal.mark = ","),
-          " (E ", max_info$clientes, ")")
+    paste0("S ", sem)
   })
 
   label_promedio <- paste0("Promedio: G ",
@@ -118,58 +120,48 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   names(colores_individuales) <- maximos_individuales$semilla
   
   colores_plot <- c(colores_individuales, "Promedio" = "black")
-  labels_plot <- c(labels_individuales, "Promedio" = label_promedio)
+  labels_plot <- c(labels_individuales, "Promedio" = "Promedio (Negro)")
   names(labels_plot) <- c(names(colores_individuales), "Promedio")
-
-
 
   # --- Generación del Gráfico ggplot ---
   p <- ggplot() +
     # Líneas individuales
     geom_line(data = tb_todas,
               aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
-              alpha = 0.5, linewidth = 1) +
+              alpha = 0.4, linewidth = 0.8) +
     # Línea promedio
     geom_line(data = tb_promedio,
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
-              linewidth = 1) +
-    # Puntos máximos individuales
-    geom_point(data = maximos_individuales,
-              aes(x = clientes, y = ganancia_total, color = semilla),
-              size = 3, alpha = 0.7) +
+              linewidth = 1.2) + # Más gruesa
     # Punto máximo promedio
     geom_point(data = maximo_promedio,
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
               size = 4, shape = 18) +
-    # Etiquetas de envíos (individuales)
-    ggrepel::geom_text_repel(data = maximos_individuales,
-                            aes(x = clientes, y = ganancia_total, label = clientes),
-                            color = "black", size = 3.0,
-                            box.padding = 0.3, point.padding = 0.3,
-                            min.segment.length = 0) +
-    # Etiqueta de envío (promedio)
-    ggrepel::geom_text_repel(data = maximo_promedio,
-                            aes(x = clientes, y = ganancia_total, label = clientes),
-                            color = "black", size = 4.0, fontface = "bold",
-                            box.padding = 0.5, point.padding = 0.5,
-                            min.segment.length = 0) +
+    
+    # Añadir anotación del máximo promedio
+    geom_label(data = maximo_promedio,
+              aes(x = clientes, y = ganancia_total, 
+                  label = paste0("Máximo\n", format(ganancia_total, big.mark = ".", decimal.mark = ","))),
+              vjust = -0.5, # Mover etiqueta arriba del punto
+              fill = "white", color = "red", fontface = "bold") +
+
     scale_y_continuous(labels = scales::comma) +
-    scale_color_manual(name = "Curvas y sus Máximos",
+    scale_x_continuous(labels = scales::comma) + 
+    scale_color_manual(name = "Modelo",
                       values = colores_plot,
                       labels = labels_plot) +
     labs(
-      title = paste0("Curvas de Ganancia del Ensemble y su Promedio (Validación Interna)"),
-      subtitle = paste0("Experimento: ", PARAM_plot$experimento),
+      title = paste0("Ganancia Acumulada (Semillas y Ensamble) - ", PARAM_plot$experimento),
       x = "Clientes Contactados (Envíos)",
-      y = "Ganancia Total"
+      y = "Ganancia Acumulada"
     ) +
     theme_minimal() +
-    theme(legend.position = "bottom",
+    theme(legend.position = "right",
           plot.margin = margin(10, 10, 10, 10)) +
-    guides(color = guide_legend(ncol = 2)) # Ajusta el número de columnas de la leyenda
+    guides(color = guide_legend(ncol = 1, override.aes = list(alpha = 1, linewidth = 2)))
 
-  # Guardar el gráfico
-  ruta_grafico <- paste0(PARAM_plot$carpeta_graficos, "eval_ensemble_curvas_", PARAM_plot$experimento, ".png")
+  # Nombre de archivo corto
+  ruta_grafico <- file.path(PARAM_plot$carpeta_graficos, "eval_curvas.png")
   ggsave(
     ruta_grafico,
     plot = p,
@@ -188,18 +180,20 @@ tryCatch({
   
   # --- 1. Cargar Mejores Hiperparámetros ---
   log_info("Cargando mejores hiperparámetros de BO_log.txt")
-  log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+  dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
+  log_bo_file <- file.path(dir_bayesiana, "BO_log.txt")
+  
   if (!file.exists(log_bo_file)) {
-    stop("No se encontró el archivo BO_log.txt. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
+    log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+    if (!file.exists(log_bo_file)) {
+      stop("No se encontró el archivo BO_log.txt. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
+    }
   }
   
   tb_BO <- fread(log_bo_file)
-  setorder(tb_BO, -metrica) # Ordenar por la métrica de la BO
+  setorder(tb_BO, -metrica) 
   
-  # Identificar los parámetros de LightGBM
   param_lgbm <- union(names(PARAM$lgbm$param_fijos), names(PARAM$hipeparametertuning$hs$pars))
-  
-  # Seleccionar los mejores parámetros
   param_mejores <- as.list(tb_BO[1, param_lgbm, with = FALSE])
   
   log_info("Hiperparámetros óptimos cargados:")
@@ -217,66 +211,79 @@ tryCatch({
     stop(paste("No se encontraron datos para el período de testing:", PARAM$trainingstrategy$testing))
   }
   
-  # Matrix de predicción
   mfuture <- data.matrix(dfuture[, campos_buenos, with = FALSE])
-  
-  # Datos de realidad para evaluar
   drealidad <- realidad_inicializar(dfuture, PARAM)
-  
-  # Definir los cortes de evaluación (de Prueba_16.R)
   cortes_evaluacion <- seq(0, 20000, by = 100)
   
+  # Crear carpeta de gráficos
+  dir_graficos <- file.path(PARAM$experimento_folder, PARAM$carpeta_graficos)
+  dir.create(dir_graficos, recursive = TRUE, showWarnings = FALSE)
+
+  # --- Feature Importance de la Semilla Primigenia ---
+  log_info(paste("Generando Feature Importance para la semilla primigenia:", PARAM$semilla_primigenia))
+  
+  param_primigenia <- copy(param_mejores)
+  param_primigenia$seed <- PARAM$semilla_primigenia
+  
+  modelo_primigenia <- lgb.train(data = dtrain, param = param_primigenia)
+  
+  imp_primigenia <- lgb.importance(modelo_primigenia, percentage = TRUE)
+  imp_ordenada_primigenia <- imp_primigenia[order(-Gain)]
+  
+  # Guardar CSV (nombre corto)
+  ruta_csv_imp_pri <- file.path(PARAM$experimento_folder, "fi_primigenia.csv")
+  fwrite(imp_ordenada_primigenia, file = ruta_csv_imp_pri)
+  log_info(paste("Importancia de features (primigenia) guardada en:", ruta_csv_imp_pri))
+  
+  # Guardar Gráfico (nombre corto)
+  ruta_grafico_imp_pri <- file.path(dir_graficos, "fi_primigenia.png")
+  GraficarImportancia(imp_ordenada_primigenia, 
+                      top_n = PARAM$trainingstrategy$importancias, 
+                      ruta_grafico = ruta_grafico_imp_pri,
+                      subtitulo = paste(PARAM$experimento, "- Semilla Primigenia:", PARAM$semilla_primigenia))
+  
+  # Limpiar modelo
+  rm(modelo_primigenia, imp_primigenia, imp_ordenada_primigenia)
+  gc()
+
   # --- 3. Bucle de Entrenamiento y Evaluación del Ensamble ---
-  semillas_a_evaluar <- PARAM$BO$semillas
-  if (is.null(semillas_a_evaluar) || length(semillas_a_evaluar) == 0) {
-    stop("No se encontraron semillas en PARAM$BO$semillas. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
-  }
+  log_info(paste("Generando", PARAM$train_final$ksemillerio, "semillas para el ensamble final."))
+  set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+  semillas_a_evaluar <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
+  
+  log_info(paste(
+    "Semillas para el ensamble final:", 
+    paste(semillas_a_evaluar, collapse = ", ")
+  ))
   
   lista_predicciones <- list()
   lista_resultados_individuales <- list()
+  lista_importancia <- list() 
+
   resumen_ganancias <- data.table(
     semilla = character(),
     max_ganancia = numeric(),
-    envios_optimos = character()
+    envios_optimos = character() 
   )
   
   param_entrenamiento <- copy(param_mejores)
-
-  # Crear carpeta de gráficos si no existe
-  dir.create(paste0(PARAM$experimento_folder, PARAM$carpeta_graficos), recursive = TRUE, showWarnings = FALSE)
   
   log_info(paste0("Iniciando evaluación de ", length(semillas_a_evaluar), " semillas..."))
   
   for (semilla_actual in semillas_a_evaluar) {
     log_info(paste0("--- Procesando semilla: ", semilla_actual, " ---"))
 
-    # Asignar semilla
     param_entrenamiento$seed <- semilla_actual
-
-    # Entrenar modelo
-    # 'dtrain' es el dataset de training definido en 8_Modelado.R
     modelo <- lgb.train(data = dtrain, param = param_entrenamiento)
 
-    # --- Feature Importance ---
-    # Obtener y guardar importancia de features
+    # Acumular Feature Importance
     imp <- lgb.importance(modelo, percentage = TRUE)
-    imp_ordenada <- imp[order(-Gain)]
-
-    ruta_csv_imp <- paste0(PARAM$experimento_folder, "feature_importance_semilla_", semilla_actual, ".csv")
-    fwrite(imp_ordenada, file = ruta_csv_imp)
-    log_info(paste("Importancia de features para semilla", semilla_actual, "guardada en:", ruta_csv_imp))
-
-    # Graficar y guardar importancia de features
-    ruta_grafico_imp <- paste0(PARAM$experimento_folder, PARAM$carpeta_graficos, "feature_importance_semilla_", semilla_actual, ".png")
-    GraficarImportancia(imp_ordenada, top_n = PARAM$trainingstrategy$importancias, ruta_grafico = ruta_grafico_imp)
+    lista_importancia[[as.character(semilla_actual)]] <- imp
 
     # Predecir sobre datos de testing
     prediccion_individual <- predict(modelo, mfuture)
-
     tb_pred_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
     tb_pred_individual[, prob := prediccion_individual]
-
-    # Guardar predicción
     lista_predicciones[[as.character(semilla_actual)]] <- tb_pred_individual
 
     # Evaluar en todos los cortes
@@ -287,9 +294,7 @@ tryCatch({
       if (envios > 0 && envios <= nrow(tb_pred_individual)) {
         tb_pred_individual[, Predicted := 0L]
         tb_pred_individual[1:envios, Predicted := 1L]
-
         res_ind <- realidad_evaluar(drealidad, tb_pred_individual)
-
         resultados_individual <- rbind(
           resultados_individual,
           data.table(clientes = envios, ganancia_total = res_ind$total)
@@ -302,7 +307,6 @@ tryCatch({
       }
     }
 
-    # Guardar la curva de ganancia de esta semilla
     lista_resultados_individuales[[as.character(semilla_actual)]] <- resultados_individual
 
     # Calcular y guardar resumen de la semilla
@@ -327,6 +331,25 @@ tryCatch({
   }
   
   log_info("Evaluación de semillas individuales completa.")
+
+  # --- Procesar Feature Importance Promediado ---
+  log_info("Calculando Feature Importance promediada del ensamble.")
+  
+  imp_todas <- rbindlist(lista_importancia)
+  imp_promediada <- imp_todas[, .(Gain = mean(Gain), Cover = mean(Cover), Frequency = mean(Frequency)), by = Feature]
+  imp_ordenada <- imp_promediada[order(-Gain)]
+  
+  # Guardar CSV
+  ruta_csv_imp <- file.path(PARAM$experimento_folder, "fi_ensemble.csv")
+  fwrite(imp_ordenada, file = ruta_csv_imp)
+  log_info(paste("Importancia de features (promediada) guardada en:", ruta_csv_imp))
+  
+  # Guardar Gráfico
+  ruta_grafico_imp <- file.path(dir_graficos, "fi_ensemble.png")
+  GraficarImportancia(imp_ordenada, 
+                      top_n = PARAM$trainingstrategy$importancias, 
+                      ruta_grafico = ruta_grafico_imp,
+                      subtitulo = paste(PARAM$experimento, "- Promedio de", length(semillas_a_evaluar), "semillas"))
   
   # --- 4. Evaluación del Ensamble Promediado ---
   log_info("Evaluando el ensamble promediado...")
@@ -341,9 +364,7 @@ tryCatch({
     if (envios > 0 && envios <= nrow(tb_prediccion_ensamble)) {
       tb_prediccion_ensamble[, Predicted := 0L]
       tb_prediccion_ensamble[1:envios, Predicted := 1L]
-      
       res_ens <- realidad_evaluar(drealidad, tb_prediccion_ensamble)
-      
       resultados_ensamble <- rbind(
         resultados_ensamble,
         data.table(clientes = envios, ganancia_total = res_ens$total)
@@ -356,14 +377,11 @@ tryCatch({
     }
   }
   
-  # Añadir la curva promedio a la lista para el gráfico
-  lista_resultados_individuales[["PROMEDIO"]] <- resultados_ensamble
-  
   # Calcular y guardar resumen del promedio
   max_ganancia_ens <- max(resultados_ensamble$ganancia_total, na.rm = TRUE)
   envios_optimos_ens <- resultados_ensamble[ganancia_total == max_ganancia_ens, clientes]
   envios_optimos_ens_str <- paste(sort(unique(envios_optimos_ens)), collapse = ", ")
-  # Guardar envíos óptimos en PARAM
+  
   PARAM$eval_ensamble$envios_optimos_promedio <- sort(unique(envios_optimos_ens))
 
   log_info(paste0("Ensamble Promedio: Ganancia Máx = ", 
@@ -381,21 +399,17 @@ tryCatch({
 
   # --- 5. Generar Salidas ---
   PARAM_plot <- list(
-    carpeta_graficos = file.path(PARAM$experimento_folder, PARAM$carpeta_graficos),
+    carpeta_graficos = dir_graficos, # Usar la variable ya creada
     experimento = PARAM$experimento
   )
 
   # Generar Gráfico
-  # Modificamos la lista para que "PROMEDIO" no se grafique como individual
-  lista_plot <- copy(lista_resultados_individuales)
-  lista_plot[["PROMEDIO"]] <- NULL # La función Graficar... calcula su propio promedio
-
-  GraficarCurvasEnsemble(lista_plot, PARAM_plot)
+  GraficarCurvasEnsemble(lista_resultados_individuales, PARAM_plot)
 
   # Guardar Resumen TXT
-  ruta_resumen_txt <- file.path(PARAM$experimento_folder, "evaluacion_ensemble_resumen.txt")
+  ruta_resumen_txt <- file.path(PARAM$experimento_folder, "eval_resumen.txt")
   fwrite(resumen_ganancias, file = ruta_resumen_txt, sep = "\t")
-  log_info(paste0("Resumen de ganancias guardado en: ", ruta_resumen_txt))
+  log_info(paste0("Resumen de ganancias (leíble para Wilcoxon) guardado en: ", ruta_resumen_txt))
 
 }, error = function(e) {
   log_error("######################################################")
@@ -404,4 +418,4 @@ tryCatch({
   log_error("######################################################")
 })
 
-log_info("Fin de la evaluación del ensamble.")
+log_info("Fin Evaluación del Ensamble")

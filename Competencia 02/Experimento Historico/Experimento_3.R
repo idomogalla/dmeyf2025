@@ -34,7 +34,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_003"
+PARAM$experimento <- "colaborativo_03"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -50,6 +50,7 @@ PARAM$output_folder <- "~/buckets/b1/exp"
 PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
 dir.create(PARAM$experimento_folder, showWarnings=FALSE)
 
+PARAM$carpeta_bayesiana <- "Bayesiana"
 PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 

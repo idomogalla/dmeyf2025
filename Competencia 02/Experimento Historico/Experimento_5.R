@@ -34,14 +34,14 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "main"
+PARAM$experimento <- "colaborativo_05"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- TRUE
+PARAM$generar_ternaria <- FALSE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-#PARAM$dataset_name <- "competencia_02.csv.gz"
+#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
@@ -57,11 +57,11 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- 6
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- 3
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -172,6 +172,7 @@ PARAM$lgbm$param_fijos <- list(
 
 PARAM$eval_ensamble <- list()
 
+
 # Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()
 PARAM$train_final$future <- c(202108)
@@ -188,6 +189,7 @@ PARAM$train_final$ksemillerio <- 30
 # Parámetros para la generación del archivo de Kaggle
 PARAM$kaggle <- list()
 PARAM$kaggle$envios <- 11000
+
 
 #------------------------------------------------------------------------------
 # INICIO DEL WORKFLOW

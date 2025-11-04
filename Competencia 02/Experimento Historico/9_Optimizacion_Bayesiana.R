@@ -1,5 +1,9 @@
 log_info("Inicio 9_Optimización_Bayesiana.R")
 tryCatch({
+  # Definir y crear la carpeta para los outputs de la BO
+  dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
+  dir.create(dir_bayesiana, showWarnings = FALSE)
+
   # Optimizacion de Hipeparámetros
   log_info("Creando dtrain")
   dtrain <- lgb.Dataset(
@@ -93,7 +97,7 @@ tryCatch({
   gmejor$iter <- 0
   gmejor$gan <- -Inf
 
-  log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+  log_bo_file <- file.path(dir_bayesiana, "BO_log.txt")
   giter <- 0
   if( file.exists(log_bo_file) ){
     tb_BO <- fread(log_bo_file)
@@ -153,7 +157,7 @@ tryCatch({
 
       # grabo importancia de variables
       fwrite( lgb.importance(gmodelo),
-        file= file.path(PARAM$experimento_folder, paste0("impo_", giter, ".txt")), # <--- Ruta absoluta
+        file= file.path(dir_bayesiana, paste0("impo_", giter, ".txt")),
         sep= "\t"
       )
     }
@@ -173,7 +177,7 @@ tryCatch({
 
   # Aqui comienza la configuracion de la Bayesian Optimization
   # en este archivo quedan la evolucion binaria de la BO
-  kbayesiana <- file.path(PARAM$experimento_folder, "bayesiana.RDATA")
+  kbayesiana <- file.path(dir_bayesiana, "bayesiana.RDATA")
 
   funcion_optimizar <- EstimarGanancia_lightgbm # la funcion que voy a maximizar
 
@@ -218,8 +222,10 @@ tryCatch({
   # es la celda mas lenta de todo el notebook
   log_info("Iniciando optimización bayesiana")
   if (!file.exists(kbayesiana)) {
+    log_info("No existe bayesiana.RDATA, comienzo nueva optimización.")
     bayesiana_salida <- mbo(obj.fun, learner= surr.km, control= ctrl)
   } else {
+    log_info("Existe bayesiana.RDATA, retomo optimización.")
     bayesiana_salida <- mboContinue(kbayesiana) # retomo en caso que ya exista
   }
   log_info("Fin optimización bayesiana")
