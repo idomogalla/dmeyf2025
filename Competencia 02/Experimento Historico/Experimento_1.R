@@ -38,10 +38,10 @@ PARAM$experimento <- "colaborativo_01"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- TRUE
+PARAM$generar_ternaria <- FALSE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-#PARAM$dataset_name <- "competencia_02.csv.gz"
+#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
