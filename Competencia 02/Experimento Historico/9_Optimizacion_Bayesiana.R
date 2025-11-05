@@ -42,7 +42,9 @@ tryCatch({
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   # me quedo con PARAM$semillerio  primos al azar
   PARAM$BO$semillas <- sample(primos)[seq( PARAM$hipeparametertuning$ksemillerio * PARAM$hipeparametertuning$repe )]
-  assign("PARAM", PARAM, envir = parent.frame()) # TryCatch no me permite asignar valores por fuera
+  
+  saveRDS(PARAM$BO$semillas, 
+          file = file.path(dir_bayesiana, "BO_semillas.rds")) # Evito problemas de memoria al guardar el objeto semillas en otro lado
 
   log_info(paste("Semillas:", paste(PARAM$BO$semillas, collapse = ", ")))
   log_info(paste("PARAM object saved to:", file.path(dir_bayesiana, "param_state.RData")))

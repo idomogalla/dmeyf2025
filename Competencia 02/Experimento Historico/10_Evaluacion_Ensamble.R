@@ -255,11 +255,17 @@ tryCatch({
   gc()
 
   # --- Bucle de Entrenamiento y Evaluación del Ensamble ---
-  # Usamos las semillas de la BO (Script 9)
-  if (!exists("PARAM$BO$semillas") || length(PARAM$BO$semillas) == 0) {
-    stop("PARAM$BO$semillas no está definido o está vacío. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
+  # Cargo las semillas de la bayesiana
+  semillas_file <- file.path(dir_bayesiana, "BO_semillas.rds")
+  
+  if (!file.exists(semillas_file)) {
+    stop(paste("No se encontró el archivo de semillas:", semillas_file,
+               "Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado correctamente."))
   }
   
+  # Cargamos las semillas en la variable PARAM
+  PARAM$BO$semillas <- readRDS(semillas_file)
+    
   semillas_a_evaluar <- PARAM$BO$semillas
   
   log_info(paste0("Evaluando ", length(semillas_a_evaluar), 
