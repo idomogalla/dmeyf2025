@@ -3,9 +3,6 @@ tryCatch({
   dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
   dir.create(dir_bayesiana, showWarnings = FALSE)
 
-  log_info("Nombre de las columnas del dataset a ser usadas:", paste(colnames(dataset), collapse = ", "))
-  log_info("Total de las columnas del dataset a ser usadas:", ncol(dataset))
-
   # Optimizacion de Hipeparámetros
   log_info("Creando dtrain.")
   dtrain <- lgb.Dataset(
@@ -14,6 +11,7 @@ tryCatch({
     free_raw_data= TRUE
   )
 
+  log_info(paste("dtrain nombre de las columnas: ", paste(colnames(dataset), collapse = ", ")))
   log_info(paste("dtrain filas:", nrow(dtrain), "columnas:", ncol(dtrain)))
 
   # Notar que se recorren algunos hiperparametros en forma logaritmica
@@ -39,6 +37,7 @@ tryCatch({
   test_matrix <- data.matrix(dataset_test[, campos_buenos, with= FALSE])
 
   log_info(paste("dataset_test filas:", nrow(dataset_test), "columnas:", ncol(dataset_test)))
+  log_info(paste("test_matrix a ser usada en la bayesiana filas:", nrow(test_matrix), "columnas:", ncol(test_matrix)))
 
   primos <- generate_primes(min = 100000, max = 1000000)
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
