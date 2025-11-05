@@ -62,7 +62,7 @@ PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 3) # Número de lags a crear
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- 6
+PARAM$FE_hist$Tendencias$ventana <- c(6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE

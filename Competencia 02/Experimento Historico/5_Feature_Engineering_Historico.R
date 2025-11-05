@@ -279,16 +279,18 @@
     setorder(dataset, numero_de_cliente, foto_mes)
 
     if (PARAM$FE_hist$Tendencias$run) {
-      TendenciaYmuchomas(dataset,
-        cols = cols_lagueables,
-        ventana = PARAM$FE_hist$Tendencias$ventana, # 6 meses de historia
-        tendencia = PARAM$FE_hist$Tendencias$tendencia,
-        minimo = PARAM$FE_hist$Tendencias$minimo,
-        maximo = PARAM$FE_hist$Tendencias$maximo,
-        promedio = PARAM$FE_hist$Tendencias$promedio,
-        ratioavg = PARAM$FE_hist$Tendencias$ratioavg,
-        ratiomax = PARAM$FE_hist$Tendencias$ratiomax
-      )
+      for (v in PARAM$FE_hist$Tendencias$ventana) {
+        TendenciaYmuchomas(dataset,
+          cols = cols_lagueables,
+          ventana = v, # Por defecto serán 6 meses
+          tendencia = PARAM$FE_hist$Tendencias$tendencia,
+          minimo = PARAM$FE_hist$Tendencias$minimo,
+          maximo = PARAM$FE_hist$Tendencias$maximo,
+          promedio = PARAM$FE_hist$Tendencias$promedio,
+          ratioavg = PARAM$FE_hist$Tendencias$ratioavg,
+          ratiomax = PARAM$FE_hist$Tendencias$ratiomax
+        )
+      }
     }
     log_info("Tendencias calculadas.")
 
