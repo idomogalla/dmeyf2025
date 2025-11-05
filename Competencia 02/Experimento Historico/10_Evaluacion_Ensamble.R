@@ -106,24 +106,30 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
   maximo_promedio <- head(maximo_promedio, 1) # Primer máximo si hay empate
 
-  # --- Creación de Etiquetas para la Leyenda ---
-  labels_individuales <- sapply(maximos_individuales$semilla, function(sem) {
-    paste0("S ", sem)
-  })
+  # Creación de Etiquetas para la Leyenda
+  # Ahora las etiquetas incluyen Ganancia y Envíos
+  labels_individuales <- sprintf("S %s: G %s (E %s)",
+                                maximos_individuales$semilla,
+                                format(maximos_individuales$ganancia_total, big.mark = ".", decimal.mark = ","),
+                                maximos_individuales$clientes
+                                )
+  
+  label_promedio <- sprintf("Promedio: G %s (E %s)",
+                                      format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ","),
+                                      maximo_promedio$clientes
+                                      )
 
-  label_promedio <- paste0("Promedio: G ",
-                          format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ","),
-                          " (E ", maximo_promedio$clientes, ")")
-
-  # --- Configuración de Colores y Leyendas para el Plot ---
+  # Configuración de Colores y Leyendas para el Plot
   colores_individuales <- scales::hue_pal()(nrow(maximos_individuales))
   names(colores_individuales) <- maximos_individuales$semilla
   
   colores_plot <- c(colores_individuales, "Promedio" = "black")
-  labels_plot <- c(labels_individuales, "Promedio" = "Promedio (Negro)")
+  
+  #Combinar las nuevas etiquetas
+  labels_plot <- c(labels_individuales, label_promedio)
   names(labels_plot) <- c(names(colores_individuales), "Promedio")
 
-  # --- Generación del Gráfico ggplot ---
+  # Generación del Gráfico ggplot
   p <- ggplot() +
     # Líneas individuales
     geom_line(data = tb_todas,
@@ -138,14 +144,17 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
               size = 4, shape = 18) +
     
-    # Añadir anotación del máximo promedio (como en la imagen de referencia)
+    # Añadir anotación del máximo promedio
     geom_label(data = maximo_promedio,
-              aes(x = clientes, y = ganancia_total, 
-                  label = paste0("Máximo\n", format(ganancia_total, big.mark = ".", decimal.mark = ","))),
-              vjust = -0.5, # Mover etiqueta arriba del punto
-              fill = "white", color = "red", fontface = "bold") +
-
-    scale_y_continuous(labels = scales::comma) +
+                aes(x = clientes, y = ganancia_total, 
+                    label = paste0("Máximo\n", 
+                                    format(ganancia_total, big.mark = ".", decimal.mark = ","), "\n",
+                                    format(clientes, big.mark = ".", decimal.mark = ","), " Envíos")),
+                vjust = -0.5, # Mover etiqueta arriba del punto
+                fill = "white", color = "red", fontface = "bold") +
+    scale_y_continuous(labels = scales::comma, 
+                       expand = expansion(mult = c(0.05, 0.1))) + # 5% abajo, 10% arriba
+                       
     scale_x_continuous(labels = scales::comma) + 
     scale_color_manual(name = "Modelo",
                       values = colores_plot,
@@ -156,9 +165,11 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
       y = "Ganancia Acumulada"
     ) +
     theme_minimal() +
-    theme(legend.position = "right",
+    
+    # Mover leyenda abajo y en 3 columnas
+    theme(legend.position = "bottom",
           plot.margin = margin(10, 10, 10, 10)) +
-    guides(color = guide_legend(ncol = 1, override.aes = list(alpha = 1, linewidth = 2)))
+    guides(color = guide_legend(ncol = 3, override.aes = list(alpha = 1, linewidth = 2)))
 
   # Nombre de archivo corto
   ruta_grafico <- file.path(PARAM_plot$carpeta_graficos, "eval_curvas.png")
@@ -166,7 +177,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
     ruta_grafico,
     plot = p,
     width = 12,
-    height = 8
+    height = 8  # Aumenté un poco la altura para dar espacio a la leyenda
   )
 
   log_info(paste0("Gráfico de superposición de curvas del ensemble guardado en: ", ruta_grafico))
@@ -351,7 +362,7 @@ tryCatch({
 
     log_info(paste0(
       "Semilla ", semilla_actual, ": Ganancia Máx = ",
-      format(max_ganG_ind, big.mark = ".", decimal.mark = ","),
+      format(max_ganancia_ind, big.mark = ".", decimal.mark = ","),
       " en envíos: [", envios_optimos_str, "]"
     ))
 
@@ -443,7 +454,10 @@ tryCatch({
 
   # --- Guardar Resumen TXT en /Evaluacion ---
   ruta_resumen_txt <- file.path(dir_evaluacion, "eval_resumen.txt")
-  fwrite(resumen_ganancias, file = ruta_resumen_txt, sep = "\t")
+  fwrite(resumen_ganancias, 
+         file = ruta_resumen_txt, 
+         sep = "\t",
+         scipen = 999)
   log_info(paste0("Resumen de ganancias (leíble para Wilcoxon) guardado en: ", ruta_resumen_txt))
 
 }, error = function(e) {
