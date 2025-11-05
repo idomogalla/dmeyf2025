@@ -1,5 +1,5 @@
-log_info("Inicio Modelo final")
-trytryCatch({
+log_info("Inicio 11_Modelo_Final.R")
+tryCatch({  
   # se filtran los meses donde se entrena el modelo final
   log_info("Filtrando datos para el modelo final")
   dataset_train_final <- dataset[foto_mes %in% PARAM$train_final$training]
@@ -27,7 +27,18 @@ trytryCatch({
 
   # leo el archivo donde quedaron los hiperparametros optimos
   log_info("Leyendo mejores hiperparámetros de BO_log.txt")
-  log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+
+  dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
+  log_bo_file <- file.path(dir_bayesiana, "BO_log.txt")
+  
+  if (!file.exists(log_bo_file)) {
+    log_warn(paste("No se encontró BO_log.txt en", dir_bayesiana, ". Probando en la carpeta raíz."))
+    log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
+     if (!file.exists(log_bo_file)) {
+        stop("No se encontró BO_log.txt en ninguna ubicación. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
+     }
+  }
+  
   tb_BO <-  fread(log_bo_file)
   setorder( tb_BO, -metrica)  # ordeno por metrica descendente
   log_info(paste("Mejores hiperparámetros:", tb_BO[1]))
@@ -43,6 +54,10 @@ trytryCatch({
   log_info(paste("Original min_data_in_leaf:", tb_BO[1, min_data_in_leaf], "Ajustado min_data_in_leaf:", PARAM$train_final$param_mejores$min_data_in_leaf))
   log_info(paste("Parámetros finales:", PARAM$train_final$param_mejores))
 
+  set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+  PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
+  log_info(paste("Semillas a ser utilizadas en el modelo final para el ensamble:", paste(PARAM$train_final$semillas, collapse = ", ")))
+  
   # dejo los datos en formato LightGBM
   log_info("Creando dtrain_final")
   dtrain_final <- lgb.Dataset(
@@ -55,7 +70,7 @@ trytryCatch({
 
   # genero los modelitos
   log_info("Generando modelos para hacer ensemble de semillas.")
-  dir_modelitos <- file.path(PARAM$experimento_folder, "modelitos")
+  dir_modelitos <- file.path(PARAM$experimento_folder, "Modelitos")
   dir.create( dir_modelitos, showWarnings= FALSE)
 
   param_completo <- copy( PARAM$train_final$param_mejores)
@@ -80,6 +95,7 @@ trytryCatch({
   }
   log_info("Modelos generados")
 
+  # Scoring
   # aplico el modelo a los datos sin clase
   log_info("Aplicando modelos a datos futuros")
   dfuture <- dataset[foto_mes %in% PARAM$train_final$future ]
@@ -87,8 +103,6 @@ trytryCatch({
 
   vpred_acum <- rep(0.0, nrow(dfuture))
   qacumulados <- 0
-
-  dir_modelitos <- file.path(PARAM$experimento_folder, "modelitos")
 
   for( sem in PARAM$train_final$semillas ) {
 
@@ -106,10 +120,8 @@ trytryCatch({
   vpred_acum <- vpred_acum / qacumulados  # paso a probabildiad
   log_info("Modelos aplicados")
 
-
   # tabla de prediccion, puede ser util para futuros ensembles
   #  ya que le modelo ganador va a ser un ensemble de LightGBMs
-
   log_info("Creando tabla de predicción")
   tb_prediccion <- dfuture[, list(numero_de_cliente, foto_mes)]
   tb_prediccion[, prob := vpred_acum ]
@@ -122,6 +134,7 @@ trytryCatch({
   )
   log_info(paste("Tabla de predicción guardada en:", file_prediccion))
 
+  # Clasificación
   # genero archivos con los  "envios" mejores
   log_info("Generando archivo para Entregar")
   dir_kaggle <- file.path(PARAM$experimento_folder, PARAM$carpeta_entregables)
@@ -130,7 +143,20 @@ trytryCatch({
   # ordeno por probabilidad descendente
   setorder(tb_prediccion, -prob)
 
-  envios <- c(PARAM$eval_ensamble$envios_optimos_promedio, PARAM$eval_ensamble$envios_optimos_promedio + 1, 11000)
+  log_info("Cargando el vector de envíos finales (óptimos + manuales) desde archivo...")
+  
+  dir_evaluacion <- file.path(PARAM$experimento_folder, PARAM$carpeta_evaluacion)
+  ruta_envios_rds <- file.path(dir_evaluacion, "envios_optimos.rds")
+
+  if (!file.exists(ruta_envios_rds)) {
+    stop(paste("No se encontró el archivo de envíos óptimos:", ruta_envios_rds,
+               "Asegúrate de que 10_Evaluacion_Ensamble.R se haya ejecutado correctamente."))
+  }
+  
+  # Cargamos el vector de envios generado por el Script 10
+  envios <- readRDS(ruta_envios_rds)
+  
+  log_info(paste("Envíos finales a generar:", paste(envios, collapse = ", ")))
 
   for (envio in envios) {
     tb_prediccion[, Predicted := 0L]
@@ -151,4 +177,4 @@ trytryCatch({
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })
-log_info("Fin Modelo Final")
+log_info("Fin 11_Modelo_Final.R")

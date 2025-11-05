@@ -216,10 +216,10 @@ tryCatch({
   }
 
   log_info("Preparando datos de evaluación (testing).")
-  dfuture <- dataset[foto_mes %in% PARAM$trainingstrategy$testing]
+  dfuture <- dataset[foto_mes %in% PARAM$eval_ensamble$mes_testing]
   
   if (nrow(dfuture) == 0) {
-    stop(paste("No se encontraron datos para el período de testing:", PARAM$trainingstrategy$testing))
+    stop(paste("No se encontraron datos para el período de testing:", PARAM$eval_ensamble$mes_testing))
   }
   
   mfuture <- data.matrix(dfuture[, campos_buenos, with = FALSE])
@@ -235,8 +235,8 @@ tryCatch({
   dir_evaluacion <- file.path(PARAM$experimento_folder, PARAM$carpeta_evaluacion)
   dir.create(dir_evaluacion, recursive = TRUE, showWarnings = FALSE)
   
-  log_info(paste("Directorio de Gráficos (PNGs) creado en:", dir_graficos))
-  log_info(paste("Directorio de Evaluación (CSVs) creado en:", dir_evaluacion))
+  log_info(paste("Directorio de Gráficos creado en:", dir_graficos))
+  log_info(paste("Directorio de Evaluación creado en:", dir_evaluacion))
 
   # --- Feature Importance de la Semilla Primigenia ---
   log_info(paste("Generando Feature Importance para la semilla primigenia:", PARAM$semilla_primigenia))
@@ -266,23 +266,15 @@ tryCatch({
   gc()
 
   # --- Bucle de Entrenamiento y Evaluación del Ensamble ---
-  # Cargo las semillas de la bayesiana
-  semillas_file <- file.path(dir_bayesiana, "BO_semillas.rds")
-  
-  if (!file.exists(semillas_file)) {
-    stop(paste("No se encontró el archivo de semillas:", semillas_file,
-               "Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado correctamente."))
-  }
-  
-  # Cargamos las semillas en la variable PARAM
-  PARAM$BO$semillas <- readRDS(semillas_file)
+  set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+  PARAM$eval_ensamble$semillas <- sample(primos)[seq( PARAM$eval_ensamble$ksemillerio )]
     
-  semillas_a_evaluar <- PARAM$BO$semillas
+  semillas_a_evaluar <- PARAM$eval_ensamble$semillas
   
   log_info(paste0("Evaluando ", length(semillas_a_evaluar), 
-                 " semilla(s) de la Optimización Bayesiana (ksemillerio * repe)."))
+                 " semilla(s)."))
   log_info(paste(
-    "Semillas de la BO a evaluar:", 
+    "Semillas a evaluar:", 
     paste(semillas_a_evaluar, collapse = ", ")
   ))
 
@@ -428,7 +420,22 @@ tryCatch({
   envios_optimos_ens <- resultados_ensamble[ganancia_total == max_ganancia_ens, clientes]
   envios_optimos_ens_str <- paste(sort(unique(envios_optimos_ens)), collapse = ", ")
   
-  PARAM$eval_ensamble$envios_optimos_promedio <- sort(unique(envios_optimos_ens))
+  # Obtiene el vector de envíos del ensamble
+  envios_optimos_ens_vec <- sort(unique(envios_optimos_ens))
+  
+  # Envios hardcodeados
+  envios_manuales <- c(10500, 11000) 
+
+  # Combinar ambos vectores y obtener únicos
+  envios_optimos_vector <- sort(unique(c(envios_optimos_ens_vec, envios_manuales)))
+  
+  # Guardar este vector en el PARAM local
+  PARAM$eval_ensamble$envios_optimos_promedio <- envios_optimos_vector
+
+  # Guardar el VECTOR en disco
+  ruta_envios_rds <- file.path(dir_evaluacion, "envios_optimos.rds")
+  saveRDS(envios_optimos_vector, file = ruta_envios_rds)
+  log_info(paste("Vector de envíos óptimos guardado en:", ruta_envios_rds))
 
   log_info(paste0("Ensamble Promedio: Ganancia Máx = ", 
                  format(max_ganancia_ens, big.mark = ".", decimal.mark = ","), 

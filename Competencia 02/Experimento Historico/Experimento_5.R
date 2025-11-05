@@ -38,10 +38,10 @@ PARAM$experimento <- "colaborativo_05"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- FALSE
+PARAM$generar_ternaria <- TRUE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-PARAM$dataset_name <- "competencia_02.csv.gz"
+PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+#PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
@@ -58,11 +58,11 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
 # Lags
-PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- 3
+PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- 6
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -122,9 +122,9 @@ PARAM$trainingstrategy$training <- c(
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104
+  202101, 202102
 )
-PARAM$trainingstrategy$testing <- c(202106)
+PARAM$trainingstrategy$testing <- c(202104)
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria","clase01","azar")
@@ -137,11 +137,11 @@ PARAM$hipeparametertuning$BO_iteraciones <- 30 # 50 seria mas razonable
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
 # mayor a 1, se hace un  k-Ensemble Semillerio
-PARAM$hipeparametertuning$ksemillerio <- 50L
+PARAM$hipeparametertuning$ksemillerio <- 15L
 # El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
 # Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
 # Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization
-PARAM$hipeparametertuning$repe <- 1L
+PARAM$hipeparametertuning$repe <- 2L
 
 # Parámetros fijos de LightGBM para la BO
 PARAM$lgbm <- list()
@@ -173,24 +173,53 @@ PARAM$lgbm$param_fijos <- list(
 PARAM$BO <- list()
 
 PARAM$eval_ensamble <- list()
+PARAM$eval_ensamble$ksemillerio <- 50L
+PARAM$eval_ensamble$mes_testing <- 202106
 
 # Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()
-PARAM$train_final$future <- c(202108)
+PARAM$train_final$future <- c(202106)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104, 202105, 202106
+  202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 50
+PARAM$train_final$ksemillerio <- 30
 
-# Parámetros para la generación del archivo de Kaggle
-PARAM$kaggle <- list()
-PARAM$kaggle$envios <- 11000
-
+#------------------------------------------------------------------------------
+# Función wrapper para ejecutar y cronometrar scripts
+#------------------------------------------------------------------------------
+source_con_log <- function(script_path, script_name) {
+  
+  log_info(paste("--- Iniciando:", script_name, "---"))
+  t_inicio <- Sys.time()
+  
+  tryCatch({
+    # Ejecuta el script. 
+    # local=FALSE asegura que todo corra en el mismo entorno que main.R
+    source(script_path, local = FALSE) 
+    
+    t_fin <- Sys.time()
+    duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
+    
+    log_info(paste("--- Fin:", script_name, ". Duración:", duracion, "segundos. ---"))
+    
+  }, error = function(e) {
+    # Si el script falla, igual registra el tiempo y el error
+    t_fin <- Sys.time()
+    duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
+    log_error(paste("--- ERROR en:", script_name, "tras", duracion, "segundos. ---"))
+    log_error(paste("Mensaje de R:", e$message))
+    
+    # Detiene la ejecución de todo el main.R si un script falla
+    stop("Error en el script: ", script_name, ". Deteniendo el workflow.") 
+  })
+  
+  log_info("--------------------------------------------------") # Separador
+}
 
 #------------------------------------------------------------------------------
 # INICIO DEL WORKFLOW
@@ -203,40 +232,21 @@ log_file <- file.path(PARAM$experimento_folder, paste0("log_", PARAM$experimento
 log_appender(appender_tee(log_file))
 log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_folder))
 
-log_info("Iniciando el workflow")
-log_info("---------------------------")
-# Ejecuto los scripts del workflow
-# Cada script es autocontenido y se ejecuta en el entorno global
-source(file.path(home_dir, "1_Preprocesamiento.R"))
-log_info("---------------------------")
+log_info("Inciando el workflow")
+log_info("==================================================")
 
-source(file.path(home_dir, "2_Data_Quality.R"))
-log_info("---------------------------")
+# Ejecuto los scripts del workflow usando el wrapper
+source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
+source_con_log(file.path(home_dir, "2_Data_Quality.R"), "2_Data_Quality.R")
+source_con_log(file.path(home_dir, "3_Data_Drifting.R"), "3_Data_Drifting.R")
+#source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "5_Feature_Engineering_Historico.R"), "5_Feature_Engineering_Historico.R")
+#source_con_log(file.path(home_dir, "6_Feature_Engineering_RF.R"), "6_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"), "7_Reduccion_Dimensionalidad_Canaritos.R")
+source_con_log(file.path(home_dir, "8_Modelado.R"), "8_Modelado.R")
+source_con_log(file.path(home_dir, "9_Optimizacion_Bayesiana.R"), "9_Optimizacion_Bayesiana.R")
+source_con_log(file.path(home_dir, "10_Evaluacion_Ensamble.R"), "10_Evaluacion_Ensamble.R")
+source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "11_Modelo_Final.R")
 
-source(file.path(home_dir, "3_Data_Drifting.R"))
-log_info("---------------------------")
-
-#source(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"))
-log_info("---------------------------")
-
-source(file.path(home_dir, "5_Feature_Engineering_Historico.R"))
-log_info("---------------------------")
-
-#source(file.path(home_dir, "6_Feature_Engineering_RF.R"))
-log_info("---------------------------")
-
-source(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"))
-log_info("---------------------------")
-
-source(file.path(home_dir, "8_Modelado.R"))
-log_info("---------------------------")
-
-source(file.path(home_dir, "9_Optimizacion_Bayesiana.R"))
-log_info("---------------------------")
-
-source(file.path(home_dir, "10_Evaluacion_Ensamble.R"))
-log_info("---------------------------")
-
-#source(file.path(home_dir, "11_Modelo_Final.R"))
-log_info("---------------------------")
+log_info("==================================================")
 log_info("Workflow finalizado")
