@@ -1,4 +1,3 @@
-log_info("Inicio Data Quality")
 # Data Quality
 # Se deben reparar los atributos del dataset que para un cierto mes TODOS sus valores son cero.
 # Relevar en forma muy minuciosa en el dataset cuales son los  <atributo,mes> que estan dañados.
@@ -92,5 +91,3 @@ AsignarNA("matm_other", c(202006))
 
 AsignarNA("tmobile_app", c(201901, 201902, 201903, 201904, 201905, 201906, 202006))
 AsignarNA("cmobile_app_trx", c(201901, 201902, 201903, 201904, 201905, 201906, 202006))
-
-log_info("Fin Data Quality")

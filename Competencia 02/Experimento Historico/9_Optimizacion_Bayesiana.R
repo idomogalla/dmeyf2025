@@ -1,11 +1,13 @@
-log_info("Inicio 9_Optimización_Bayesiana.R")
 tryCatch({
   # Definir y crear la carpeta para los outputs de la BO
   dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
   dir.create(dir_bayesiana, showWarnings = FALSE)
 
+  log_info("Nombre de las columnas del dataset a ser usadas:", paste(colnames(dataset), collapse = ", "))
+  log_info("Total de las columnas del dataset a ser usadas:", ncol(dataset))
+
   # Optimizacion de Hipeparámetros
-  log_info("Creando dtrain")
+  log_info("Creando dtrain.")
   dtrain <- lgb.Dataset(
     data= data.matrix(dataset[training == 1L, campos_buenos, with = FALSE]),
     label= dataset[training == 1L, clase01],
@@ -26,7 +28,7 @@ tryCatch({
   )
 
   # defino los datos de testing
-  log_info("Creando dataset_test")
+  log_info("Creando dataset_test.")
   dataset_test <- dataset[foto_mes %in% PARAM$trainingstrategy$testing]
 
   # precalculo el campo de la ganancia
@@ -224,7 +226,7 @@ tryCatch({
 
   # inicio la optimizacion bayesiana, retomando si ya existe
   # es la celda mas lenta de todo el notebook
-  log_info("Iniciando optimización bayesiana")
+  log_info("Iniciando optimización bayesiana.")
   if (!file.exists(kbayesiana)) {
     log_info("No existe bayesiana.RDATA, comienzo nueva optimización.")
     bayesiana_salida <- mbo(obj.fun, learner= surr.km, control= ctrl)
@@ -239,4 +241,3 @@ tryCatch({
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })
-log_info("Fin 9_Optimización_Bayesiana.R")

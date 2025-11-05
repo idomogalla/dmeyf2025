@@ -6,7 +6,7 @@ log_info("Creando clase01.")
 dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)]
 
 # Los campos en los que se entrena
-log_info("Definiendo campos_buenos.")
+log_info("Definiendo campos_buenos (sin canaritos, se agregarán luego).")
 campos_buenos <- copy( setdiff(
     colnames(dataset), PARAM$trainingstrategy$campos_entrenar)
     )

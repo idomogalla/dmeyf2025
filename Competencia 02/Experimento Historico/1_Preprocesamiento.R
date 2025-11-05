@@ -1,8 +1,7 @@
-log_info("Inicio 1_Preprocesamiento.R")
 tryCatch({
   # Generación de la clase_ternaria
   if(PARAM$generar_ternaria){
-      log_info("Generando clase_ternaria")
+      log_info("Generando clase_ternaria.")
       # leo el dataset
       dataset <- fread(PARAM$input_dataset)
 
@@ -62,9 +61,9 @@ tryCatch({
           file =  file.path(PARAM$dir_dataset, "competencia_02.csv.gz"),
           sep = ","
       )
-      log_info("clase_ternaria generada y guardada")
+      log_info("clase_ternaria generada y guardada.")
   }else {
-    log_info("No se genera clase_ternaria, se lee el dataset directamente")
+    log_info("No se genera clase_ternaria, se lee el dataset directamente.")
     dataset <- fread(PARAM$input_dataset)
   }
 
@@ -74,4 +73,3 @@ tryCatch({
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })
-log_info("Fin 1_Preprocesamiento.R")

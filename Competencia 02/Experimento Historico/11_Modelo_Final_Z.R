@@ -1,9 +1,9 @@
 tryCatch({  
   # se filtran los meses donde se entrena el modelo final
-  log_info("Filtrando datos para el modelo final.")
+  log_info("Filtrando datos para el modelo final (según zLineaMuerte).")
   dataset_train_final <- dataset[foto_mes %in% PARAM$train_final$training]
 
-  # Undersampling, van todos los "BAJA+1" y "BAJA+2" y solo algunos "CONTINIA"
+  # Undersampling
   log_info("Haciendo undersampling para el modelo final.")
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   dataset_train_final[, azar := runif(nrow(dataset_train_final))]
@@ -14,59 +14,56 @@ tryCatch({
     training := 1L
   ]
 
-  dataset_train_final[, azar:= NULL] # elimino la columna azar
+  dataset_train_final[, azar:= NULL] 
 
-  # paso la clase a binaria que tome valores {0,1}  enteros
-  #  BAJA+1 y BAJA+2  son  1,   CONTINUA es 0
-  #  a partir de ahora ya NO puedo cortar  por prob(BAJA+2) > 1/40
+  # paso la clase a binaria
   log_info("Creando clase01 para el modelo final.")
   dataset_train_final[,
     clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)
   ]
 
-  # leo el archivo donde quedaron los hiperparametros optimos
-  log_info("Leyendo mejores hiperparámetros de BO_log.txt")
+  # Cargar Hiperparámetros Fijos  
+  if (is.null(PARAM$lgbm_z)) {
+    stop("No se encontraron los parámetros en PARAM$lgbm_z. Asegúrate de definirlos en main.R.")
+  }
+  PARAM$train_final$param_mejores <- PARAM$lgbm_z
+  log_info(paste("Parámetros finales (fijos):", PARAM$train_final$param_mejores))
 
-  dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)
-  log_bo_file <- file.path(dir_bayesiana, "BO_log.txt")
+  # Agregar Canaritos al dataset de entrenamiento final
+  log_info(paste("Agregando", PARAM$qcanaritos, "canaritos a dataset_train_final."))
+  cols0 <- copy(colnames(dataset_train_final))
+  filas <- nrow(dataset_train_final)
   
-  if (!file.exists(log_bo_file)) {
-    log_warn(paste("No se encontró BO_log.txt en", dir_bayesiana, ". Probando en la carpeta raíz."))
-    log_bo_file <- file.path(PARAM$experimento_folder, "BO_log.txt")
-     if (!file.exists(log_bo_file)) {
-        stop("No se encontró BO_log.txt en ninguna ubicación. Asegúrate de que 9_Optimizacion_Bayesiana.R se haya ejecutado.")
-     }
+  for (i in seq_len(PARAM$qcanaritos)) {
+    dataset_train_final[, paste0("canarito_", i) := runif(filas)]
   }
   
-  tb_BO <-  fread(log_bo_file)
-  setorder( tb_BO, -metrica)  # ordeno por metrica descendente
-  log_info(paste("Mejores hiperparámetros:", tb_BO[1]))
+  cols_canaritos <- copy(setdiff(colnames(dataset_train_final), cols0))
+  setcolorder(dataset_train_final, c(cols_canaritos, cols0))
+  log_info("Canaritos agregados y reordenados.")
 
-  # en la tabla ademas de los parametros del LightGBM, hay campos de salida
-  param_lgbm <- union( names(PARAM$lgbm$param_fijos),  names(PARAM$hipeparametertuning$hs$pars) )
+  # Redefinimos campos_buenos para que incluya los canarios
+  campos_buenos_z <- setdiff(
+    colnames(dataset_train_final),
+    PARAM$trainingstrategy$campos_entrenar
+  )
 
-  PARAM$train_final$param_mejores <- as.list( tb_BO[1, param_lgbm, with=FALSE])
-
-  log_info("Ajustando los hiperparámetros al tamaño del dataset final.")
-  PARAM$train_final$param_mejores$min_data_in_leaf <- as.integer( round(PARAM$train_final$param_mejores$min_data_in_leaf * nrow(dataset_train_final[training == 1L]) / nrow(dtrain)))
-
-  log_info(paste("Original min_data_in_leaf:", tb_BO[1, min_data_in_leaf], "Ajustado min_data_in_leaf:", PARAM$train_final$param_mejores$min_data_in_leaf))
-  log_info(paste("Parámetros finales:", PARAM$train_final$param_mejores))
-
+  # Semillas para el ensamble final
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+  if(!exists("primos")) primos <- generate_primes(min = 100000, max = 1000000)
   PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
   log_info(paste("Semillas a ser utilizadas en el modelo final para el ensamble:", paste(PARAM$train_final$semillas, collapse = ", ")))
   
   # dejo los datos en formato LightGBM
-  log_info("Creando dtrain_final.")
+  log_info("Creando dtrain_final (con canaritos).")
   dtrain_final <- lgb.Dataset(
-    data= data.matrix(dataset_train_final[training == 1L, campos_buenos, with= FALSE]),
+    data= data.matrix(dataset_train_final[training == 1L, campos_buenos_z, with= FALSE]),
     label= dataset_train_final[training == 1L, clase01],
     free_raw_data= FALSE
   )
-
   log_info(paste("dtrain_final filas:", nrow(dtrain_final), "columnas:", ncol(dtrain_final)))
-  # Libero memoria
+
+  # libero memoria
   rm(dataset_train_final)
   gc()
 
@@ -78,60 +75,59 @@ tryCatch({
   param_completo <- copy( PARAM$train_final$param_mejores)
 
   for( sem in PARAM$train_final$semillas ) {
-
     arch_modelo <- file.path(dir_modelitos, paste0("mod_", sem, ".txt"))
     if( !file.exists( arch_modelo ) )
     {
       log_info(paste("Entrenando modelo con semilla:", sem))
       param_completo$seed <- sem
-
       modelito <- lgb.train(
         data= dtrain_final,
         param= param_completo
       )
-
       lgb.save( modelito, filename= arch_modelo)
       rm(modelito)
       gc()
     }
   }
   log_info("Modelos generados.")
+  rm(dtrain_final) # libero memoria
+  gc()
 
   # Scoring
-  # aplico el modelo a los datos sin clase
   log_info("Aplicando modelos a datos futuros.")
   dfuture <- dataset[foto_mes %in% PARAM$train_final$future ]
-  mfuture <- data.matrix(dfuture[, campos_buenos, with= FALSE])
+  
+  # --- Agregar Canaritos al dataset de predicción ---
+  log_info(paste("Agregando", PARAM$qcanaritos, "canaritos a dfuture."))
+  filas_future <- nrow(dfuture)
+  for (i in seq_len(PARAM$qcanaritos)) {
+    dfuture[, paste0("canarito_", i) := runif(filas_future)]
+  }
+
+  mfuture <- data.matrix(dfuture[, campos_buenos_z, with= FALSE])
 
   vpred_acum <- rep(0.0, nrow(dfuture))
   qacumulados <- 0
 
   for( sem in PARAM$train_final$semillas ) {
-
     arch_modelo <- file.path(dir_modelitos, paste0("mod_", sem, ".txt"))
     if( file.exists( arch_modelo ) )
     {
       log_info(paste("Aplicando modelo con semilla:", sem))
       modelo_final <- lgb.load(arch_modelo) # leo del disco
-      #hago el predict() y acumulo
       vpred_acum <- vpred_acum + predict(modelo_final, mfuture)
       qacumulados <- qacumulados + 1
     }
   }
 
-  vpred_acum <- vpred_acum / qacumulados  # paso a probabildiad
+  vpred_acum <- vpred_acum / qacumulados  
   log_info("Modelos aplicados.")
 
-  # tabla de prediccion, puede ser util para futuros ensembles
-  #  ya que le modelo ganador va a ser un ensemble de LightGBMs
+  # tabla de prediccion
   log_info("Creando tabla de predicción.")
   tb_prediccion <- dfuture[, list(numero_de_cliente, foto_mes)]
   tb_prediccion[, prob := vpred_acum ]
 
-  rm(mfuture, dfuture, vpred_acum)
-  gc()
-
-  # grabo las probabilidad del modelo
   file_prediccion <- file.path(PARAM$experimento_folder, "prediccion.txt")
   fwrite(tb_prediccion,
     file= file_prediccion,
@@ -140,12 +136,10 @@ tryCatch({
   log_info(paste("Tabla de predicción guardada en:", file_prediccion))
 
   # Clasificación
-  # genero archivos con los  "envios" mejores
   log_info("Generando archivo para entregar.")
   dir_kaggle <- file.path(PARAM$experimento_folder, PARAM$carpeta_entregables)
   dir.create(dir_kaggle, showWarnings=FALSE)
 
-  # ordeno por probabilidad descendente
   setorder(tb_prediccion, -prob)
 
   log_info("Cargando el vector de envíos finales (óptimos + manuales) desde archivo...")
@@ -158,7 +152,6 @@ tryCatch({
                "Asegúrate de que 10_Evaluacion_Ensamble.R se haya ejecutado correctamente."))
   }
   
-  # Cargamos el vector de envios generado por el Script 10
   envios <- readRDS(ruta_envios_rds)
   
   log_info(paste("Envíos finales a generar:", paste(envios, collapse = ", ")))

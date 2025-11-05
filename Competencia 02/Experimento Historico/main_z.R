@@ -5,7 +5,10 @@ gc(full=TRUE, verbose=FALSE) # garbage collection
 # Instalo y cargo las librerías que se usan en el workflow
 if (!require("data.table")) install.packages("data.table")
 if (!require("Rcpp")) install.packages("Rcpp")
-if (!require("lightgbm")) install.packages("lightgbm")
+if (!require("zlightgbm")) {
+  install.packages("https://storage.googleapis.com/open-courses/dmeyf2025-e4a2/zlightgbm_4.6.0.99.tar.gz",
+                   repos = NULL, type = "source")
+}
 if (!require("DiceKriging")) install.packages("DiceKriging")
 if (!require("mlrMBO")) install.packages("mlrMBO")
 if (!require("primes")) install.packages("primes")
@@ -17,7 +20,7 @@ if (!require("scales")) install.packages("scales")
 
 require("data.table")
 require("Rcpp")
-require("lightgbm")
+require("zlightgbm")
 require("DiceKriging")
 require("mlrMBO")
 require("primes")
@@ -34,35 +37,40 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_05"
-PARAM$semilla_primigenia <- 200003
+PARAM$experimento <- "z_main"
+PARAM$semilla_primigenia <- 974411 # Semilla de zLineaMuerte
+
+# Parámetro de Canaritos
+PARAM$qcanaritos <- 100
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- FALSE
+PARAM$generar_ternaria <- TRUE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-PARAM$dataset_name <- "competencia_02.csv.gz"
+PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+#PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
-# La carpeta se crea relativo al script main.R
 PARAM$output_folder <- "~/buckets/b1/exp"
 PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
 dir.create(PARAM$experimento_folder, showWarnings=FALSE)
 
-PARAM$carpeta_bayesiana <- "Bayesiana"
+PARAM$carpeta_bayesiana <- "Bayesiana" # Aunque no la usemos, los scripts la referencian
 PARAM$carpeta_evaluacion <- "Evaluacion"
 PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
+PARAM$FE_hist$lags$run <- TRUE 
+PARAM$FE_hist$lags$n_lags <- c(1) 
+PARAM$FE_hist$Tendencias$run <- FALSE 
 # Lags
-PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
+PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- 3
+PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- 6
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -115,7 +123,7 @@ PARAM$FE_rf$lgb_param <- list(
   extra_trees = FALSE
 )
 
-# Parámetros de Training Strategy para la Optimización Bayesiana
+# Parámetros de Training Strategy (para Script 10 - Evaluación)
 PARAM$trainingstrategy <- list()
 PARAM$trainingstrategy$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
@@ -124,61 +132,41 @@ PARAM$trainingstrategy$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102
 )
-PARAM$trainingstrategy$testing <- c(202104)
+PARAM$trainingstrategy$testing <- c(202104) # Mes para script 10
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
 PARAM$trainingstrategy$importancias <- 50
 
-# Parámetros de Optimización de Hiperparámetros (Bayesian Optimization)
-PARAM$hipeparametertuning <- list()
-PARAM$hipeparametertuning$BO_iteraciones <- 30 # 50 seria mas razonable
-
-# El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
-# 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
-# mayor a 1, se hace un  k-Ensemble Semillerio
-PARAM$hipeparametertuning$ksemillerio <- 15L
-# El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
-# Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
-# Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization
-PARAM$hipeparametertuning$repe <- 2L
-
-# Parámetros fijos de LightGBM para la BO
-PARAM$lgbm <- list()
-PARAM$lgbm$param_fijos <- list(
+# Parámetros fijos de zLightGBM
+PARAM$lgbm_z <- list(
+  boosting = "gbdt",
   objective = "binary",
   metric = "custom",
-  first_metric_only = TRUE,
+  first_metric_only = FALSE,
   boost_from_average = TRUE,
   feature_pre_filter = FALSE,
-  verbosity = -100,
   force_row_wise = TRUE,
+  verbosity = -100,
   seed = PARAM$semilla_primigenia,
-  extra_trees = FALSE,
-  max_depth = -1L,
-  min_gain_to_split = 0.0,
-  min_sum_hessian_in_leaf = 0.001,
-  lambda_l1 = 0.0,
-  lambda_l2 = 0.0,
-  bagging_fraction = 1.0,
-  pos_bagging_fraction = 1.0,
-  neg_bagging_fraction = 1.0,
-  is_unbalance = FALSE,
-  scale_pos_weight = 1.0,
-  drop_rate = 0.1,
-  max_drop = 50,
-  skip_drop = 0.5,
-  max_bin = 31
+  max_bin = 31L,
+  min_data_in_leaf = 20L,
+  num_iterations = 9999L, # zLightGBM se detiene solo
+  num_leaves = 999L,
+  learning_rate = 1.0,
+  feature_fraction = 0.50,
+  canaritos = PARAM$qcanaritos, # Fundamental en zLightGBM
+  gradient_bound = 0.1  # Default de zLightGBM
 )
-PARAM$BO <- list()
 
+# Parámetros para evaluación (Script 10)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$ksemillerio <- 50L
-PARAM$eval_ensamble$mes_testing <- 202106
+PARAM$eval_ensamble$ksemillerio <- 50L # Semillerio para evaluación
+PARAM$eval_ensamble$mes_testing <- 202106 # Mes de testing para Script 10
 
-# Parámetros para el entrenamiento final y predicción
+# Parámetros para el entrenamiento final y predicción (Script 11)
 PARAM$train_final <- list()
-PARAM$train_final$future <- c(202106)
+PARAM$train_final$future <- c(202106) # Mes para predecir (ej: 202108)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
@@ -186,8 +174,8 @@ PARAM$train_final$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )
-PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 30
+PARAM$train_final$undersampling <- 0.10 # Undersampling
+PARAM$train_final$ksemillerio <- 30 # Semillerio para modelo final
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -198,8 +186,6 @@ source_con_log <- function(script_path, script_name) {
   t_inicio <- Sys.time()
   
   tryCatch({
-    # Ejecuta el script. 
-    # local=FALSE asegura que todo corra en el mismo entorno que main.R
     source(script_path, local = FALSE) 
     
     t_fin <- Sys.time()
@@ -208,13 +194,11 @@ source_con_log <- function(script_path, script_name) {
     log_info(paste("--- Fin:", script_name, ". Duración:", duracion, "segundos. ---"))
     
   }, error = function(e) {
-    # Si el script falla, igual registra el tiempo y el error
     t_fin <- Sys.time()
     duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
     log_error(paste("--- ERROR en:", script_name, "tras", duracion, "segundos. ---"))
     log_error(paste("Mensaje de R:", e$message))
     
-    # Detiene la ejecución de todo el main.R si un script falla
     stop("Error en el script: ", script_name, ". Deteniendo el workflow.") 
   })
   
@@ -224,10 +208,8 @@ source_con_log <- function(script_path, script_name) {
 #------------------------------------------------------------------------------
 # INICIO DEL WORKFLOW
 #------------------------------------------------------------------------------
-# Creo la carpeta donde se guardará la salida del experimento
 dir.create(PARAM$experimento_folder, showWarnings = FALSE)
 
-# Configuro el logger
 log_file <- file.path(PARAM$experimento_folder, paste0("log_", PARAM$experimento, ".txt"))
 log_appender(appender_tee(log_file))
 log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_folder))
@@ -239,14 +221,14 @@ log_info("==================================================")
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "2_Data_Quality.R"), "2_Data_Quality.R")
 source_con_log(file.path(home_dir, "3_Data_Drifting.R"), "3_Data_Drifting.R")
-#source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "5_Feature_Engineering_Historico.R"), "5_Feature_Engineering_Historico.R")
-#source_con_log(file.path(home_dir, "6_Feature_Engineering_RF.R"), "6_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "6_Feature_Engineering_RF.R"), "6_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"), "7_Reduccion_Dimensionalidad_Canaritos.R")
-source_con_log(file.path(home_dir, "8_Modelado.R"), "8_Modelado.R")
-source_con_log(file.path(home_dir, "9_Optimizacion_Bayesiana.R"), "9_Optimizacion_Bayesiana.R")
-source_con_log(file.path(home_dir, "10_Evaluacion_Ensamble.R"), "10_Evaluacion_Ensamble.R")
-source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "11_Modelo_Final.R")
+source_con_log(file.path(home_dir, "8_Modelado_Z.R"), "8_Modelado_Z.R")
+# source_con_log(file.path(home_dir, "9_Optimizacion_Bayesiana.R"), "9_Optimizacion_Bayesiana.R")
+source_con_log(file.path(home_dir, "10_Evaluacion_Ensamble_Z.R"), "10_Evaluacion_Ensamble_Z.R")
+source_con_log(file.path(home_dir, "11_Modelo_Final_Z.R"), "11_Modelo_Final_Z.R")
 
 log_info("==================================================")
 log_info("Workflow finalizado")

@@ -1,5 +1,4 @@
-  log_info("Inicio 5_Feature_Engineering_Historico.R")
-  tryCatch({
+    tryCatch({
     # Feature Engineering Historico
     columnas_originales <- copy(colnames(dataset))
 
@@ -81,7 +80,7 @@
 
       return  out;
     }")
-    log_info("Función C++ fhistC compilada")
+    log_info("Función C++ fhistC compilada.")
 
     # calcula la tendencia de las variables cols de los ultimos 6 meses
     # la tendencia es la pendiente de la recta que ajusta por cuadrados minimos
@@ -315,4 +314,3 @@
     log_error(paste("Mensaje de R:", e$message))
     log_error("######################################################")
   })
-  log_info("Fin 5_Feature_Engineering_Historico.R")

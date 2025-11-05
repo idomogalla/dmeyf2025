@@ -127,7 +127,7 @@ PARAM$trainingstrategy$training <- c(
 PARAM$trainingstrategy$testing <- c(202104)
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
-PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria","clase01","azar")
+PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
 PARAM$trainingstrategy$importancias <- 50
 
 # Parámetros de Optimización de Hiperparámetros (Bayesian Optimization)
