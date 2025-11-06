@@ -40,7 +40,9 @@ tryCatch({
   
   tb_BO <-  fread(log_bo_file)
   setorder( tb_BO, -metrica)  # ordeno por metrica descendente
-  log_info(paste("Mejores hiperparámetros:", tb_BO[1]))
+  
+  log_info("Mejores hiperparámetros (fila 1 de BO_log.txt):")
+  log_info(paste(capture.output(print(tb_BO[1])), collapse = "\n"))
 
   # en la tabla ademas de los parametros del LightGBM, hay campos de salida
   param_lgbm <- union( names(PARAM$lgbm$param_fijos),  names(PARAM$hipeparametertuning$hs$pars) )
