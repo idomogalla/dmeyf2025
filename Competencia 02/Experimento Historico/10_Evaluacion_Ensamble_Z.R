@@ -31,7 +31,8 @@ GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico, subtitulo
   ggsave(ruta_grafico, plot = p, width = 10, height = 8)
   log_info(paste("Gráfico de importancia de features guardado en:", ruta_grafico))
 }
-# Función GraficarCurvasEnsemble (Modificada)
+
+# Función GraficarCurvasEnsemble
 GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   log_info("Iniciando la graficación de la superposición de curvas del ensemble.")
 
@@ -47,23 +48,16 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
   maximo_promedio <- head(maximo_promedio, 1) # Primer máximo si hay empate
   
-  # Creación de Etiquetas para la Leyenda 
-  # Obtenemos todas las semillas únicas
+  # Creación de Etiquetas para la Leyenda (Simples)
   semillas_unicas <- unique(tb_todas$semilla)
-  
-  # Creamos las etiquetas simples
   labels_individuales <- semillas_unicas
   label_promedio <- "Promedio"
-  
   labels_plot <- c(labels_individuales, label_promedio)
   names(labels_plot) <- c(semillas_unicas, "Promedio")
 
   # Configuración de Colores
-  # Generar colores para todas las semillas
   colores_individuales <- scales::hue_pal()(length(semillas_unicas))
   names(colores_individuales) <- semillas_unicas
-  
-  # Forzamos el promedio a ser NEGRO
   colores_plot <- c(colores_individuales, "Promedio" = "black")
   
   # Generación del Gráfico ggplot
@@ -71,32 +65,48 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
     # Líneas individuales (finas y algo transparentes)
     geom_line(data = tb_todas,
               aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
-              alpha = 0.5, linewidth = 0.5) + # Más finas
-              
+              alpha = 0.5, linewidth = 0.5) +
     # Línea promedio (gruesa y negra)
     geom_line(data = tb_promedio,
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
               linewidth = 1.0) + 
-    
-    # Punto máximo promedio (Rojo, como en Imagen 1)
+    # Punto máximo promedio (Rojo)
     geom_point(data = maximo_promedio,
               aes(x = clientes, y = ganancia_total),
-              color = "red", size = 3, shape = 16) + # shape=16 es un círculo sólido
-    
-    # Añadir anotación del máximo promedio (Estilo Imagen 1, solo ganancia)
+              color = "red", size = 3, shape = 16) +
+    # Anotación de la GANANCIA MÁXIMA (arriba del punto)
     geom_label(data = maximo_promedio,
                 aes(x = clientes, y = ganancia_total, 
                     label = paste0("Máximo\n", 
                                     format(ganancia_total, big.mark = ".", decimal.mark = ","))),
-                vjust = -0.5, # Mover etiqueta arriba del punto
+                vjust = -0.5, # Posiciona justo arriba del punto
+                nudge_y = 10000000, # Empuja la etiqueta hacia arriba
                 fill = "white", color = "red", fontface = "bold",
                 label.padding = unit(0.3, "lines")) +
                 
+    # Anotación de los ENVÍOS
+    # Usamos geom_text_repel para que apunte al punto
+    geom_text_repel(data = maximo_promedio,
+                aes(x = clientes, y = ganancia_total,
+                    # Formateamos el número de envíos
+                    label = format(clientes, big.mark = ".", decimal.mark = ",")),
+                color = "black",
+                fontface = "bold",
+                size = 3.5,
+                
+                # --- Ajustes para la flecha y posición ---
+                nudge_x = 5000,  # Empujar a la derecha para que la flecha sea visible
+                nudge_y = -15000000, # Empujar un poco hacia abajo
+                
+                segment.color = "grey30", # Color de la flecha
+                segment.size = 0.5,       # Grosor de la flecha
+                min.segment.length = 0.5, # Dibujar flecha aunque esté cerca
+                point.padding = 0.5,      # Espacio desde el punto
+                box.padding = 0.5         # Espacio del texto
+    ) +
     scale_y_continuous(labels = scales::comma, 
                        expand = expansion(mult = c(0.05, 0.15))) + # 15% arriba para la etiqueta
-                       
     scale_x_continuous(labels = scales::comma) + 
-    
     scale_color_manual(name = "Modelo",
                       values = colores_plot,
                       labels = labels_plot) +
@@ -106,16 +116,14 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
       y = "Ganancia Acumulada"
     ) +
     theme_minimal() +
-    
     # Mover leyenda a la derecha y con letra pequeña
     theme(
       legend.position = "right",
-      legend.text = element_text(size = 8), # Letra pequeña para las semillas
-      legend.title = element_text(size = 9, face = "bold"), # Título de leyenda
-      legend.key.size = unit(0.5, "lines"), # Espaciado de leyenda más chico
+      legend.text = element_text(size = 8), 
+      legend.title = element_text(size = 9, face = "bold"),
+      legend.key.size = unit(0.5, "lines"), 
       plot.margin = margin(10, 10, 10, 10)
     ) +
-    
     # Asegurar que las líneas en la leyenda sean visibles
     guides(color = guide_legend(override.aes = list(alpha = 1, linewidth = 1.5))) 
 
@@ -124,7 +132,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   ggsave(
     ruta_grafico,
     plot = p,
-    width = 14, # Más ancho para dar espacio a la leyenda a la derecha
+    width = 14, 
     height = 8 
   )
 
