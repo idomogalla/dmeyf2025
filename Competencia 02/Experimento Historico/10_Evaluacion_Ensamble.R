@@ -82,7 +82,7 @@ GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico, subtitulo
   log_info(paste("Gráfico de importancia de features guardado en:", ruta_grafico))
 }
 
-# Función GraficarCurvasEnsemble
+# Función GraficarCurvasEnsemble (Modificada)
 GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   log_info("Iniciando la graficación de la superposición de curvas del ensemble.")
 
@@ -94,65 +94,60 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
   # Calculamos la ganancia promedio por cantidad de envíos
   tb_promedio <- tb_todas[, .(ganancia_total = mean(ganancia_total)), by = clientes]
 
-  # Encontramos los máximos para cada semilla individual
-  maximos_individuales <- tb_todas[, .SD[ganancia_total == max(ganancia_total)], by = semilla]
-  # Nos quedamos con el primer máximo si hay empates
-  maximos_individuales <- maximos_individuales[, head(.SD, 1), by = semilla] 
-
   # Encontramos el máximo de la curva promedio
   maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
   maximo_promedio <- head(maximo_promedio, 1) # Primer máximo si hay empate
-
-  # Creación de Etiquetas para la Leyenda
-  # Ahora las etiquetas incluyen Ganancia y Envíos
-  labels_individuales <- sprintf("S %s: G %s (E %s)",
-                                maximos_individuales$semilla,
-                                format(maximos_individuales$ganancia_total, big.mark = ".", decimal.mark = ","),
-                                maximos_individuales$clientes
-                                )
   
-  label_promedio <- sprintf("Promedio: G %s (E %s)",
-                                      format(maximo_promedio$ganancia_total, big.mark = ".", decimal.mark = ","),
-                                      maximo_promedio$clientes
-                                      )
-
-  # Configuración de Colores y Leyendas para el Plot
-  colores_individuales <- scales::hue_pal()(nrow(maximos_individuales))
-  names(colores_individuales) <- maximos_individuales$semilla
+  # Creación de Etiquetas para la Leyenda 
+  # Obtenemos todas las semillas únicas
+  semillas_unicas <- unique(tb_todas$semilla)
   
+  # Creamos las etiquetas simples
+  labels_individuales <- semillas_unicas
+  label_promedio <- "Promedio"
+  
+  labels_plot <- c(labels_individuales, label_promedio)
+  names(labels_plot) <- c(semillas_unicas, "Promedio")
+
+  # Configuración de Colores
+  # Generar colores para todas las semillas
+  colores_individuales <- scales::hue_pal()(length(semillas_unicas))
+  names(colores_individuales) <- semillas_unicas
+  
+  # Forzamos el promedio a ser NEGRO
   colores_plot <- c(colores_individuales, "Promedio" = "black")
   
-  #Combinar las nuevas etiquetas
-  labels_plot <- c(labels_individuales, label_promedio)
-  names(labels_plot) <- c(names(colores_individuales), "Promedio")
-
   # Generación del Gráfico ggplot
   p <- ggplot() +
-    # Líneas individuales
+    # Líneas individuales (finas y algo transparentes)
     geom_line(data = tb_todas,
               aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
-              alpha = 0.4, linewidth = 0.8) +
-    # Línea promedio
+              alpha = 0.5, linewidth = 0.5) + # Más finas
+              
+    # Línea promedio (gruesa y negra)
     geom_line(data = tb_promedio,
               aes(x = clientes, y = ganancia_total, color = "Promedio"),
-              linewidth = 1.2) + # Más gruesa
-    # Punto máximo promedio
-    geom_point(data = maximo_promedio,
-              aes(x = clientes, y = ganancia_total, color = "Promedio"),
-              size = 4, shape = 18) +
+              linewidth = 1.0) + 
     
-    # Añadir anotación del máximo promedio
+    # Punto máximo promedio (Rojo, como en Imagen 1)
+    geom_point(data = maximo_promedio,
+              aes(x = clientes, y = ganancia_total),
+              color = "red", size = 3, shape = 16) + # shape=16 es un círculo sólido
+    
+    # Añadir anotación del máximo promedio (Estilo Imagen 1, solo ganancia)
     geom_label(data = maximo_promedio,
                 aes(x = clientes, y = ganancia_total, 
                     label = paste0("Máximo\n", 
-                                    format(ganancia_total, big.mark = ".", decimal.mark = ","), "\n",
-                                    format(clientes, big.mark = ".", decimal.mark = ","), " Envíos")),
+                                    format(ganancia_total, big.mark = ".", decimal.mark = ","))),
                 vjust = -0.5, # Mover etiqueta arriba del punto
-                fill = "white", color = "red", fontface = "bold") +
+                fill = "white", color = "red", fontface = "bold",
+                label.padding = unit(0.3, "lines")) +
+                
     scale_y_continuous(labels = scales::comma, 
-                       expand = expansion(mult = c(0.05, 0.1))) + # 5% abajo, 10% arriba
+                       expand = expansion(mult = c(0.05, 0.15))) + # 15% arriba para la etiqueta
                        
     scale_x_continuous(labels = scales::comma) + 
+    
     scale_color_manual(name = "Modelo",
                       values = colores_plot,
                       labels = labels_plot) +
@@ -163,18 +158,25 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
     ) +
     theme_minimal() +
     
-    # Mover leyenda abajo y en 3 columnas
-    theme(legend.position = "bottom",
-          plot.margin = margin(10, 10, 10, 10)) +
-    guides(color = guide_legend(ncol = 3, override.aes = list(alpha = 1, linewidth = 2)))
+    # Mover leyenda a la derecha y con letra pequeña
+    theme(
+      legend.position = "right",
+      legend.text = element_text(size = 8), # Letra pequeña para las semillas
+      legend.title = element_text(size = 9, face = "bold"), # Título de leyenda
+      legend.key.size = unit(0.5, "lines"), # Espaciado de leyenda más chico
+      plot.margin = margin(10, 10, 10, 10)
+    ) +
+    
+    # Asegurar que las líneas en la leyenda sean visibles
+    guides(color = guide_legend(override.aes = list(alpha = 1, linewidth = 1.5))) 
 
   # Nombre de archivo corto
   ruta_grafico <- file.path(PARAM_plot$carpeta_graficos, "eval_curvas.png")
   ggsave(
     ruta_grafico,
     plot = p,
-    width = 12,
-    height = 8  # Aumenté un poco la altura para dar espacio a la leyenda
+    width = 14, # Más ancho para dar espacio a la leyenda a la derecha
+    height = 8 
   )
 
   log_info(paste0("Gráfico de superposición de curvas del ensemble guardado en: ", ruta_grafico))
