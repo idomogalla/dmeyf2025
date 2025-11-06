@@ -27,7 +27,8 @@ tryCatch({
     stop("No se encontraron los parámetros en PARAM$lgbm_z. Asegúrate de definirlos en main.R.")
   }
   PARAM$train_final$param_mejores <- PARAM$lgbm_z
-  log_info(paste("Parámetros finales (fijos):", PARAM$train_final$param_mejores))
+  log_info("Parámetros finales:")
+  log_info(paste(capture.output(print(PARAM$train_final$param_mejores)), collapse = "\n"))
 
   # Agregar Canaritos al dataset de entrenamiento final
   log_info(paste("Agregando", PARAM$qcanaritos, "canaritos a dataset_train_final."))

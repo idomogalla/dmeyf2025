@@ -53,7 +53,8 @@ tryCatch({
   PARAM$train_final$param_mejores$min_data_in_leaf <- as.integer( round(PARAM$train_final$param_mejores$min_data_in_leaf * nrow(dataset_train_final[training == 1L]) / nrow(dtrain)))
 
   log_info(paste("Original min_data_in_leaf:", tb_BO[1, min_data_in_leaf], "Ajustado min_data_in_leaf:", PARAM$train_final$param_mejores$min_data_in_leaf))
-  log_info(paste("Parámetros finales:", PARAM$train_final$param_mejores))
+  log_info("Parámetros finales:")
+  log_info(paste(capture.output(print(PARAM$train_final$param_mejores)), collapse = "\n"))
 
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
