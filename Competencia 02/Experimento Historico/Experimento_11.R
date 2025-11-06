@@ -58,11 +58,11 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(6)
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- c(3, 6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -187,7 +187,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 50
+PARAM$train_final$ksemillerio <- 30
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
