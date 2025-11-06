@@ -140,15 +140,15 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
                 color = "black",
                 fontface = "bold",
                 size = 3.5,
-                
-                # --- Ajustes para la flecha y posición ---
-                nudge_x = 5000,  # Empujar a la derecha
-                nudge_y = -15000000, # Empujar hacia ABAJO
-                
+                nudge_y = -30000000, # Empuje inicial fuerte hacia abajo
+                # 2. Dirección: Solo permitir mover en el eje Y
+                direction = "y",
+                # 3. Límites: La etiqueta NO PUEDE ir más arriba que el punto rojo
+                ylim = c(NA, maximo_promedio$ganancia_total - 10000), 
                 segment.color = "grey30", 
                 segment.size = 0.5,       
-                min.segment.length = 0.5, 
-                point.padding = 0.5,      
+                min.segment.length = 0, # Forzar que dibuje la flecha
+                point.padding = 0.5,    
                 box.padding = 0.5         
     ) +
     scale_y_continuous(labels = scales::comma, 
