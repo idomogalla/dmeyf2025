@@ -33,32 +33,45 @@ GraficarImportancia <- function(importancia, top_n = 50, ruta_grafico, subtitulo
 }
 
 # Función GraficarCurvasEnsemble
-GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
+GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PARAM_plot) {
   log_info("Iniciando la graficación de la superposición de curvas del ensemble.")
 
-  # Convertimos la lista de data.tables en un solo data.table
+  # DATOS DE SEMILLAS INDIVIDUALES
   tb_todas <- rbindlist(lapply(names(lista_resultados), function(sem) {
     lista_resultados[[sem]][, semilla := as.character(sem)]
   }))
 
-  # Calculamos la ganancia promedio por cantidad de envíos
-  tb_promedio <- tb_todas[, .(ganancia_total = mean(ganancia_total)), by = clientes]
+  # DATOS DEL PROMEDIO VISUAL (Promedio(Ganancias))
+  tb_promedio_visual <- tb_todas[, .(ganancia_total = mean(ganancia_total)), by = clientes]
 
-  # Encontramos el máximo de la curva promedio
-  maximo_promedio <- tb_promedio[ganancia_total == max(ganancia_total)]
+  # DATOS DEL ENSAMBLE REAL (Ganancia(Promedio(Prob)))
+  # Esta es la tabla que se usa para eval_resumen.txt
+  setnames(tb_resultados_ensamble, "ganancia_total", "ganancia_ensamble_real")
+
+  # Encontramos el máximo de la curva del ENSAMBLE REAL
+  maximo_promedio <- tb_resultados_ensamble[ganancia_ensamble_real == max(ganancia_ensamble_real)]
   maximo_promedio <- head(maximo_promedio, 1) # Primer máximo si hay empate
   
-  # Creación de Etiquetas para la Leyenda (Simples)
+  # Creación de Etiquetas para la Leyenda
   semillas_unicas <- unique(tb_todas$semilla)
-  labels_individuales <- semillas_unicas
-  label_promedio <- "Promedio"
-  labels_plot <- c(labels_individuales, label_promedio)
-  names(labels_plot) <- c(semillas_unicas, "Promedio")
+  
+  # Definimos nombres para las nuevas líneas
+  label_ensamble_real <- "Ensamble Real (Negro)"
+  label_promedio_visual <- "Promedio Visual (Azul)"
+
+  labels_plot <- c(semillas_unicas, label_ensamble_real, label_promedio_visual)
+  names(labels_plot) <- c(semillas_unicas, "Ensamble Real", "Promedio Visual")
 
   # Configuración de Colores
   colores_individuales <- scales::hue_pal()(length(semillas_unicas))
   names(colores_individuales) <- semillas_unicas
-  colores_plot <- c(colores_individuales, "Promedio" = "black")
+  
+  # Forzamos colores: Negro para el real, Azul para el visual
+  colores_plot <- c(
+    colores_individuales, 
+    "Ensamble Real" = "black", 
+    "Promedio Visual" = "blue"
+  )
   
   # Generación del Gráfico ggplot
   p <- ggplot() +
@@ -66,44 +79,47 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
     geom_line(data = tb_todas,
               aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
               alpha = 0.5, linewidth = 0.5) +
-    # Línea promedio (gruesa y negra)
-    geom_line(data = tb_promedio,
-              aes(x = clientes, y = ganancia_total, color = "Promedio"),
+    # Línea PROMEDIO VISUAL (Azul y Punteada)
+    geom_line(data = tb_promedio_visual,
+              aes(x = clientes, y = ganancia_total, color = "Promedio Visual"),
+              linewidth = 0.8, linetype = "dashed") + 
+    # Línea ENSAMBLE REAL (Negra y Gruesa)
+    geom_line(data = tb_resultados_ensamble,
+              aes(x = clientes, y = ganancia_ensamble_real, color = "Ensamble Real"),
               linewidth = 1.0) + 
-    # Punto máximo promedio (Rojo)
+    # Punto máximo promedio (Rojo) - BASADO EN EL ENSAMBLE REAL
     geom_point(data = maximo_promedio,
-              aes(x = clientes, y = ganancia_total),
+              aes(x = clientes, y = ganancia_ensamble_real),
               color = "red", size = 3, shape = 16) +
-    # Anotación de la GANANCIA MÁXIMA (ARRIBA del punto)
+    # Anotación de la GANANCIA MÁXIMA (ARRIBA) - BASADO EN EL ENSAMBLE REAL
     geom_label(data = maximo_promedio,
-                aes(x = clientes, y = ganancia_total, 
+                aes(x = clientes, y = ganancia_ensamble_real, 
                     label = paste0("Máximo\n", 
-                                    format(ganancia_total, big.mark = ".", decimal.mark = ","))),
-                vjust = -0.5, # Posiciona justo ARRIBA del punto
-                nudge_y = 10000000, # Empuja la etiqueta hacia ARRIBA
+                                    format(ganancia_ensamble_real, big.mark = ".", decimal.mark = ","))),
+                vjust = -0.5, 
+                nudge_y = 10000000, 
                 fill = "white", color = "red", fontface = "bold",
                 label.padding = unit(0.3, "lines")) +
-    # Anotación de los ENVÍOS (con flecha, ABAJO)
+    # Anotación de los ENVÍOS (ABAJO) - BASADO EN EL ENSAMBLE REAL
     geom_text_repel(data = maximo_promedio,
-                aes(x = clientes, y = ganancia_total,
+                aes(x = clientes, y = ganancia_ensamble_real,
                     label = format(clientes, big.mark = ".", decimal.mark = ",")),
                 color = "black",
                 fontface = "bold",
                 size = 3.5,
-                nudge_y = -30000000, # Empuje inicial fuerte hacia abajo
-                # 2. Dirección: Solo permitir mover en el eje Y
+                nudge_y = -30000000, 
                 direction = "y",
-                # 3. Límites: La etiqueta NO PUEDE ir más arriba que el punto rojo
-                ylim = c(NA, maximo_promedio$ganancia_total - 10000), 
+                ylim = c(NA, maximo_promedio$ganancia_ensamble_real - 10000), 
                 segment.color = "grey30", 
                 segment.size = 0.5,       
-                min.segment.length = 0, # Forzar que dibuje la flecha
+                min.segment.length = 0, 
                 point.padding = 0.5,    
                 box.padding = 0.5         
     ) +
     scale_y_continuous(labels = scales::comma, 
                        expand = expansion(mult = c(0.05, 0.15))) + 
     scale_x_continuous(labels = scales::comma) + 
+    # Asignamos los colores y etiquetas actualizados
     scale_color_manual(name = "Modelo",
                       values = colores_plot,
                       labels = labels_plot) +
@@ -113,7 +129,6 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
       y = "Ganancia Acumulada"
     ) +
     theme_minimal() +
-    # Mover leyenda a la derecha y con letra pequeña
     theme(
       legend.position = "right",
       legend.text = element_text(size = 8), 
@@ -122,7 +137,12 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
       plot.margin = margin(10, 10, 10, 10)
     ) +
     # Asegurar que las líneas en la leyenda sean visibles
-    guides(color = guide_legend(override.aes = list(alpha = 1, linewidth = 1.5))) 
+    guides(color = guide_legend(override.aes = list(
+      alpha = 1, 
+      linewidth = 1.5,
+      # Hacemos que la línea del "Promedio Visual" aparezca punteada en la leyenda
+      linetype = c(rep("solid", length(semillas_unicas) + 1), "dashed") 
+    ))) 
 
   # Nombre de archivo corto
   ruta_grafico <- file.path(PARAM_plot$carpeta_graficos, "eval_curvas.png")
@@ -406,7 +426,10 @@ tryCatch({
     experimento = PARAM$experimento
   )
 
-  GraficarCurvasEnsemble(lista_resultados_individuales, PARAM_plot)
+  # Generar Gráfico
+  GraficarCurvasEnsemble(lista_resultados_individuales, 
+                         resultados_ensamble, 
+                         PARAM_plot)
 
   ruta_resumen_txt <- file.path(dir_evaluacion, "eval_resumen.txt")
   fwrite(resumen_ganancias, 
