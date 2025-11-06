@@ -124,38 +124,35 @@ GraficarCurvasEnsemble <- function(lista_resultados, PARAM_plot) {
     geom_point(data = maximo_promedio,
               aes(x = clientes, y = ganancia_total),
               color = "red", size = 3, shape = 16) +
-    # Anotación de la GANANCIA MÁXIMA (arriba del punto)
+    # Anotación de la GANANCIA MÁXIMA (ARRIBA del punto)
     geom_label(data = maximo_promedio,
                 aes(x = clientes, y = ganancia_total, 
                     label = paste0("Máximo\n", 
                                     format(ganancia_total, big.mark = ".", decimal.mark = ","))),
-                vjust = -0.5, # Posiciona justo arriba del punto
-                nudge_y = 10000000, # Empuja la etiqueta hacia arriba
+                vjust = -0.5, # Posiciona justo ARRIBA del punto
+                nudge_y = 10000000, # Empuja la etiqueta hacia ARRIBA
                 fill = "white", color = "red", fontface = "bold",
                 label.padding = unit(0.3, "lines")) +
-                
-    # Anotación de los ENVÍOS
-    # Usamos geom_text_repel para que apunte al punto
+    # Anotación de los ENVÍOS (con flecha, ABAJO)
     geom_text_repel(data = maximo_promedio,
                 aes(x = clientes, y = ganancia_total,
-                    # Formateamos el número de envíos
                     label = format(clientes, big.mark = ".", decimal.mark = ",")),
                 color = "black",
                 fontface = "bold",
                 size = 3.5,
                 
                 # --- Ajustes para la flecha y posición ---
-                nudge_x = 5000,  # Empujar a la derecha para que la flecha sea visible
-                nudge_y = -15000000, # Empujar un poco hacia abajo
+                nudge_x = 5000,  # Empujar a la derecha
+                nudge_y = -15000000, # Empujar hacia ABAJO
                 
-                segment.color = "grey30", # Color de la flecha
-                segment.size = 0.5,       # Grosor de la flecha
-                min.segment.length = 0.5, # Dibujar flecha aunque esté cerca
-                point.padding = 0.5,      # Espacio desde el punto
-                box.padding = 0.5         # Espacio del texto
+                segment.color = "grey30", 
+                segment.size = 0.5,       
+                min.segment.length = 0.5, 
+                point.padding = 0.5,      
+                box.padding = 0.5         
     ) +
     scale_y_continuous(labels = scales::comma, 
-                       expand = expansion(mult = c(0.05, 0.15))) + # 15% arriba para la etiqueta
+                       expand = expansion(mult = c(0.05, 0.15))) + 
     scale_x_continuous(labels = scales::comma) + 
     scale_color_manual(name = "Modelo",
                       values = colores_plot,
