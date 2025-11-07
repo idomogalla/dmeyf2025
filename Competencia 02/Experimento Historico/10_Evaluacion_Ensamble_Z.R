@@ -130,7 +130,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
                            format(clientes, big.mark = ".", decimal.mark = ","))),
         fill = "white", color = "red", fontface = "bold",
         label.padding = unit(0.3, "lines"),
-        nudge_y = 70000000,
+        nudge_y = 80000000,
         segment.color = "grey30",
         min.segment.length = 0,
         direction = "y") +
@@ -144,7 +144,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
                            format(clientes, big.mark = ".", decimal.mark = ","))),
         fill = "white", color = "purple", fontface = "bold",
         label.padding = unit(0.3, "lines"),
-        nudge_y = -70000000,
+        nudge_y = -90000000,
         segment.color = "grey30",
         min.segment.length = 0,
         direction = "y") +
