@@ -285,7 +285,6 @@ tryCatch({
     # INICIO BLOQUE DE DEPURACIÓN (LOGS DE MUESTRA)
     # ########################################################
     log_info("--- Muestra de Lags, Deltas y Aceleraciones Creados ---")
-Ahi
     tryCatch({
       # 1. Seleccionar la PRIMERA columna lagueable como ejemplo
       col_ejemplo <- cols_lagueables[6] # (o la que prefieras)
