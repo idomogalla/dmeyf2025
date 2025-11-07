@@ -48,33 +48,20 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
   setnames(tb_resultados_ensamble, "ganancia_total", "ganancia_ensamble_real")
 
   # CALCULAR LA MESETA SUAVIZADA (Forma Dinámica)
-  # Definimos el tamaño del suavizado en clientes (1000 para cada lado)
   smoothing_window_clients <- 1000
-
-  # Obtenemos el "paso" (step size) de los cortes de evaluación
-  # Asumimos que 'cortes_evaluacion' existe en el entorno donde se llama la función
   if (!exists("cortes_evaluacion") || length(cortes_evaluacion) < 3) {
     log_warn("No se encontró 'cortes_evaluacion', usando step=100 por defecto para la meseta.")
     step_size <- 100
   } else {
-    # Calculamos el step_size (ej: 200 - 100 = 100, o 1000 - 500 = 500)
     step_size <- cortes_evaluacion[3] - cortes_evaluacion[2] 
   }
-
-  # Calculamos cuántos "pasos" (filas) se necesitan para cubrir los 1000 clientes
-  # Usamos round() para el caso de que no sea un divisor exacto
   n_pasos_ventana <- as.integer(round(smoothing_window_clients / step_size))
-
-  # El tamaño de la ventana total es 2 * (pasos) + 1 (el punto central)
-  # Si step_size=100, n_pasos=10, n_ventana=21
-  # Si step_size=500, n_pasos=2,  n_ventana=5
   n_ventana_meseta <- (2 * n_pasos_ventana) + 1
-
+  
   log_info(paste0("Cálculo de meseta: step_size=", step_size, 
                   ", n_pasos_ventana=", n_pasos_ventana, 
                   ", n_ventana_meseta_final=", n_ventana_meseta))
-
-  # Aplicamos el frollmean con la ventana dinámica
+  
   tb_resultados_ensamble[, ganancia_meseta := frollmean(
       x = ganancia_ensamble_real,
       n = n_ventana_meseta, 
@@ -82,19 +69,16 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
       na.rm = TRUE,
       hasNA = TRUE
   )]
-
-  # 5. ENCONTRAR MÁXIMOS
-  # Máximo del Punto (Pico)
+  
+  # ENCONTRAR MÁXIMOS
   maximo_punto <- tb_resultados_ensamble[ganancia_ensamble_real == max(ganancia_ensamble_real, na.rm = TRUE)]
   maximo_punto <- head(maximo_punto, 1) 
-
-  # Máximo de la Meseta (Suavizado)
+  
   maximo_meseta <- tb_resultados_ensamble[ganancia_meseta == max(ganancia_meseta, na.rm = TRUE)]
   maximo_meseta <- head(maximo_meseta, 1)
-
+  
   # Creación de Etiquetas para la Leyenda
   semillas_unicas <- unique(tb_todas$semilla)
-
   label_ensamble_real <- "Ensamble Real (Negro)"
   label_promedio_visual <- "Promedio Visual (Azul)"
   label_meseta <- "Meseta Suavizada (Púrpura)" 
@@ -105,76 +89,64 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
   # Configuración de Colores
   colores_individuales <- scales::hue_pal()(length(semillas_unicas))
   names(colores_individuales) <- semillas_unicas
-
   colores_plot <- c(
     colores_individuales, 
     "Ensamble Real" = "black", 
     "Promedio Visual" = "blue",
     "Meseta" = "purple" 
   )
-
+  
   # Generación del Gráfico ggplot
   p <- ggplot() +
-    # Líneas individuales
-    geom_line(data = tb_todas,
-              aes(x = clientes, y = ganancia_total, group = semilla, color = semilla),
-              alpha = 0.5, linewidth = 0.5) +
-    # Línea PROMEDIO VISUAL (Azul y Punteada)
-    geom_line(data = tb_promedio_visual,
-              aes(x = clientes, y = ganancia_total, color = "Promedio Visual"),
-              linewidth = 0.8, linetype = "dashed") + 
-    # Línea ENSAMBLE REAL (Negra y Gruesa)
-    geom_line(data = tb_resultados_ensamble,
-              aes(x = clientes, y = ganancia_ensamble_real, color = "Ensamble Real"),
-              linewidth = 1.0) +
-    # Linea de meseta
-    geom_line(data = tb_resultados_ensamble,
-              aes(x = clientes, y = ganancia_meseta, color = "Meseta"),
-              linewidth = 0.8, linetype = "dotdash") + 
+    # Líneas
+    geom_line(data = tb_todas, aes(x = clientes, y = ganancia_total, group = semilla, color = semilla), alpha = 0.5, linewidth = 0.5) +
+    geom_line(data = tb_promedio_visual, aes(x = clientes, y = ganancia_total, color = "Promedio Visual"), linewidth = 0.8, linetype = "dashed") + 
+    geom_line(data = tb_resultados_ensamble, aes(x = clientes, y = ganancia_ensamble_real, color = "Ensamble Real"), linewidth = 1.0) +
+    geom_line(data = tb_resultados_ensamble, aes(x = clientes, y = ganancia_meseta, color = "Meseta"), linewidth = 0.8, linetype = "dotdash") + 
     # Punto máximo (PUNTO - Rojo) 
-    geom_point(data = maximo_punto,
-              aes(x = clientes, y = ganancia_ensamble_real),
-              color = "red", size = 3, shape = 16) + # Círculo
+    geom_point(data = maximo_punto, aes(x = clientes, y = ganancia_ensamble_real), color = "red", size = 3, shape = 16) +
     # Punto máximo (MESETA - Púrpura)
-    geom_point(data = maximo_meseta,
-              aes(x = clientes, y = ganancia_meseta),
-              color = "purple", size = 3, shape = 17) + # Triángulo
+    geom_point(data = maximo_meseta, aes(x = clientes, y = ganancia_meseta), color = "purple", size = 3, shape = 17) +
     # Anotación GANANCIA (PUNTO - Rojo, ARRIBA)
     geom_label(data = maximo_punto,
                 aes(x = clientes, y = ganancia_ensamble_real, 
                     label = paste0("Máximo\n", 
-                                    format(ganancia_ensamble_real, big.mark = ".", decimal.mark = ","))),
-                vjust = -0.5, 
-                nudge_y = 10000000, 
+                                    format(ganancia_ensamble_real, big.mark = ".", 
+                                           decimal.mark = ",", scientific = FALSE))), # NO EXPONENCIAL
                 fill = "white", color = "red", fontface = "bold",
-                label.padding = unit(0.3, "lines")) +
-    # Anotación ENVÍOS (PUNTO - Negro, ABAJO)
+                label.padding = unit(0.3, "lines"),
+                nudge_y = 15000000, # Empujar ARRIBA
+                ylim = c(maximo_punto$ganancia_ensamble_real, NA),
+                direction = "y") +
+    # Anotación ENVÍOS (PUNTO - Rojo, ARRIBA)
     geom_text_repel(data = maximo_punto,
                 aes(x = clientes, y = ganancia_ensamble_real,
                     label = format(clientes, big.mark = ".", decimal.mark = ",")),
-                color = "black", fontface = "bold", size = 3.5,
-                nudge_y = -30000000, 
+                color = "red", fontface = "bold", size = 3.5, # COLOR ROJO
+                nudge_y = 30000000, # Empujar MÁS ARRIBA (encima de la ganancia)
                 direction = "y",
-                ylim = c(NA, maximo_punto$ganancia_ensamble_real - 10000), 
+                ylim = c(maximo_punto$ganancia_ensamble_real, NA), 
                 segment.color = "grey30", segment.size = 0.5,       
                 min.segment.length = 0, point.padding = 0.5, box.padding = 0.5) +
     # Anotación GANANCIA (MESETA - Púrpura, ABAJO)
     geom_label(data = maximo_meseta,
                 aes(x = clientes, y = ganancia_meseta, 
                     label = paste0("Meseta\n", 
-                                    format(ganancia_meseta, big.mark = ".", decimal.mark = ","))),
-                vjust = 2.0, # Posicionar ABAJO
-                nudge_y = -10000000,
+                                    format(ganancia_meseta, big.mark = ".", 
+                                           decimal.mark = ",", scientific = FALSE))), # NO EXPONENCIAL
                 fill = "white", color = "purple", fontface = "bold",
-                label.padding = unit(0.3, "lines")) +
-    # Anotación ENVÍOS (MESETA - Púrpura, ARRIBA)
+                label.padding = unit(0.3, "lines"),
+                nudge_y = -15000000, # Empujar ABAJO
+                ylim = c(NA, maximo_meseta$ganancia_meseta),
+                direction = "y") +
+    # Anotación ENVÍOS (MESETA - Púrpura, ABAJO)
     geom_text_repel(data = maximo_meseta,
                 aes(x = clientes, y = ganancia_meseta,
                     label = format(clientes, big.mark = ".", decimal.mark = ",")),
                 color = "purple", fontface = "bold", size = 3.5,
-                nudge_y = 30000000, # Empujar ARRIBA
+                nudge_y = -30000000, # Empujar MÁS ABAJO (debajo de la ganancia)
                 direction = "y",
-                ylim = c(maximo_meseta$ganancia_meseta + 10000, NA), 
+                ylim = c(NA, maximo_meseta$ganancia_meseta), 
                 segment.color = "grey30", segment.size = 0.5,       
                 min.segment.length = 0, point.padding = 0.5, box.padding = 0.5) +
     scale_y_continuous(labels = scales::comma, 
@@ -184,7 +156,7 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
                       values = colores_plot,
                       labels = labels_plot) +
     labs(
-      title = paste0("Ganancia Acumulada (Semillas y Ensamble) - ", PARAM_plot$experimento),
+      title = paste0("Ganancia Acudmulada (Semillas y Ensamble) - ", PARAM_plot$experimento),
       x = "Clientes Contactados (Envíos)",
       y = "Ganancia Acumulada"
     ) +
@@ -199,7 +171,6 @@ GraficarCurvasEnsemble <- function(lista_resultados, tb_resultados_ensamble, PAR
     guides(color = guide_legend(override.aes = list(
       alpha = 1, 
       linewidth = 1.5,
-      # Actualizar linetypes para la leyenda
       linetype = c(rep("solid", length(semillas_unicas) + 1), "dashed", "dotdash") 
     ))) 
 
