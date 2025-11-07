@@ -34,7 +34,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_03"
+PARAM$experimento <- "colaborativo_15"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
