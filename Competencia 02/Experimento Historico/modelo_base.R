@@ -62,8 +62,8 @@ PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(3, 6)
+PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- c(6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -189,7 +189,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 30
+PARAM$train_final$ksemillerio <- 50
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -241,9 +241,9 @@ log_info("==================================================")
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "2_Data_Quality.R"), "2_Data_Quality.R")
 source_con_log(file.path(home_dir, "3_Data_Drifting.R"), "3_Data_Drifting.R")
-#source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "5_Feature_Engineering_Historico.R"), "5_Feature_Engineering_Historico.R")
-#source_con_log(file.path(home_dir, "6_Feature_Engineering_RF.R"), "6_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "6_Feature_Engineering_RF.R"), "6_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"), "7_Reduccion_Dimensionalidad_Canaritos.R")
 source_con_log(file.path(home_dir, "8_Modelado.R"), "8_Modelado.R")
 source_con_log(file.path(home_dir, "9_Optimizacion_Bayesiana.R"), "9_Optimizacion_Bayesiana.R")

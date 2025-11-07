@@ -60,6 +60,7 @@ PARAM$FE_hist <- list()
 # Lags
 PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
+PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(12)
@@ -175,6 +176,7 @@ PARAM$BO <- list()
 PARAM$eval_ensamble <- list()
 PARAM$eval_ensamble$ksemillerio <- 50L
 PARAM$eval_ensamble$mes_testing <- 202106
+PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()

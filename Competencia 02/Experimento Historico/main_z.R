@@ -61,13 +61,10 @@ PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 
 # Parámetros de Feature Engineering Histórico
-PARAM$FE_hist <- list()
-PARAM$FE_hist$lags$run <- TRUE 
-PARAM$FE_hist$lags$n_lags <- c(1) 
-PARAM$FE_hist$Tendencias$run <- FALSE 
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
@@ -163,6 +160,7 @@ PARAM$lgbm_z <- list(
 PARAM$eval_ensamble <- list()
 PARAM$eval_ensamble$ksemillerio <- 50L # Semillerio para evaluación
 PARAM$eval_ensamble$mes_testing <- 202106 # Mes de testing para Script 10
+PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción (Script 11)
 PARAM$train_final <- list()
