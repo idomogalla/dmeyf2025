@@ -8,8 +8,8 @@ dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)]
 # Los campos en los que se entrena
 log_info("Definiendo campos_buenos (sin canaritos, se agregarán luego).")
 campos_buenos <- copy( setdiff(
-    colnames(dataset), PARAM$trainingstrategy$campos_entrenar)
-    )
+                        colnames(dataset), PARAM$trainingstrategy$campos_entrenar)
+                      )
 
 # Cambio las proporciones de POS/NEG
 log_info("Haciendo undersampling.")
@@ -19,6 +19,6 @@ dataset[, training := 0L]
 
 # Undersampling
 dataset[  foto_mes %in%  PARAM$trainingstrategy$training &
-  (azar <= PARAM$trainingstrategy$undersampling | clase_ternaria %in% c("BAJA+1", "BAJA+2")),
-  training := 1L
-]
+          (azar <= PARAM$trainingstrategy$undersampling | clase_ternaria %in% c("BAJA+1", "BAJA+2")),
+          training := 1L
+        ]

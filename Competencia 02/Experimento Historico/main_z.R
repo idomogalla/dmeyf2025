@@ -156,10 +156,12 @@ PARAM$lgbm_z <- list(
   gradient_bound = 0.1  # Default de zLightGBM
 )
 
-# Parámetros para evaluación (Script 10)
+# Parámetros para evaluación (Script 11)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$ksemillerio <- 50L # Semillerio para evaluación
-PARAM$eval_ensamble$mes_testing <- 202106 # Mes de testing para Script 10
+PARAM$eval_ensamble$APO <- FALSE # Realizo la comparativa con APO
+PARAM$eval_ensamble$iter <- 10
+PARAM$eval_ensamble$ksemillerio <- 10 # Se multiplica por iter
+PARAM$eval_ensamble$mes_testing <- 202106
 PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción (Script 11)
@@ -214,19 +216,18 @@ log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_f
 
 log_info("Inciando el workflow")
 log_info("==================================================")
-
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Data_Quality.R"), "2_Data_Quality.R")
-source_con_log(file.path(home_dir, "3_Data_Drifting.R"), "3_Data_Drifting.R")
-source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
-source_con_log(file.path(home_dir, "5_Feature_Engineering_Historico.R"), "5_Feature_Engineering_Historico.R")
-source_con_log(file.path(home_dir, "6_Feature_Engineering_RF.R"), "6_Feature_Engineering_RF.R")
-source_con_log(file.path(home_dir, "7_Reduccion_Dimensionalidad_Canaritos.R"), "7_Reduccion_Dimensionalidad_Canaritos.R")
-source_con_log(file.path(home_dir, "8_Modelado_Z.R"), "8_Modelado_Z.R")
-# source_con_log(file.path(home_dir, "9_Optimizacion_Bayesiana.R"), "9_Optimizacion_Bayesiana.R")
-source_con_log(file.path(home_dir, "10_Evaluacion_Ensamble_Z.R"), "10_Evaluacion_Ensamble_Z.R")
-source_con_log(file.path(home_dir, "11_Modelo_Final_Z.R"), "11_Modelo_Final_Z.R")
-
+#source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
+source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
+source_con_log(file.path(home_dir, "4_Data_Drifting.R"), "4_Data_Drifting.R")
+#source_con_log(file.path(home_dir, "5_Feature_Engineering_Intra_Mes.R"), "5_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
+#source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
+source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
+source_con_log(file.path(home_dir, "10_Optimizacion_Bayesiana.R"), "10_Optimizacion_Bayesiana.R")
+source_con_log(file.path(home_dir, "11_Evaluacion_Ensamble_Z.R"), "11_Evaluacion_Ensamble.R")
+source_con_log(file.path(home_dir, "12_Modelo_Final_Z.R"), "12_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")

@@ -22,7 +22,7 @@ tryCatch({
     makeNumericParam("feature_fraction", lower= 0.05, upper= 1.0 ),
     makeNumericParam("min_data_in_leaf", lower= 0.0, upper= log2(nrow(dtrain)/2), trafo= function(x) as.integer(round(2^x)) ),
     makeNumericParam("num_leaves", lower= 1.0, upper= 10.0, trafo= function(x) as.integer(round(2^x)) ),
-    forbidden = quote( (2^min_data_in_leaf)*(2^num_leaves) > nrow(dtrain) )
+    forbidden= quote( (2^min_data_in_leaf)*(2^num_leaves) > nrow(dtrain) )
   )
 
   # defino los datos de testing
