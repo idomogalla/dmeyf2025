@@ -124,6 +124,26 @@ PARAM$FE_rf$lgb_param <- list(
     extra_trees = FALSE
 )
 
+# Parámetros de Reducción de Dimensionalidad (Canaritos Asesinos)
+PARAM$reduccion_canaritos <- list()
+PARAM$reduccion_canaritos$train <- list()
+
+# Parámetros principales: ratio de canaritos y desvíos para el corte
+PARAM$reduccion_canaritos$ratio <- 0.2
+PARAM$reduccion_canaritos$desvios <- 2
+
+# Lista de campos que NO deben usarse para entrenar (identificadores, target, etc.)
+PARAM$reduccion_canaritos$campitos_no_entrenar <- c( "numero_de_cliente", "foto_mes", "clase_ternaria" )
+
+# Parámetros de entrenamiento del modelo de canaritos
+PARAM$reduccion_canaritos$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
+PARAM$reduccion_canaritos$train$positivos <- c( "BAJA+2")
+PARAM$reduccion_canaritos$train$training <- c( 202101, 202102, 202103)
+PARAM$reduccion_canaritos$train$validation <- c( 202105 )
+PARAM$reduccion_canaritos$train$undersampling <- 0.1
+PARAM$reduccion_canaritos$train$gan1 <- 117000
+PARAM$reduccion_canaritos$train$gan0 <-  -3000
+
 # Parámetros de Training Strategy para la Optimización Bayesiana
 PARAM$trainingstrategy <- list()
 PARAM$trainingstrategy$training <- c(

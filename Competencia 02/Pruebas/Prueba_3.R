@@ -34,7 +34,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "main"
+PARAM$experimento <- "c02_p3"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -58,12 +58,12 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
-PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
+PARAM$FE_hist$lags$n_lags <- c(1, 3) # Número de lags a crear
+PARAM$FE_hist$lags$aceleracion <- TRUE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(6)
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- c(3, 6, 12)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -142,7 +142,7 @@ PARAM$reduccion_canaritos$train$training <- c( 202101, 202102, 202103)
 PARAM$reduccion_canaritos$train$validation <- c( 202105 )
 PARAM$reduccion_canaritos$train$undersampling <- 0.1
 PARAM$reduccion_canaritos$train$gan1 <- 117000
-PARAM$reduccion_canaritos$train$gan0 <-  -3000
+PARAM$reduccion_canaritos$train$gan0 <- -3000
 
 # Parámetros de Training Strategy para la Optimización Bayesiana
 PARAM$trainingstrategy <- list()
@@ -154,14 +154,14 @@ PARAM$trainingstrategy$training <- c(
   202101, 202102
 )
 PARAM$trainingstrategy$testing <- c(202104)
-PARAM$trainingstrategy$undersampling <- 0.05
+PARAM$trainingstrategy$undersampling <- 0.1
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
 PARAM$trainingstrategy$importancias <- 50
 
 # Parámetros de Optimización de Hiperparámetros (Bayesian Optimization)
 PARAM$hipeparametertuning <- list()
-PARAM$hipeparametertuning$BO_iteraciones <- 30 # 50 seria mas razonable
+PARAM$hipeparametertuning$BO_iteraciones <- 50 # 50 seria mas razonable
 
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
@@ -170,7 +170,7 @@ PARAM$hipeparametertuning$ksemillerio <- 15L
 # El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
 # Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
 # Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization
-PARAM$hipeparametertuning$repe <- 2L
+PARAM$hipeparametertuning$repe <- 3L
 
 # Parámetros fijos de LightGBM para la BO
 PARAM$lgbm <- list()
@@ -207,7 +207,7 @@ PARAM$BO <- list()
 
 # Parámetros para evaluación (Script 11)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$APO <- FALSE # Realizo la comparativa con APO
+PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
 PARAM$eval_ensamble$iter <- 10
 PARAM$eval_ensamble$ksemillerio <- 10 # Se multiplica por iter
 PARAM$eval_ensamble$mes_testing <- 202106
@@ -226,7 +226,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 50 # Para evitar overfitting al menos 100
+PARAM$train_final$ksemillerio <- 100 # Para evitar overfitting al menos 100
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts

@@ -17,12 +17,12 @@ tryCatch({
   dataset_train_final[, azar:= NULL] # elimino la columna azar
 
   # paso la clase a binaria que tome valores {0,1}  enteros
-  #  BAJA+1 y BAJA+2  son  1,   CONTINUA es 0
-  #  a partir de ahora ya NO puedo cortar  por prob(BAJA+2) > 1/40
   log_info("Creando clase01 para el modelo final.")
   dataset_train_final[,
     clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)
   ]
+
+  log_info(paste("Modelo final creado. Número de filas a ser utilizadas: ", nrow(dataset_train_final[training == 1L])))
 
   # leo el archivo donde quedaron los hiperparametros optimos
   log_info("Leyendo mejores hiperparámetros de BO_log.txt")
@@ -44,30 +44,54 @@ tryCatch({
   log_info("Mejores hiperparámetros (fila 1 de BO_log.txt):")
   log_info(paste(capture.output(print(tb_BO[1])), collapse = "\n"))
 
-  # en la tabla ademas de los parametros del LightGBM, hay campos de salida
-  param_lgbm <- union( names(PARAM$lgbm$param_fijos),  names(PARAM$hipeparametertuning$hs$pars) )
+  # Definir manualmente los nombres de los hiperparámetros optimizados
+  # (Reemplaza a 'names(PARAM$hipeparametertuning$hs$pars)', que ya no existe en memoria)
+  nombres_hiper_optimizados <- c("num_iterations", 
+                                 "learning_rate", 
+                                 "feature_fraction", 
+                                 "min_data_in_leaf", 
+                                 "num_leaves")
+  
+  param_lgbm <- union( names(PARAM$lgbm$param_fijos), nombres_hiper_optimizados )
+  
   PARAM$train_final$param_mejores <- as.list( tb_BO[1, param_lgbm, with=FALSE])
 
   log_info("Ajustando los hiperparámetros al tamaño del dataset final.")
-  nrow_dtrain_path <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana, "nrow_dtrain.rds")
+  
+  # Lógica robusta para obtener nrow(dtrain)
+  if (!exists("dtrain") || is.null(dtrain)){
+    log_info("El objeto 'dtrain' no existe en memoria. Leyendo 'nrow_dtrain.rds' desde el disco.")
+    nrow_dtrain_path <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana, "nrow_dtrain.rds") 
 
-  nrow_dtrain_original <- readRDS(nrow_dtrain_path)
-
-  if (is.null(nrow_dtrain_original) || nrow_dtrain_original == 0) {
-    stop("nrow_dtrain_original es 0 o NULL. No se puede reescalar min_data_in_leaf.")
+    if (!file.exists(nrow_dtrain_path)) {
+      stop(paste("No se encontró 'nrow_dtrain.rds' en", dirname(nrow_dtrain_path),
+                 "\nAsegúrate de que 10_Optimizacion_Bayesiana.R se haya ejecutado y guardado el archivo."))
+    }
+  
+    nrow_dtrain <- readRDS(nrow_dtrain_path)
+    log_info(paste("Se leyó nrow(dtrain) desde el archivo:", nrow_dtrain))
+  } else {
+    log_info("El objeto 'dtrain' existe en memoria. Usando nrow(dtrain).")
+    nrow_dtrain <- nrow(dtrain)
+    log_info(paste("Se usó nrow(dtrain) desde la memoria:", nrow_dtrain))
   }
-  
-  original_min_data <- PARAM$train_final$param_mejores$min_data_in_leaf
-  
-  PARAM$train_final$param_mejores$min_data_in_leaf <- as.integer( round(
-      original_min_data * nrow(dataset_train_final[training == 1L]) / nrow_dtrain_original
-  ))
+
+  ratio <- nrow(dataset_train_final[training == 1L]) / nrow_dtrain
+
+  PARAM$train_final$param_mejores$min_data_in_leaf <- as.integer( round(PARAM$train_final$param_mejores$min_data_in_leaf * ratio))
+
+  # Chequeo de seguridad
+  if(is.na(PARAM$train_final$param_mejores$min_data_in_leaf)) {
+    stop("El cálculo final de min_data_in_leaf resultó en NA. Verifica los valores.")
+  }
 
   log_info(paste("Original min_data_in_leaf:", tb_BO[1, min_data_in_leaf], "Ajustado min_data_in_leaf:", PARAM$train_final$param_mejores$min_data_in_leaf))
   log_info("Parámetros finales:")
   log_info(paste(capture.output(print(PARAM$train_final$param_mejores)), collapse = "\n"))
 
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
+  # (Asegurarse de que 'primos' exista, por si acaso)
+  if(!exists("primos")) primos <- generate_primes(min = 100000, max = 1000000)
   PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
   log_info(paste("Semillas a ser utilizadas en el modelo final para el ensamble:", paste(PARAM$train_final$semillas, collapse = ", ")))
   
@@ -110,6 +134,8 @@ tryCatch({
     }
   }
   log_info("Modelos generados.")
+  rm(dtrain_final) # libero memoria
+  gc()
 
   # Scoring
   # aplico el modelo a los datos sin clase
@@ -136,8 +162,7 @@ tryCatch({
   vpred_acum <- vpred_acum / qacumulados  # paso a probabildiad
   log_info("Modelos aplicados.")
 
-  # tabla de prediccion, puede ser util para futuros ensembles
-  #  ya que le modelo ganador va a ser un ensemble de LightGBMs
+  # tabla de prediccion
   log_info("Creando tabla de predicción.")
   tb_prediccion <- dfuture[, list(numero_de_cliente, foto_mes)]
   tb_prediccion[, prob := vpred_acum ]
@@ -179,10 +204,10 @@ tryCatch({
 
     if (!file.exists(ruta_envios_rds)) {
       stop(paste("No se encontró el archivo de envíos óptimos:", ruta_envios_rds,
-                 "Asegúrate de que 10_Evaluacion_Ensamble.R se haya ejecutado correctamente."))
+                 "\nAsegúrate de que 11_Evaluacion_Ensamble.R se haya ejecutado correctamente."))
     }
     
-    # Cargamos el vector de envios generado por el Script 10
+    # Cargamos el vector de envios generado por el Script 11
     envios <- readRDS(ruta_envios_rds)
   }
     

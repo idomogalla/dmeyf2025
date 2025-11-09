@@ -2,6 +2,7 @@ log_info("Inicio 8_Reduccion_Dimensionalidad_Canaritos.R")
 
 # Variables globales para la métrica y el conteo
 VPOS_CORTE <- c()
+GVEZ <- 1 # Variable global para contar ejecuciones
 
 # Métrica de ganancia personalizada
 fganancia_lgbm_meseta <- function(probs, datos) {
@@ -12,8 +13,8 @@ fganancia_lgbm_meseta <- function(probs, datos) {
     "prob" = probs,
     # Utiliza los parámetros de ganancia definidos en main.R
     "gan" = ifelse(vlabels == 1 & vpesos > 1,
-                   PARAM$CN$train$gan1,
-                   PARAM$CN$train$gan0)
+                   PARAM$reduccion_canaritos$train$gan1,
+                   PARAM$reduccion_canaritos$train$gan0)
   ))
 
   setorder(tbl, -prob)
@@ -33,7 +34,6 @@ fganancia_lgbm_meseta <- function(probs, datos) {
   ))
 }
 
-GVEZ <- 1 # Variable global para contar ejecuciones
 
 # Función principal de Canaritos Asesinos
 CanaritosAsesinos <- function(
@@ -47,21 +47,32 @@ CanaritosAsesinos <- function(
   # Definir la clase01 usando parámetros de main.R
   log_info("Creando variable 'clase01' para el entrenamiento.")
   dataset[, clase01 := 0L ]
-  dataset[ clase_ternaria %in% PARAM$CN$train$clase01_valor1,
+  dataset[ clase_ternaria %in% PARAM$reduccion_canaritos$train$clase01_valor1,
       clase01 := 1L ]
 
-  # Crear los canaritos
+  # Calcular cantidad de canaritos
   qty_canaritos <- as.integer(ncol(dataset) * canaritos_ratio)
-  log_info(paste("Creando", qty_canaritos, "canaritos."))
-  set.seed(canaritos_semilla, kind = "L'Ecuyer-CMRG")
-  for (i in 1:qty_canaritos) {
-    dataset[, paste0("canarito", i) := runif(nrow(dataset))]
+
+  # Validar qty_canaritos (para evitar el error 'argument of length 0')
+  if (length(qty_canaritos) == 0 || is.na(qty_canaritos) || qty_canaritos <= 0) {
+    log_info("Creando 0 canaritos (ratio=0 o parámetro no definido).")
+    qty_canaritos <- 0 # Asegurar que sea 0 y no NULL o NA
+  } else {
+    log_info(paste("Creando", qty_canaritos, "canaritos."))
+  }
+
+  # El loop ahora solo se ejecuta SI qty_canaritos > 0
+  if (qty_canaritos > 0) {
+    set.seed(canaritos_semilla, kind = "L'Ecuyer-CMRG")
+    for (i in seq_len(qty_canaritos)) {
+      dataset[, paste0("canarito", i) := runif(nrow(dataset))]
+    }
   }
 
   # Campos buenos (features) para entrenar
   campos_buenos <- setdiff(
     colnames(dataset),
-    c( PARAM$CN$campitos_no_entrenar, "clase01") # Usa campitos de main.R
+    c( PARAM$reduccion_canaritos$campitos_no_entrenar, "clase01")
   )
   
   log_info(paste("El modelo de canaritos se entrenará con", length(campos_buenos), "variables (reales + canaritos)."))
@@ -70,8 +81,8 @@ CanaritosAsesinos <- function(
   log_info("Definiendo set de entrenamiento (training) y validación (validation).")
   azar <- runif(nrow(dataset))
   dataset[, entrenamiento :=
-    as.integer( foto_mes %in% PARAM$CN$train$training &
-      (clase01 == 1 | azar < PARAM$CN$train$undersampling))]
+    as.integer( foto_mes %in% PARAM$reduccion_canaritos$train$training &
+      (clase01 == 1 | azar < PARAM$reduccion_canaritos$train$undersampling))]
 
   # Crear dtrain
   dtrain <- lgb.Dataset(
@@ -79,18 +90,18 @@ CanaritosAsesinos <- function(
     label = dataset[entrenamiento == TRUE, clase01],
     weight = dataset[
       entrenamiento == TRUE,
-      ifelse(clase_ternaria %in% PARAM$CN$train$positivos, 1.0000001, 1.0) # Usa positivos de main.R
+      ifelse(clase_ternaria %in% PARAM$reduccion_canaritos$train$positivos, 1.000001, 1.0)
     ],
     free_raw_data = FALSE
   )
 
   # Crear dvalid
   dvalid <- lgb.Dataset(
-    data = data.matrix(dataset[foto_mes %in% PARAM$CN$train$validation, campos_buenos, with = FALSE]), # Usa validation de main.R
-    label = dataset[foto_mes %in% PARAM$CN$train$validation, clase01],
+    data = data.matrix(dataset[foto_mes %in% PARAM$reduccion_canaritos$train$validation, campos_buenos, with = FALSE]),
+    label = dataset[foto_mes %in% PARAM$reduccion_canaritos$train$validation, clase01],
     weight = dataset[
-      foto_mes %in% PARAM$CN$train$validation,
-      ifelse( clase_ternaria %in% PARAM$CN$train$positivos, 1.0000001, 1.0) # Usa positivos de main.R
+      foto_mes %in% PARAM$reduccion_canaritos$train$validation,
+      ifelse( clase_ternaria %in% PARAM$reduccion_canaritos$train$positivos, 1.000001, 1.0)
     ],
     free_raw_data = FALSE
   )
@@ -129,7 +140,7 @@ CanaritosAsesinos <- function(
     data = dtrain,
     valids = list(valid = dvalid),
     eval = fganancia_lgbm_meseta,
-    param = param,
+    param = param, # Usa los parámetros definidos localmente
     verbose = -100
   )
   
@@ -141,7 +152,6 @@ CanaritosAsesinos <- function(
   tb_importancia[, pos := .I]
 
   # Guardar la tabla de importancia (usando la ruta del experimento)
-  # Se guarda en la carpeta principal del experimento
   impo_file_path <- file.path(PARAM$experimento_folder, paste0("impo_", GVEZ, ".txt"))
   fwrite(tb_importancia,
     file = impo_file_path,
@@ -171,7 +181,7 @@ CanaritosAsesinos <- function(
   # Asegurarse de no borrar campos clave
   col_utiles <- unique(c(
     col_utiles,
-    c(PARAM$CN$campitos_no_entrenar, "mes") # 'mes' se asume que existe
+    c(PARAM$reduccion_canaritos$campitos_no_entrenar, "mes") # 'mes' se asume que existe
   ))
 
   # Identificar y eliminar columnas inútiles
@@ -183,12 +193,7 @@ CanaritosAsesinos <- function(
   } else {
     log_info("No se encontraron variables para eliminar.")
   }
-
-  # Limpieza final de columnas temporales
-  log_info("Limpiando columnas temporales (clase01, entrenamiento).")
-  dataset[, clase01 := NULL]
-  dataset[, entrenamiento := NULL]
-  
+ 
   gc(verbose= FALSE)
 
   log_info("Fin CanaritosAsesinos().")
@@ -198,13 +203,12 @@ CanaritosAsesinos <- function(
 # Llamada a la función usando los parámetros centralizados en main.R
 log_info("Iniciando la ejecución de CanaritosAsesinos.")
 tb_importancia_final <- CanaritosAsesinos(
-  canaritos_ratio = PARAM$CN$ratio,
-  canaritos_desvios = PARAM$CN$desvios,
+  canaritos_ratio = PARAM$reduccion_canaritos$ratio,
+  canaritos_desvios = PARAM$reduccion_canaritos$desvios,
   canaritos_semilla = PARAM$semilla_primigenia # Usa la semilla global
 )
 
 # Guardar la tabla de importancia final en la carpeta del experimento
-# (como en tu script original)
 canaritos_file_path <- file.path(PARAM$experimento_folder, "canaritos.txt")
 fwrite( tb_importancia_final,
   file = canaritos_file_path,
@@ -219,7 +223,6 @@ log_info(paste(head(colnames(dataset), 100), collapse = ", "))
 
 # Limpiar variables del script
 rm(tb_importancia_final, fganancia_lgbm_meseta, CanaritosAsesinos)
-rm(VPOS_CORTE, GVEZ, canaritos_file_path, impo_file_path)
 gc(verbose= FALSE)
 
 log_info("Fin 8_Reduccion_Dimensionalidad_Canaritos.R")

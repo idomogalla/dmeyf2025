@@ -1,5 +1,4 @@
 #--- Funciones de Evaluación ---
-# (Funciones particionar, realidad_inicializar, realidad_evaluar sin cambios)
 particionar <- function(data,
                         division,
                         agrupa = "",
@@ -202,16 +201,32 @@ tryCatch({
   
   tb_BO <- fread(log_bo_file)
   setorder(tb_BO, -metrica) 
+
+  # Definir manualmente los nombres de los hiperparámetros optimizados
+  nombres_hiper_optimizados <- c("num_iterations", 
+                                 "learning_rate", 
+                                 "feature_fraction", 
+                                 "min_data_in_leaf", 
+                                 "num_leaves")
   
-  param_lgbm <- union(names(PARAM$lgbm$param_fijos), names(PARAM$hipeparametertuning$hs$pars))
+  param_lgbm <- union( names(PARAM$lgbm$param_fijos), nombres_hiper_optimizados )
+  
   param_mejores <- as.list(tb_BO[1, param_lgbm, with = FALSE])
   
   log_info("Hiperparámetros óptimos cargados:")
   log_info(paste(capture.output(print(param_mejores)), collapse = "\n"))
   
   # Preparar Datos
-  if (!exists("dtrain") || !exists("campos_buenos")) {
-    stop("Los objetos 'dtrain' o 'campos_buenos' no existen. Asegúrate de que 8_Modelado.R se haya ejecutado.")
+  log_info("Recreando dtrain para la evaluación del ensamble.")
+  if (!exists("campos_buenos")) {
+    stop("El objeto 'campos_buenos' no existe. Asegúrate de que 8_Modelado.R se haya ejecutado.")
+  }
+  if (!exists("dtrain")) {
+    dtrain <- lgb.Dataset(
+      data= data.matrix(dataset[training == 1L, campos_buenos, with = FALSE]),
+      label= dataset[training == 1L, clase01],
+      free_raw_data= TRUE
+    )
   }
 
   log_info("Preparando datos de evaluación (testing).")
@@ -259,10 +274,12 @@ tryCatch({
   rm(modelo_primigenia, imp_primigenia, imp_ordenada_primigenia)
   gc()
 
-  # Bucle de Entrenamiento y Evaluación del Ensamble
+  # Bucle de Entrenamiento y Evaluación del Ensamble 
   total_semillas <- PARAM$eval_ensamble$ksemillerio * PARAM$eval_ensamble$iter
   
-  log_info(paste0("Total de semillas a entrenar: ", total_semillas))
+  log_info(paste0("Total de semillas a entrenar: ", total_semillas, 
+               " (Iter: ", PARAM$eval_ensamble$iter, 
+               " x kSemillerio: ", PARAM$eval_ensamble$ksemillerio, ")"))
   
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   if(!exists("primos")) primos <- generate_primes(min = 100000, max = 1000000)
@@ -312,6 +329,8 @@ tryCatch({
     prediccion_individual <- predict(modelo, mfuture)
     tb_pred_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
     tb_pred_individual[, prob := prediccion_individual]
+    tb_pred_individual[, semilla := as.character(semilla_actual)]
+    
     lista_predicciones[[as.character(semilla_actual)]] <- tb_pred_individual
 
     resultados_individual <- data.table()
@@ -342,7 +361,7 @@ tryCatch({
 
     log_info(paste0(
       "Semilla ", semilla_actual, ": Ganancia Máx = ",
-      format(max_ganancia_ind, big.mark = ".", decimal.mark = ","),
+      format(max_ganancia_ind, big.mark = ".", decimal.mark = ",", scientific = FALSE),
       " en envíos: [", envios_optimos_str, "]"
     ))
 
@@ -355,7 +374,7 @@ tryCatch({
       )
     )
 
-    rm(modelo, imp, prediccion_individual, tb_pred_individual, resultados_individual)
+    rm(modelo, imp, prediccion_individual)
     gc()
   }
   
@@ -509,7 +528,7 @@ tryCatch({
     log_info("Iniciando Evaluación Comparativa: Estrategia APO")
 
     # Preparar datos de 'future' para evaluación APO
-    log_info("Preparando datos de 'future' para la evaluación APO.")
+    log_info("Preparando datos de 'future' (solo la 'verdad') para la evaluación APO.")
     dfuture_apo <- dataset[foto_mes %in% PARAM$eval_ensamble$mes_testing, 
                            list(numero_de_cliente, foto_mes, clase_ternaria)]
     
@@ -571,7 +590,8 @@ tryCatch({
              sep = "\t",
              append = TRUE
       )
-      rm(tb_eval_apo, tb_pred_metamodelo, predicciones_subset_dt)
+      
+      rm(tb_pred_metamodelo, predicciones_subset_dt)
       gc()
       # --- Fin Lógica de Evaluación APO ---
     }
@@ -608,7 +628,6 @@ tryCatch({
     ganancia_cercana <- tb_prediccion_apo_full[icerca, gan_acum]
 
     # Encontrar el índice (corte) dentro del meta-modelo ganador
-    # (Esto es más robusto que usar 'icerca' directamente)
     tb_pred_final_apo <- tb_prediccion_apo_full[meta_modelo == vmodelo]
     setorder(tb_pred_final_apo, -prob)
     corte_cercano <- tb_pred_final_apo[, .I[which.min(abs(gan_acum - mcorte_mejor))] ]
@@ -635,7 +654,7 @@ tryCatch({
   }
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 10: Evaluación del Ensamble.")
+  log_error("Se ha producido un error fatal en la Sección 11: Evaluación del Ensamble.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })
