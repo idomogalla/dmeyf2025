@@ -187,7 +187,7 @@ PARAM$BO <- list()
 
 # Parámetros para evaluación (Script 11)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$APO <- FALSE # Realizo la comparativa con APO
+PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
 PARAM$eval_ensamble$iter <- 10
 PARAM$eval_ensamble$ksemillerio <- 10 # Se multiplica por iter
 PARAM$eval_ensamble$mes_testing <- 202106
