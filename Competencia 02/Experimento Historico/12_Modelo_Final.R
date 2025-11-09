@@ -50,7 +50,19 @@ tryCatch({
   PARAM$train_final$param_mejores <- as.list( tb_BO[1, param_lgbm, with=FALSE])
 
   log_info("Ajustando los hiperparámetros al tamaño del dataset final.")
-  PARAM$train_final$param_mejores$min_data_in_leaf <- as.integer( round(PARAM$train_final$param_mejores$min_data_in_leaf * nrow(dataset_train_final[training == 1L]) / nrow(dtrain)))
+  nrow_dtrain_path <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana, "nrow_dtrain.rds")
+
+  nrow_dtrain_original <- readRDS(nrow_dtrain_path)
+
+  if (is.null(nrow_dtrain_original) || nrow_dtrain_original == 0) {
+    stop("nrow_dtrain_original es 0 o NULL. No se puede reescalar min_data_in_leaf.")
+  }
+  
+  original_min_data <- PARAM$train_final$param_mejores$min_data_in_leaf
+  
+  PARAM$train_final$param_mejores$min_data_in_leaf <- as.integer( round(
+      original_min_data * nrow(dataset_train_final[training == 1L]) / nrow_dtrain_original
+  ))
 
   log_info(paste("Original min_data_in_leaf:", tb_BO[1, min_data_in_leaf], "Ajustado min_data_in_leaf:", PARAM$train_final$param_mejores$min_data_in_leaf))
   log_info("Parámetros finales:")

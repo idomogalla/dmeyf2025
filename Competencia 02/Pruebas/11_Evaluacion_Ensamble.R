@@ -635,7 +635,7 @@ tryCatch({
   }
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 10: Evaluación del Ensamble.")
+  log_error("Se ha producido un error fatal en la Sección 11: Evaluación del Ensamble.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })

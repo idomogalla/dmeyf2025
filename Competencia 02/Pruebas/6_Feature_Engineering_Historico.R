@@ -401,7 +401,7 @@ tryCatch({
   log_info(paste0(columnas_nuevas, collapse = ", "))
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 5: Feature Engineering Histórico.")
+  log_error("Se ha producido un error fatal en la Sección 6: Feature Engineering Histórico.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })

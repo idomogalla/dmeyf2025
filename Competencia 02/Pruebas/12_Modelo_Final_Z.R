@@ -193,7 +193,7 @@ tryCatch({
   }
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 11: Modelo Final.")
+  log_error("Se ha producido un error fatal en la Sección 12: Modelo Final.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })

@@ -13,6 +13,8 @@ tryCatch({
 
   log_info(paste("dtrain nombre de las columnas: ", paste(colnames(dataset), collapse = ", ")))
   log_info(paste("dtrain filas:", nrow(dtrain), "columnas:", ncol(dtrain)))
+  log_info("Guardando el tamaño de dtrain para el Script 12.")
+  saveRDS(nrow(dtrain), file = file.path(dir_bayesiana, "nrow_dtrain.rds"))
 
   # Notar que se recorren algunos hiperparametros en forma logaritmica
   # y que con forbidden se tiene en cuenta el juego que hay entre min_data_in_leaf y num_leaves
@@ -236,7 +238,7 @@ tryCatch({
   log_info("Fin optimización bayesiana")
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 9: Optimización Bayesiana.")
+  log_error("Se ha producido un error fatal en la Sección 10: Optimización Bayesiana.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })
