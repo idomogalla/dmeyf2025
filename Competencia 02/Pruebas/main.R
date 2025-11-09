@@ -34,7 +34,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_09"
+PARAM$experimento <- "main"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -58,12 +58,12 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 PARAM$FE_hist <- list()
 # Lags
-PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
+PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(12)
+PARAM$FE_hist$Tendencias$ventana <- c(6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
@@ -71,10 +71,10 @@ PARAM$FE_hist$Tendencias$promedio <- FALSE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
-PARAM$FE_hist$MovingAverages$run <- TRUE # Activar o desactivar Moving Averages
+PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
-PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
-PARAM$FE_hist$MovingAverages$vs_actual <- FALSE #Media móvil vs valor actual
+PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
+PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
 
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
@@ -86,34 +86,42 @@ PARAM$FE_rf$mtry_ratio <- 0.2
 # Parámetros quasi fijos
 PARAM$FE_rf$train$training <- c(202101, 202102, 202103)
 PARAM$FE_rf$lgb_param <- list(
-  num_iterations = PARAM$FE_rf$arbolitos,
-  num_leaves = PARAM$FE_rf$hojas_por_arbol,
-  min_data_in_leaf = PARAM$FE_rf$datos_por_hoja,
-  feature_fraction_bynode = PARAM$FE_rf$mtry_ratio,
-  boosting = "rf",
-  bagging_fraction = (1.0 - 1.0 / exp(1.0)),
-  bagging_freq = 1.0,
-  feature_fraction = 1.0,
-  max_bin = 31L,
-  objective = "binary",
-  first_metric_only = TRUE,
-  boost_from_average = TRUE,
-  feature_pre_filter = FALSE,
-  force_row_wise = TRUE,
-  verbosity = -100,
-  max_depth = -1L,
-  min_gain_to_split = 0.0,
-  min_sum_hessian_in_leaf = 0.001,
-  lambda_l1 = 0.0,
-  lambda_l2 = 0.0,
-  pos_bagging_fraction = 1.0,
-  neg_bagging_fraction = 1.0,
-  is_unbalance = FALSE,
-  scale_pos_weight = 1.0,
-  drop_rate = 0.1,
-  max_drop = 50,
-  skip_drop = 0.5,
-  extra_trees = FALSE
+    # parametros que se pueden cambiar
+    num_iterations = PARAM$FE_rf$arbolitos,
+    num_leaves  = PARAM$FE_rf$hojas_por_arbol,
+    min_data_in_leaf = PARAM$FE_rf$datos_por_hoja,
+    feature_fraction_bynode  = PARAM$FE_rf$mtry_ratio,
+
+    # para que LightGBM emule Random Forest
+    boosting = "rf",
+    bagging_fraction = ( 1.0 - 1.0/exp(1.0) ),
+    bagging_freq = 1.0,
+    feature_fraction = 1.0,
+
+    # genericos de LightGBM
+    max_bin = 31L,
+    objective = "binary",
+    first_metric_only = TRUE,
+    boost_from_average = TRUE,
+    feature_pre_filter = FALSE,
+    force_row_wise = TRUE,
+    verbosity = -100,
+    max_depth = -1L,
+    min_gain_to_split = 0.0,
+    min_sum_hessian_in_leaf = 0.001,
+    lambda_l1 = 0.0,
+    lambda_l2 = 0.0,
+
+    pos_bagging_fraction = 1.0,
+    neg_bagging_fraction = 1.0,
+    is_unbalance = FALSE,
+    scale_pos_weight = 1.0,
+
+    drop_rate = 0.1,
+    max_drop = 50,
+    skip_drop = 0.5,
+
+    extra_trees = FALSE
 )
 
 # Parámetros de Training Strategy para la Optimización Bayesiana
@@ -147,29 +155,33 @@ PARAM$hipeparametertuning$repe <- 2L
 # Parámetros fijos de LightGBM para la BO
 PARAM$lgbm <- list()
 PARAM$lgbm$param_fijos <- list(
-  objective = "binary",
-  metric = "custom",
-  first_metric_only = TRUE,
-  boost_from_average = TRUE,
-  feature_pre_filter = FALSE,
-  verbosity = -100,
-  force_row_wise = TRUE,
-  seed = PARAM$semilla_primigenia,
+  objective= "binary",
+  metric= "custom",
+  first_metric_only= TRUE,
+  boost_from_average= TRUE,
+  feature_pre_filter= FALSE,
+  verbosity= -100,
+  force_row_wise= TRUE, # para evitar warning
+  seed= PARAM$semilla_primigenia,
   extra_trees = FALSE,
-  max_depth = -1L,
-  min_gain_to_split = 0.0,
-  min_sum_hessian_in_leaf = 0.001,
-  lambda_l1 = 0.0,
-  lambda_l2 = 0.0,
-  bagging_fraction = 1.0,
-  pos_bagging_fraction = 1.0,
-  neg_bagging_fraction = 1.0,
-  is_unbalance = FALSE,
-  scale_pos_weight = 1.0,
-  drop_rate = 0.1,
-  max_drop = 50,
-  skip_drop = 0.5,
-  max_bin = 31
+
+  max_depth = -1L, # -1 significa no limitar,  por ahora lo dejo fijo
+  min_gain_to_split = 0.0, # min_gain_to_split >= 0.0
+  min_sum_hessian_in_leaf = 0.001, #  min_sum_hessian_in_leaf >= 0.0
+  lambda_l1 = 0.0, # lambda_l1 >= 0.0
+  lambda_l2 = 0.0, # lambda_l2 >= 0.0
+
+  bagging_fraction = 1.0, # 0.0 < bagging_fraction <= 1.0
+  pos_bagging_fraction = 1.0, # 0.0 < pos_bagging_fraction <= 1.0
+  neg_bagging_fraction = 1.0, # 0.0 < neg_bagging_fraction <= 1.0
+  is_unbalance = FALSE, #
+  scale_pos_weight = 1.0, # scale_pos_weight > 0.0
+
+  drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
+  max_drop = 50, # <=0 means no limit
+  skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
+
+  max_bin= 31
 )
 PARAM$BO <- list()
 
@@ -194,7 +206,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.10
-PARAM$train_final$ksemillerio <- 50
+PARAM$train_final$ksemillerio <- 50 # Para evitar overfitting al menos 100
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -241,18 +253,20 @@ log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_f
 
 log_info("Inciando el workflow")
 log_info("==================================================")
+
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-#source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
+source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "4_Data_Drifting.R"), "4_Data_Drifting.R")
-#source_con_log(file.path(home_dir, "5_Feature_Engineering_Intra_Mes.R"), "5_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "5_Feature_Engineering_Intra_Mes.R"), "5_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
-#source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
 source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
 source_con_log(file.path(home_dir, "10_Optimizacion_Bayesiana.R"), "10_Optimizacion_Bayesiana.R")
 source_con_log(file.path(home_dir, "11_Evaluacion_Ensamble.R"), "11_Evaluacion_Ensamble.R")
 source_con_log(file.path(home_dir, "12_Modelo_Final.R"), "12_Modelo_Final.R")
+
 log_info("==================================================")
 log_info("Workflow finalizado")

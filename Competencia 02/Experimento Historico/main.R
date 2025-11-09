@@ -195,6 +195,8 @@ PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()
+PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final con clase desconocida
+PARAM$train_final$envios_a_generar <- c(11000) # Se debe obtener a partir del análisis previo
 PARAM$train_final$future <- c(202106)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,

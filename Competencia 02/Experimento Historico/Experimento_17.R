@@ -34,7 +34,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "colaborativo_09"
+PARAM$experimento <- "colaborativo_17"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -62,19 +62,19 @@ PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(12)
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- c(3)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
-PARAM$FE_hist$Tendencias$minimo <- FALSE
-PARAM$FE_hist$Tendencias$maximo <- FALSE
-PARAM$FE_hist$Tendencias$promedio <- FALSE
-PARAM$FE_hist$Tendencias$ratioavg <- FALSE
-PARAM$FE_hist$Tendencias$ratiomax <- FALSE
+PARAM$FE_hist$Tendencias$minimo <- TRUE
+PARAM$FE_hist$Tendencias$maximo <- TRUE
+PARAM$FE_hist$Tendencias$promedio <- TRUE
+PARAM$FE_hist$Tendencias$ratioavg <- TRUE
+PARAM$FE_hist$Tendencias$ratiomax <- TRUE
 # Media Moviles
-PARAM$FE_hist$MovingAverages$run <- TRUE # Activar o desactivar Moving Averages
+PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
-PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
-PARAM$FE_hist$MovingAverages$vs_actual <- FALSE #Media móvil vs valor actual
+PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
+PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
 
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
