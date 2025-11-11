@@ -118,7 +118,9 @@ PARAM$FE_rf$lgb_param <- list(
   drop_rate = 0.1,
   max_drop = 50,
   skip_drop = 0.5,
-  extra_trees = FALSE
+  extra_trees = FALSE,
+  canaritos = 0, # Me aseguro que es un LGBM común
+  gradient_bound = 0 # Me aseguro que es un LGBM común
 )
 
 # Parámetros de Reducción de Dimensionalidad (Canaritos Asesinos)
@@ -174,7 +176,7 @@ PARAM$lgbm_z <- list(
   learning_rate = 1.0,
   feature_fraction = 0.50,
   canaritos = PARAM$qcanaritos, # Fundamental en zLightGBM
-  gradient_bound = 0.1  # Default de zLightGBM
+  gradient_bound = 0.15  # Default de zLightGBM 0.1
 )
 
 # Parámetros para evaluación (Script 11)
