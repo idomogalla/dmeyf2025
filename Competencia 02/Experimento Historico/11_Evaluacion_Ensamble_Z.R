@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 #--- Funciones de Evaluación ---
 particionar <- function(data, division, agrupa = "", campo = "fold", start = 1, seed = NA) {
   if (!is.na(seed)) set.seed(seed, "L'Ecuyer-CMRG")
@@ -166,7 +167,7 @@ tryCatch({
   log_info("Hiperparámetros fijos cargados:")
   log_info(paste(capture.output(print(param_mejores)), collapse = "\n"))
   
-  # Preparar Datos de Entrenamiento
+  # Preparar Datos de Entrenamiento (con canaritos)
   if (!exists("campos_buenos")) {
     stop("El objeto 'campos_buenos' no existe. Asegúrate de que 8_Modelado.R se haya ejecutado.")
   }
@@ -174,6 +175,7 @@ tryCatch({
   log_info("Preparando dtrain para evaluación (con canaritos).")
   dataset_train_eval <- dataset[training == 1L]
   
+  # Las columnas canaritos mandatoriamente van al comienzo del dataset
   cols0 <- copy(colnames(dataset_train_eval))
   filas <- nrow(dataset_train_eval)
   for (i in seq_len(PARAM$qcanaritos)) {
@@ -182,6 +184,7 @@ tryCatch({
   cols_canaritos <- copy(setdiff(colnames(dataset_train_eval), cols0))
   setcolorder(dataset_train_eval, c(cols_canaritos, cols0))
   
+  # Campos a utilizar
   campos_buenos_z <- setdiff(colnames(dataset_train_eval), PARAM$trainingstrategy$campos_entrenar)
   
   log_info("Creando dtrain con canaritos.")
@@ -193,7 +196,7 @@ tryCatch({
   rm(dataset_train_eval) 
   gc()
 
-  # Preparar Datos de Testing (con Canarios)
+  # Preparar Datos de Testing (con canaritos)
   log_info("Preparando datos de evaluación (testing) (con canaritos).")
   dfuture <- dataset[foto_mes %in% PARAM$eval_ensamble$mes_testing]
   
@@ -201,6 +204,7 @@ tryCatch({
     stop(paste("No se encontraron datos para el período de testing:", PARAM$eval_ensamble$mes_testing))
   }
   
+  # Los canaritos tambien deben ir adelante en la predicción
   filas_future <- nrow(dfuture)
   for (i in seq_len(PARAM$qcanaritos)) {
     dfuture[, paste0("canarito_", i) := runif(filas_future)]
@@ -243,7 +247,7 @@ tryCatch({
   rm(modelo_primigenia, imp_primigenia, imp_ordenada_primigenia)
   gc()
 
-  # Bucle de Entrenamiento y Evaluación del Ensamble
+  # Bucle de Entrenamiento y Evaluación del Ensamble  
   total_semillas <- PARAM$eval_ensamble$ksemillerio * PARAM$eval_ensamble$iter
   
   log_info(paste0("Total de semillas a entrenar: ", total_semillas, 
@@ -253,9 +257,9 @@ tryCatch({
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   if(!exists("primos")) primos <- generate_primes(min = 100000, max = 1000000)
   PARAM$eval_ensamble$semillas <- sample(primos)[seq( total_semillas )]
-
+    
   semillas_a_evaluar <- PARAM$eval_ensamble$semillas
-
+  
   log_info(paste0("Evaluando ", length(semillas_a_evaluar), " semilla(s)."))
   log_info(paste("Semillas a evaluar:", paste(semillas_a_evaluar, collapse = ", ")))
 
@@ -268,11 +272,11 @@ tryCatch({
     max_ganancia = numeric(),
     envios_optimos = character() 
   )
-
+  
   param_entrenamiento <- copy(param_mejores)
-
+  
   log_info(paste0("Iniciando evaluación de ", length(semillas_a_evaluar), " semillas..."))
-
+  
   for (semilla_actual in semillas_a_evaluar) {
     log_info(paste0("--- Procesando semilla: ", semilla_actual, " ---"))
 
@@ -295,17 +299,14 @@ tryCatch({
     
     rm(imp_ordenada_ind) 
 
-    # (Predicción sobre 'mfuture', que tiene canaritos)
     prediccion_individual <- predict(modelo, mfuture)
-    # (Guardamos predicciones sobre 'dfuture', que tiene las columnas correctas)
     tb_pred_individual <- dfuture[, list(numero_de_cliente, foto_mes)]
     tb_pred_individual[, prob := prediccion_individual]
-    tb_pred_individual[, semilla := as.character(semilla_actual)] # (Añadido para APO)
     
-    # (Almacenamos la predicción)
+    tb_pred_individual[, semilla := as.character(semilla_actual)]
+    
     lista_predicciones[[as.character(semilla_actual)]] <- tb_pred_individual
 
-    # (Evaluación individual)
     resultados_individual <- data.table()
     setorder(tb_pred_individual, -prob)
 
@@ -347,7 +348,7 @@ tryCatch({
       )
     )
     
-    rm(modelo, imp, prediccion_individual, tb_pred_individual, resultados_individual)
+    rm(modelo, imp, prediccion_individual)
     gc()
   }
   
@@ -376,7 +377,7 @@ tryCatch({
                       ruta_grafico = ruta_grafico_imp,
                       subtitulo = paste(PARAM$experimento, "- Promedio de", length(semillas_a_evaluar), "semillas"))
   
-  # Evaluación del Ensamble Promediado (ESTRATEGIA "GRAN ENSAMBLE")
+  # Evaluación del Ensamble Promediado
   log_info("Evaluando el 'Gran Ensamble' (promedio de todas las semillas)...")
   
   predicciones_todas <- rbindlist(lista_predicciones)
@@ -407,8 +408,8 @@ tryCatch({
       )
     }
   }
-
-  # Cálculo y selección basada en meseta y pico
+  
+  # Cálculo y selección basada en meseta y pico  
   log_info("Calculando ganancia_meseta para la selección de corte.")
   smoothing_window_clients <- 1000 
   
@@ -443,7 +444,7 @@ tryCatch({
   max_ganancia_ens <- max(resultados_ensamble$ganancia_total, na.rm = TRUE)
   envios_optimos_real_vec <- sort(unique(resultados_ensamble[ganancia_total == max_ganancia_ens, clientes]))
   envios_optimos_real_str <- paste(envios_optimos_real_vec, collapse = ", ")
-  
+    
   envios_manuales <- c(10500, 11000) 
 
   envios_optimos_vector <- sort(unique(c(envios_optimos_meseta_vec, envios_optimos_real_vec, envios_manuales)))
@@ -494,37 +495,32 @@ tryCatch({
   
   rm(resultados_ensamble, tb_prediccion_ensamble)
   gc()
-
-  # Apo by Gustavo
+  
+  # APO by Gustavo  
   if (PARAM$eval_ensamble$APO == TRUE) {
     log_info("Iniciando Evaluación Comparativa: Estrategia APO")
     
-    # Preparar datos de 'future' para evaluación APO
-    log_info("Preparando datos de 'future' para la evaluación APO.")
+    log_info("Preparando datos de 'future' (solo la 'verdad') para la evaluación APO.")
     dfuture_apo <- dataset[foto_mes %in% PARAM$eval_ensamble$mes_testing, 
                            list(numero_de_cliente, foto_mes, clase_ternaria)]
     
     dfuture_apo[, ganancia := ifelse(clase_ternaria=="BAJA+2", 780000, -20000)]
     
-    # Definir cortes fijos (del script APO)
     cortes_fijos_apo <- c(10500, 11000, 11500, 12000) 
     
     mganancias <- matrix(nrow = PARAM$eval_ensamble$iter, 
                          ncol = length(cortes_fijos_apo))
     
-    # Crear directorio de entregables (Kaggle)
     dir_kaggle <- file.path(PARAM$experimento_folder, PARAM$carpeta_entregables)
     dir.create(dir_kaggle, showWarnings = FALSE)
     log_info(paste("Directorio de Entregables (APO) creado en:", dir_kaggle))
     
-    # Preparar archivo de predicciones APO
     ruta_prediccion_apo <- file.path(dir_evaluacion, "prediccion_APO.txt")
     if (file.exists(ruta_prediccion_apo)) {
       file.remove(ruta_prediccion_apo)
     }
     log_info(paste("Archivo de predicciones APO se guardará en:", ruta_prediccion_apo))
     
-    # Bucle de Meta-Modelos (APO)
     semillas_totales <- names(lista_predicciones)
     
     for (vapo in seq(PARAM$eval_ensamble$iter)) {
@@ -536,11 +532,8 @@ tryCatch({
       log_info(paste0("--- Procesando Meta-Modelo APO: ", vapo, 
                    " (semillas ", desde, " a ", hasta, ") ---"))
       
-      # Obtener las predicciones del subset de la lista
-      # (Usamos predicciones_todas, que se creó en la línea 431)
       predicciones_subset_dt <- predicciones_todas[semilla %in% semillas_subset]
       
-      # Calcular el promedio del meta-modelo
       tb_pred_metamodelo <- predicciones_subset_dt[, .(prob = mean(prob)), 
                                                    by = .(numero_de_cliente, foto_mes)]
       
@@ -549,76 +542,86 @@ tryCatch({
       setorder(tb_eval_apo, -prob)
       tb_eval_apo[, gan_acum := cumsum(ganancia)]
       tb_eval_apo[, meta_modelo := vapo]
-      
+
       for (icor in seq_along(cortes_fijos_apo)) {
         mganancias[vapo, icor] <- tb_eval_apo[cortes_fijos_apo[icor], gan_acum]
       }
-      
+
       fwrite(tb_eval_apo[, list(numero_de_cliente, foto_mes, prob, meta_modelo, gan_acum)],
              file = ruta_prediccion_apo,
              sep = "\t",
              append = TRUE
       )
+      
+      envios_fantasia <- 11000 
+      tb_eval_apo[, Predicted := 0L]
+      tb_eval_apo[1:envios_fantasia, Predicted := 1L]
+      
+      archivo_kaggle_fantasia <- file.path(dir_kaggle, paste0("KA_APO_", 
+                                          PARAM$experimento, "_", vapo, "_", envios_fantasia, ".csv"))
+      
+      fwrite(tb_eval_apo[, list(numero_de_cliente, Predicted)],
+             file = archivo_kaggle_fantasia,
+             sep = ",")
+      
       rm(tb_eval_apo, tb_pred_metamodelo, predicciones_subset_dt)
       gc()
-      # --- Fin Lógica de Evaluación APO ---
     }
-    
+
     log_info("--- Evaluación APO Completa. Generando el archivo para enviar según APO ---")
 
     colmedias <- colMeans(mganancias, na.rm = TRUE)
     mcorte_mejor <- max(colmedias, na.rm = TRUE)
     icorte_mejor <- which.max(colmedias)
     corte_mejor <- cortes_fijos_apo[icorte_mejor]
-    
+
     log_info(paste0("Ganancia Máxima Promedio (APO): ", 
                  format(mcorte_mejor, big.mark = ".", decimal.mark = ","),
                  " en corte fijo: ", corte_mejor))
-    
+
     colnames(mganancias) <- paste0("e", cortes_fijos_apo)
     tbl_local_apo <- as.data.table(mganancias)
     tbl_local_apo[, meta_modelo := 1:PARAM$eval_ensamble$iter]
-    
+
     ruta_resumen_apo <- file.path(dir_evaluacion, "eval_resumen_APO.txt")
     fwrite(tbl_local_apo,
            file = ruta_resumen_apo,
            sep = "\t")
     log_info(paste("Resumen de ganancias por meta-modelo (APO) guardado en:", ruta_resumen_apo))
-    
+
     log_info("Cargando predicciones_APO.txt para selección final...")
     tb_prediccion_apo_full <- fread(ruta_prediccion_apo)
-    
+
     icerca <- which.min(abs(tb_prediccion_apo_full$gan_acum - mcorte_mejor))
     vmodelo <- tb_prediccion_apo_full[icerca, meta_modelo]
     ganancia_cercana <- tb_prediccion_apo_full[icerca, gan_acum]
-    
+
     tb_pred_final_apo <- tb_prediccion_apo_full[meta_modelo == vmodelo]
     setorder(tb_pred_final_apo, -prob)
     corte_cercano <- tb_pred_final_apo[, .I[which.min(abs(gan_acum - mcorte_mejor))] ]
-    
+
     log_info(paste0("Selección Final (APO): Meta-Modelo ", vmodelo, 
                  " en corte ", corte_cercano, 
                  " (Ganancia: ", format(tb_pred_final_apo[corte_cercano, gan_acum], big.mark = ".", decimal.mark = ","), ")"))
-    
+
     tb_pred_final_apo[, Predicted := 0L]
     tb_pred_final_apo[1:corte_cercano, Predicted := 1L]
-    
+
     archivo_pseudo_kaggle <- file.path(dir_kaggle, paste0("KA_APO_FINAL_", 
                                       PARAM$experimento, "_", corte_cercano, ".csv"))
-    
+
     fwrite(tb_pred_final_apo[, list(numero_de_cliente, Predicted)],
            file = archivo_pseudo_kaggle,
            sep = ",")
-    
+
     log_info(paste("Archivo de submission final (APO) guardado en:", archivo_pseudo_kaggle))
-    
+
     rm(tb_prediccion_apo_full, tb_pred_final_apo, tbl_local_apo, mganancias, dfuture_apo, predicciones_todas)
     gc()
   }
-
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 10: Evaluación del Ensamble.")
+  log_error("Se ha producido un error fatal en la Sección 11: Evaluación del Ensamble.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })

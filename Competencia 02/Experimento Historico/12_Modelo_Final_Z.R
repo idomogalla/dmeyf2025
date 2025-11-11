@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 tryCatch({  
   # se filtran los meses donde se entrena el modelo final
   log_info("Filtrando datos para el modelo final (según zLineaMuerte).")
@@ -169,10 +170,10 @@ tryCatch({
 
     if (!file.exists(ruta_envios_rds)) {
       stop(paste("No se encontró el archivo de envíos óptimos:", ruta_envios_rds,
-                 "Asegúrate de que 10_Evaluacion_Ensamble.R se haya ejecutado correctamente."))
+                 "\nAsegúrate de que 11_Evaluacion_Ensamble_Z.R se haya ejecutado correctamente."))
     }
     
-    # Cargamos el vector de envios generado por el Script 10
+    # Cargamos el vector de envios generado por el Script 11
     envios <- readRDS(ruta_envios_rds)
   }
 
@@ -193,7 +194,7 @@ tryCatch({
   }
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 11: Modelo Final.")
+  log_error("Se ha producido un error fatal en la Sección 12: Modelo Final.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })

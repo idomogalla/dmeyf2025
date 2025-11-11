@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "c02_p5z"
+PARAM$experimento <- "c02_p3z"
 PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -63,12 +63,12 @@ PARAM$carpeta_entregables <- "Entregables"
 
 # Parámetros de Feature Engineering Histórico
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(6)
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$ventana <- c(3, 6, 12)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
