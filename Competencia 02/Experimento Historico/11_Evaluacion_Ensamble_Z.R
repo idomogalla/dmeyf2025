@@ -335,7 +335,7 @@ tryCatch({
 
     log_info(paste0(
       "Semilla ", semilla_actual, ": Ganancia Máx = ",
-      format(max_ganancia_ind, big.mark = ".", decimal.mark = ","),
+      format(max_ganancia_ind, big.mark = ".", decimal.mark = ",", scientific = FALSE),
       " en envíos: [", envios_optimos_str, "]"
     ))
 
