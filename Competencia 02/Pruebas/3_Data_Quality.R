@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Data Quality
 # Se deben reparar los atributos del dataset que para un cierto mes TODOS sus valores son cero.
 # Relevar en forma muy minuciosa en el dataset cuales son los  <atributo,mes> que estan dañados.

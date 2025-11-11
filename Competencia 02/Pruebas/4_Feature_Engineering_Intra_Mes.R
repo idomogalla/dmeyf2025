@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Feature Engineering Intra-Mes
 # Crear variables nuevas a partir de las existentes dentro del mismo registro, sin ir a buscar información histórica.
 # El siguiente código es un mínimo ejemplo, agregar nuevos features a gusto

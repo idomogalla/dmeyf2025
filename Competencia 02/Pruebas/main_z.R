@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # limpio la memoria
 rm(list=ls(all.names=TRUE)) # remove all objects
 gc(full=TRUE, verbose=FALSE) # garbage collection

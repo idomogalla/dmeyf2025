@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 tryCatch({
   # Definir y crear la carpeta para los outputs de la BO
   dir_bayesiana <- file.path(PARAM$experimento_folder, PARAM$carpeta_bayesiana)

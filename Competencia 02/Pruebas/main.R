@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # limpio la memoria
 rm(list=ls(all.names=TRUE)) # remove all objects
 gc(full=TRUE, verbose=FALSE) # garbage collection
@@ -140,9 +141,9 @@ PARAM$reduccion_canaritos$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
 PARAM$reduccion_canaritos$train$positivos <- c( "BAJA+2")
 PARAM$reduccion_canaritos$train$training <- c( 202101, 202102, 202103)
 PARAM$reduccion_canaritos$train$validation <- c( 202105 )
-PARAM$reduccion_canaritos$train$undersampling <- 0.1
-PARAM$reduccion_canaritos$train$gan1 <- 117000
-PARAM$reduccion_canaritos$train$gan0 <-  -3000
+PARAM$reduccion_canaritos$train$undersampling <- 0.2
+PARAM$reduccion_canaritos$train$gan1 <- 780000
+PARAM$reduccion_canaritos$train$gan0 <- -20000
 
 # Parámetros de Training Strategy para la Optimización Bayesiana
 PARAM$trainingstrategy <- list()

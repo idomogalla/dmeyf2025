@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Data Drifting
 # Se debe corregir el drifting natural que ocurre en los datos, en particular los datos monetarios que se vieron fuertemente afectados por una alta inflación
 # Posibles métodos son:

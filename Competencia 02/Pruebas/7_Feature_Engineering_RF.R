@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 AgregaVarRandomForest <- function() {
 
   log_info("inicio AgregaVarRandomForest().")

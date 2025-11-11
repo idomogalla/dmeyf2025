@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # limpio la memoria
 rm(list=ls(all.names=TRUE)) # remove all objects
 gc(full=TRUE, verbose=FALSE) # garbage collection
@@ -141,8 +142,8 @@ PARAM$reduccion_canaritos$train$positivos <- c( "BAJA+2")
 PARAM$reduccion_canaritos$train$training <- c( 202101, 202102, 202103)
 PARAM$reduccion_canaritos$train$validation <- c( 202105 )
 PARAM$reduccion_canaritos$train$undersampling <- 0.1
-PARAM$reduccion_canaritos$train$gan1 <- 117000
-PARAM$reduccion_canaritos$train$gan0 <- -3000
+PARAM$reduccion_canaritos$train$gan1 <- 780000
+PARAM$reduccion_canaritos$train$gan0 <- -20000
 
 # Parámetros de Training Strategy para la Optimización Bayesiana
 PARAM$trainingstrategy <- list()
@@ -166,11 +167,11 @@ PARAM$hipeparametertuning$BO_iteraciones <- 50 # 50 seria mas razonable
 # El parámetro ksemillerio indica se se hace semillerio DENTRO de la bayesiana
 # 1 no se hace Ensemble Semillerio, apenas se corre un solo LightGBM
 # mayor a 1, se hace un  k-Ensemble Semillerio
-PARAM$hipeparametertuning$ksemillerio <- 15L
+PARAM$hipeparametertuning$ksemillerio <- 50L
 # El parámetro repe indica si dentro de la bayesiana se toman varias medidas y luego se promedian
 # Esto se hace ya sea que se llama a un solo LightGBM o se hace un Ensemble Semillerio de LightGBMs
 # Tener en cuenta que repe multiplica linealmente el tiempo de corrida de la Bayesian Optimization
-PARAM$hipeparametertuning$repe <- 3L
+PARAM$hipeparametertuning$repe <- 1L
 
 # Parámetros fijos de LightGBM para la BO
 PARAM$lgbm <- list()

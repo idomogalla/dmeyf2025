@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 #--- Funciones de Evaluación ---
 # (Funciones particionar, realidad_inicializar, realidad_evaluar sin cambios)
 particionar <- function(data, division, agrupa = "", campo = "fold", start = 1, seed = NA) {

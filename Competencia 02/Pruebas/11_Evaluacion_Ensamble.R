@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 #--- Funciones de Evaluación ---
 particionar <- function(data,
                         division,

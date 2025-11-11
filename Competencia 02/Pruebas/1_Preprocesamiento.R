@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 tryCatch({
   # Generación de la clase_ternaria
   if(PARAM$generar_ternaria){

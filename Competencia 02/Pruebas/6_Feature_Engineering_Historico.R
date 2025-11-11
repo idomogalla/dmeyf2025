@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 tryCatch({
   # Feature Engineering Historico
   columnas_originales <- copy(colnames(dataset))

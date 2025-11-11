@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 log_info("Inicio 8_Reduccion_Dimensionalidad_Canaritos.R")
 
 # Variables globales para la métrica y el conteo

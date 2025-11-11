@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Target Engineering
 # paso la clase a binaria que tome valores {0,1}  enteros
 # BAJA+1 y BAJA+2 son  1, CONTINUA es 0
