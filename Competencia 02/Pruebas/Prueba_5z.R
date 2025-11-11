@@ -38,17 +38,17 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "z_main"
-PARAM$semilla_primigenia <- 974411 # Semilla de zLineaMuerte
+PARAM$experimento <- "c02_p5z"
+PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 100
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- TRUE
+PARAM$generar_ternaria <- FALSE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-#PARAM$dataset_name <- "competencia_02.csv.gz"
+#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
@@ -64,7 +64,7 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
