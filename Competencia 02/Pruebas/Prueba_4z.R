@@ -199,8 +199,8 @@ PARAM$train_final$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )
-PARAM$train_final$undersampling <- 0.10 # Undersampling
-PARAM$train_final$ksemillerio <- 50 # Semillerio para modelo final
+PARAM$train_final$undersampling <- 0.05 # Undersampling
+PARAM$train_final$ksemillerio <- 100 # Semillerio para modelo final
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
