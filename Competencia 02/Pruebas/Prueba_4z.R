@@ -150,10 +150,10 @@ PARAM$trainingstrategy$training <- c(
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102
+  202101, 202102, 202103, 202104
 )
-PARAM$trainingstrategy$testing <- c(202104) # Mes para script 10
-PARAM$trainingstrategy$undersampling <- 0.05
+PARAM$trainingstrategy$testing <- c(202106) # Mes para script 11
+PARAM$trainingstrategy$undersampling <- 0.1
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
 PARAM$trainingstrategy$importancias <- 50
