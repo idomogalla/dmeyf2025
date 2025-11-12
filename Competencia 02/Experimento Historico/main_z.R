@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # limpio la memoria
 rm(list=ls(all.names=TRUE)) # remove all objects
 gc(full=TRUE, verbose=FALSE) # garbage collection
@@ -37,17 +38,17 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "z_main"
-PARAM$semilla_primigenia <- 974411 # Semilla de zLineaMuerte
+PARAM$experimento <- "c02_p5z"
+PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 100
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- TRUE
+PARAM$generar_ternaria <- FALSE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-#PARAM$dataset_name <- "competencia_02.csv.gz"
+#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
@@ -63,7 +64,7 @@ PARAM$carpeta_entregables <- "Entregables"
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(3) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
@@ -117,19 +118,21 @@ PARAM$FE_rf$lgb_param <- list(
   drop_rate = 0.1,
   max_drop = 50,
   skip_drop = 0.5,
-  extra_trees = FALSE
+  extra_trees = FALSE,
+  canaritos = 0, # Me aseguro que es un LGBM común
+  gradient_bound = 0 # Me aseguro que es un LGBM común
 )
 
-# Parámetros de Training Strategy (para Script 10 - Evaluación)
+# Parámetros de Training Strategy (para Script 11 - Evaluación)
 PARAM$trainingstrategy <- list()
 PARAM$trainingstrategy$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102
+  202101, 202102, 202103, 202104
 )
-PARAM$trainingstrategy$testing <- c(202104) # Mes para script 10
+PARAM$trainingstrategy$testing <- c(202106) # Mes para script 11
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
@@ -153,21 +156,21 @@ PARAM$lgbm_z <- list(
   learning_rate = 1.0,
   feature_fraction = 0.50,
   canaritos = PARAM$qcanaritos, # Fundamental en zLightGBM
-  gradient_bound = 0.1  # Default de zLightGBM
+  gradient_bound = 0.1  # Default de zLightGBM 0.1
 )
 
 # Parámetros para evaluación (Script 11)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$APO <- FALSE # Realizo la comparativa con APO
+PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
 PARAM$eval_ensamble$iter <- 10
 PARAM$eval_ensamble$ksemillerio <- 10 # Se multiplica por iter
 PARAM$eval_ensamble$mes_testing <- 202106
 PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
 
-# Parámetros para el entrenamiento final y predicción (Script 11)
+# Parámetros para el entrenamiento final y predicción (Script 12)
 PARAM$train_final <- list()
 PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final con clase desconocida
-PARAM$train_final$envios_a_generar <- c(11000) # Se debe obtener a partir del análisis previo
+PARAM$train_final$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
 PARAM$train_final$future <- c(202106) # Mes para predecir (ej: 202108)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
@@ -176,8 +179,8 @@ PARAM$train_final$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )
-PARAM$train_final$undersampling <- 0.10 # Undersampling
-PARAM$train_final$ksemillerio <- 30 # Semillerio para modelo final
+PARAM$train_final$undersampling <- 0.05 # Undersampling
+PARAM$train_final$ksemillerio <- 100 # Semillerio para modelo final
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -222,8 +225,8 @@ log_info("==================================================")
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
-source_con_log(file.path(home_dir, "4_Data_Drifting.R"), "4_Data_Drifting.R")
-source_con_log(file.path(home_dir, "5_Feature_Engineering_Intra_Mes.R"), "5_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
 source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")

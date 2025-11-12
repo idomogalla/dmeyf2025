@@ -230,6 +230,9 @@ tryCatch({
     )
   }
 
+  log_info(paste("dtrain nombre de las columnas: ", paste(colnames(dtrain), collapse = ", ")))
+  log_info(paste("dtrain filas:", nrow(dtrain), "columnas:", ncol(dtrain)))
+
   log_info("Preparando datos de evaluación (testing).")
   dfuture <- dataset[foto_mes %in% PARAM$eval_ensamble$mes_testing]
   

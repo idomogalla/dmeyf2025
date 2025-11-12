@@ -193,6 +193,10 @@ tryCatch({
     label = dataset_train_eval[, clase01],
     free_raw_data = FALSE
   )
+
+  log_info(paste("dtrain nombre de las columnas: ", paste(colnames(dtrain), collapse = ", ")))
+  log_info(paste("dtrain filas:", nrow(dtrain), "columnas:", ncol(dtrain)))
+
   rm(dataset_train_eval) 
   gc()
 
@@ -500,12 +504,15 @@ tryCatch({
   if (PARAM$eval_ensamble$APO == TRUE) {
     log_info("Iniciando Evaluación Comparativa: Estrategia APO")
     
+    # Preparar datos de 'future' para evaluación APO
     log_info("Preparando datos de 'future' (solo la 'verdad') para la evaluación APO.")
     dfuture_apo <- dataset[foto_mes %in% PARAM$eval_ensamble$mes_testing, 
                            list(numero_de_cliente, foto_mes, clase_ternaria)]
     
+    # (Lógica del script APO)
     dfuture_apo[, ganancia := ifelse(clase_ternaria=="BAJA+2", 780000, -20000)]
     
+    # Definir cortes fijos (del script APO)
     cortes_fijos_apo <- c(10500, 11000, 11500, 12000) 
     
     mganancias <- matrix(nrow = PARAM$eval_ensamble$iter, 
@@ -515,12 +522,14 @@ tryCatch({
     dir.create(dir_kaggle, showWarnings = FALSE)
     log_info(paste("Directorio de Entregables (APO) creado en:", dir_kaggle))
     
+    # Preparar archivo de predicciones APO
     ruta_prediccion_apo <- file.path(dir_evaluacion, "prediccion_APO.txt")
     if (file.exists(ruta_prediccion_apo)) {
       file.remove(ruta_prediccion_apo)
     }
     log_info(paste("Archivo de predicciones APO se guardará en:", ruta_prediccion_apo))
     
+    # Bucle de Meta-Modelos (APO)
     semillas_totales <- names(lista_predicciones)
     
     for (vapo in seq(PARAM$eval_ensamble$iter)) {
@@ -532,38 +541,32 @@ tryCatch({
       log_info(paste0("--- Procesando Meta-Modelo APO: ", vapo, 
                    " (semillas ", desde, " a ", hasta, ") ---"))
       
+      # Obtener las predicciones del subset de la lista
       predicciones_subset_dt <- predicciones_todas[semilla %in% semillas_subset]
       
+      # Calcular el promedio del meta-modelo
       tb_pred_metamodelo <- predicciones_subset_dt[, .(prob = mean(prob)), 
                                                    by = .(numero_de_cliente, foto_mes)]
       
+      # Unir con la verdad y ganancias
       tb_eval_apo <- dfuture_apo[tb_pred_metamodelo, on = c("numero_de_cliente", "foto_mes")]
 
       setorder(tb_eval_apo, -prob)
       tb_eval_apo[, gan_acum := cumsum(ganancia)]
       tb_eval_apo[, meta_modelo := vapo]
 
+      # Acumular ganancias en cortes fijos
       for (icor in seq_along(cortes_fijos_apo)) {
         mganancias[vapo, icor] <- tb_eval_apo[cortes_fijos_apo[icor], gan_acum]
       }
 
+      # Guardar predicciones de este meta-modelo
       fwrite(tb_eval_apo[, list(numero_de_cliente, foto_mes, prob, meta_modelo, gan_acum)],
              file = ruta_prediccion_apo,
              sep = "\t",
              append = TRUE
       )
-      
-      envios_fantasia <- 11000 
-      tb_eval_apo[, Predicted := 0L]
-      tb_eval_apo[1:envios_fantasia, Predicted := 1L]
-      
-      archivo_kaggle_fantasia <- file.path(dir_kaggle, paste0("KA_APO_", 
-                                          PARAM$experimento, "_", vapo, "_", envios_fantasia, ".csv"))
-      
-      fwrite(tb_eval_apo[, list(numero_de_cliente, Predicted)],
-             file = archivo_kaggle_fantasia,
-             sep = ",")
-      
+
       rm(tb_eval_apo, tb_pred_metamodelo, predicciones_subset_dt)
       gc()
     }
