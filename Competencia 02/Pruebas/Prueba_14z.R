@@ -248,7 +248,7 @@ log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_10.R"), "2_Eliminacion_de_Features_10")
+source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_14.R"), "2_Eliminacion_de_Features_14")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
