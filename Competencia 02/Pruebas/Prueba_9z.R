@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "c02_p5z"
+PARAM$experimento <- "c02_p9z"
 PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos

@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "c02_p5z"
+PARAM$experimento <- "c02_p10z"
 PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -181,8 +181,8 @@ PARAM$lgbm_z <- list(
 
 # Parámetros para evaluación (Script 11)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
-PARAM$eval_ensamble$iter <- 10
+PARAM$eval_ensamble$APO <- FALSE # Realizo la comparativa con APO
+PARAM$eval_ensamble$iter <- 5
 PARAM$eval_ensamble$ksemillerio <- 10 # Se multiplica por iter
 PARAM$eval_ensamble$mes_testing <- 202106
 PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
