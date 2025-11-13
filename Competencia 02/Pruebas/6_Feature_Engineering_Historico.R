@@ -288,7 +288,7 @@ tryCatch({
     log_info("--- Muestra de los datos creados en el proceso de Lags ---")
     tryCatch({
       # 1. Seleccionar la PRIMERA columna lagueable como ejemplo
-      col_ejemplo <- cols_lagueables[6] # (o la que prefieras)
+      col_ejemplo <- cols_lagueables[4] # (o la que prefieras)
       log_info(paste("Mostrando ejemplos para la columna:", col_ejemplo))
 
       # 2. Seleccionar 5 IDs de cliente al azar
