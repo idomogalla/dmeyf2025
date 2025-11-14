@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_15"
+PARAM$experimento <- "prueba_16"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -69,7 +69,7 @@ PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
-PARAM$FE_hist$Tendencias$ventana <- c(6)
+PARAM$FE_hist$Tendencias$ventana <- c(3,6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
