@@ -160,8 +160,8 @@ tryCatch({
       tb_prediccion[, ganancia := NULL] # Ya no la necesito
       
       # acumulo las ganancias
-      for( icor in seq(length(PARAM$train_final$cortes)) ){
-        mganancias[ vapo, icor ] <- tb_prediccion[ PARAM$train_final$cortes[icor], gan_acum ]
+      for( icor in seq(length(PARAM$eval_ensamble$cortes_evaluacion)) ){
+        mganancias[ vapo, icor ] <- tb_prediccion[ PARAM$eval_ensamble$cortes_evaluacion[icor], gan_acum ]
       }
       
       # Grabo las probabilidades de esta iteración
