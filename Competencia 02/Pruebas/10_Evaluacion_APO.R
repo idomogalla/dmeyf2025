@@ -214,9 +214,7 @@ tryCatch({
   colnames(tbl_medias) <- paste0("e", PARAM$eval_ensamble$cortes_evaluacion)
   tbl_medias[, experimento := PARAM$experimento]
   
-  # Directorio general de experimentos (un nivel arriba)
-  exp_gral_path <- PARAM$output_folder 
-  archivo_exp_gral <- file.path(exp_gral_path, "tb_experimentos_generales.txt")
+  archivo_exp_gral <- file.path(PARAM$experimento_folder, "tb_experimentos_generales.txt")
   
   fwrite(tbl_medias,
     file = archivo_exp_gral,
