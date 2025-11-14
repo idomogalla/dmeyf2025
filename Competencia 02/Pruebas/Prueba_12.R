@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_10"
+PARAM$experimento <- "prueba_12"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -65,8 +65,8 @@ PARAM$modelos_folder <- "Modelos"
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 2, 3) # Número de lags a crear
-PARAM$FE_hist$lags$aceleracion <- TRUE # Activar o desactivar aceleración (derivada segunda)
+PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
+PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
@@ -248,10 +248,10 @@ log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_7.R"), "2_Eliminacion_de_Features")
+source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_7.R"), "2_Eliminacion_de_Features_7")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
-source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_6.R"), "4_Feature_Engineering_Intra_Mes_7.R")
-source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
+source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_6.R"), "4_Feature_Engineering_Intra_Mes_6.R")
+source_con_log(file.path(home_dir, "5_Data_Drifting_12.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
 source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 #source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")

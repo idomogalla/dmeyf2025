@@ -189,7 +189,7 @@ PARAM$lgbm_z <- list(
 PARAM$eval_ensamble <- list()
 PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
 PARAM$eval_ensamble$iter <- 5
-PARAM$eval_ensamble$ksemillerio <- 3 # Se multiplica por iter
+PARAM$eval_ensamble$ksemillerio <- 1 # Se multiplica por iter
 PARAM$eval_ensamble$cortes_evaluacion <- c(8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000)
 
 # Parámetros para el entrenamiento final y predicción (Script 12)
