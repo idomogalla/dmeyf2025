@@ -1,11 +1,4 @@
 tryCatch({  
-  # Defino los parámetros locales de APO basados en main_z.R
-  APO_iter <- PARAM$eval_ensamble$iter
-  ksemillerio <- PARAM$eval_ensamble$ksemillerio
-  q_canaritos <- PARAM$qcanaritos
-  cortes_evaluacion <- PARAM$eval_ensamble$cortes_evaluacion
-  mes_testing <- PARAM$train_final$future
-  
   # Carpeta para guardar los modelos
   modelos_path <- file.path(PARAM$experimento_folder, PARAM$modelos_folder)
   dir.create(modelos_path, showWarnings = FALSE)
@@ -14,7 +7,7 @@ tryCatch({
   evaluacion_path <- file.path(PARAM$experimento_folder, PARAM$carpeta_evaluacion)
   dir.create(evaluacion_path, showWarnings = FALSE)
 
-  log_info("Parámetros de APO: Iteraciones={APO_iter}, Semillerio={ksemillerio}")
+  log_info("Parámetros de APO: Iteraciones={PARAM$eval_ensamble$iter}, Semillerio={PARAM$eval_ensamble$ksemillerio}")
 
   # --- 1. Preparación de Datos de Entrenamiento ---
   
@@ -41,9 +34,8 @@ tryCatch({
   ))
 
   # --- 2. Generación de Semillas y Modelos ---
-  
   log_info("Generando semillas primas para el semillerio...")
-  total_semillas <- APO_iter * ksemillerio 
+  total_semillas <- PARAM$eval_ensamble$iter * PARAM$eval_ensamble$ksemillerio 
   primos <- generate_primes(min = 100000, max = 1000000)
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
   PARAM$eval_ensamble$semillas <- sample(primos)[seq( total_semillas )]
@@ -81,16 +73,16 @@ tryCatch({
 
   # --- 3. Preparación de Datos de Scoring (Future) ---
   
-  log_info(paste("Preparando datos de 'future' para el mes:", mes_testing))
+  log_info(paste("Preparando datos de 'future' para el mes:", PARAM$train_final$future))
   
   # IMPORTANTE: 'dataset' es el global, con FE completo.
-  dfuture <- dataset[foto_mes %in% mes_testing]
+  dfuture <- dataset[foto_mes %in% PARAM$train_final$future]
   
-  log_info(paste("Agregando", q_canaritos, "columnas canarito a dfuture"))
+  log_info(paste("Agregando", PARAM$qcanaritos, "columnas canarito a dfuture"))
   cols0_future <- copy(colnames(dfuture))
   filas_future <- nrow(dfuture)
   
-  for (i in seq(q_canaritos)) {
+  for (i in seq(PARAM$qcanaritos)) {
     dfuture[, paste0("canarito_", i) := runif(filas_future)]
   }
   
@@ -112,8 +104,8 @@ tryCatch({
   
   # Matriz para guardar las ganancias de cada iteración de APO en cada corte
   mganancias <- matrix(
-    nrow = APO_iter,
-    ncol = length(cortes_evaluacion)
+    nrow = PARAM$eval_ensamble$iter,
+    ncol = length(PARAM$eval_ensamble$cortes_evaluacion)
   )
   
   # Archivo de predicciones (lo borramos si existe)
@@ -122,19 +114,19 @@ tryCatch({
     file.remove(prediccion_file)
   }
   
-  for (vapo in seq(APO_iter)) {
-    log_info(paste("--- Ejecutando APO Iteración:", vapo, "/", APO_iter, "---"))
+  for (vapo in seq(PARAM$eval_ensamble$iter)) {
+    log_info(paste("--- Ejecutando APO Iteración:", vapo, "/", PARAM$eval_ensamble$iter, "---"))
     
     # Vector para acumular predicciones
     vpred_acum <- rep(0.0, nrow(dfuture))
     qacumulados <- 0
     
     # Selecciono las semillas para ESTA iteración de APO
-    desde <- 1 + (vapo - 1) * ksemillerio
-    hasta <- desde + ksemillerio - 1
+    desde <- 1 + (vapo - 1) * PARAM$eval_ensamble$ksemillerio
+    hasta <- desde + PARAM$eval_ensamble$ksemillerio - 1
     semillas <- PARAM$eval_ensamble$semillas[desde:hasta]
     
-    log_info(paste("Usando", ksemillerio, "semillas para esta iteración."))
+    log_info(paste("Usando", PARAM$eval_ensamble$ksemillerio, "semillas para esta iteración."))
     
     for (sem in semillas) {
       arch_modelo <- file.path(modelos_path, paste0("mod_", sem, ".txt"))
@@ -193,7 +185,7 @@ tryCatch({
   # --- 5. Guardar Resultados de Evaluación ---
   log_info("Guardando resultados de la evaluación APO...")
   
-  colnames(mganancias) <- paste0("e", cortes_evaluacion)
+  colnames(mganancias) <- paste0("e", PARAM$eval_ensamble$cortes_evaluacion)
   tbl_local <- as.data.table(mganancias)
   
   archivo_apo_out <- file.path(evaluacion_path, "tb_apo_ganancias.txt")
@@ -212,14 +204,14 @@ tryCatch({
   colmedias <- colMeans(mganancias, na.rm = TRUE)
   mcorte_mejor <- max(colmedias, na.rm = TRUE)
   icorte_mejor <- which.max(colmedias)
-  corte_mejor <- cortes_evaluacion[icorte_mejor]
+  corte_mejor <- PARAM$eval_ensamble$cortes_evaluacion[icorte_mejor]
   
   log_info(paste("Mejor ganancia media (mcorte_mejor):", format(mcorte_mejor, scientific = FALSE, big.mark = ",")))
   log_info(paste("Mejor corte promedio (corte_mejor):", corte_mejor))
 
   # Guardar las ganancias medias en el archivo general
   tbl_medias <- as.data.table(as.list(colmedias))
-  colnames(tbl_medias) <- paste0("e", cortes_evaluacion)
+  colnames(tbl_medias) <- paste0("e", PARAM$eval_ensamble$cortes_evaluacion)
   tbl_medias[, experimento := PARAM$experimento]
   
   # Directorio general de experimentos (un nivel arriba)

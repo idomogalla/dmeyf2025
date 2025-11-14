@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "main"
+PARAM$experimento <- "prueba_07"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -65,7 +65,7 @@ PARAM$modelos_folder <- "Modelos"
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
@@ -189,7 +189,7 @@ PARAM$lgbm_z <- list(
 PARAM$eval_ensamble <- list()
 PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
 PARAM$eval_ensamble$iter <- 5
-PARAM$eval_ensamble$ksemillerio <- 1 # Se multiplica por iter
+PARAM$eval_ensamble$ksemillerio <- 5 # Se multiplica por iter
 PARAM$eval_ensamble$cortes_evaluacion <- c(8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000)
 
 # Parámetros para el entrenamiento final y predicción (Script 12)
@@ -248,15 +248,15 @@ log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
+source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_7.R"), "2_Eliminacion_de_Features_7")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
-source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_6.R"), "4_Feature_Engineering_Intra_Mes_6.R")
 source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
 source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
-source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
+#source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
 source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
 source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
-source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
+#source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")
