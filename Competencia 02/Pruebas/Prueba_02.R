@@ -138,8 +138,8 @@ PARAM$reduccion_canaritos$campitos_no_entrenar <- c( "numero_de_cliente", "foto_
 # Parámetros de entrenamiento del modelo de canaritos
 PARAM$reduccion_canaritos$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
 PARAM$reduccion_canaritos$train$positivos <- c( "BAJA+2")
-PARAM$reduccion_canaritos$train$training <- c( 202101, 202102, 202103)
-PARAM$reduccion_canaritos$train$validation <- c( 202105 )
+PARAM$reduccion_canaritos$train$training <- c( 202101, 202102, 202103, 202104)
+PARAM$reduccion_canaritos$train$validation <- c( 202106 )
 PARAM$reduccion_canaritos$train$undersampling <- 0.1
 PARAM$reduccion_canaritos$train$gan1 <- 780000
 PARAM$reduccion_canaritos$train$gan0 <- -20000

@@ -251,6 +251,10 @@ tryCatch({
   # Creamos la columna 'Predicted'
   tb_pred_final[, Predicted := 0L] # Seteo inicial a 0
   tb_pred_final[1:icerca_local, Predicted := 1L] # Marco los primeros
+
+  # Carpeta para guardar los entregables
+  entregables_path <- file.path(PARAM$experimento_folder, PARAM$carpeta_entregables)
+  dir.create(entregables_path, showWarnings = FALSE)
   
   # Definimos el nombre del archivo final
   archivo_pseudo_kaggle <- file.path(
