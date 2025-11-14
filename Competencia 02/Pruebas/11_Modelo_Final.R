@@ -36,10 +36,11 @@ tryCatch({
   cols0 <- copy(colnames(dataset_train_final))
   filas <- nrow(dataset_train_final)
   
-  for (i in seq_len(PARAM$qcanaritos)) {
+  for (i in seq(PARAM$qcanaritos)) {
     dataset_train_final[, paste0("canarito_", i) := runif(filas)]
   }
   
+  # las columnas canaritos mandatoriamente van al comienzo del dataset
   cols_canaritos <- copy(setdiff(colnames(dataset_train_final), cols0))
   setcolorder(dataset_train_final, c(cols_canaritos, cols0))
   log_info("Canaritos agregados y reordenados.")
@@ -101,8 +102,9 @@ tryCatch({
   
   # --- Agregar Canaritos al dataset de predicción ---
   log_info(paste("Agregando", PARAM$qcanaritos, "canaritos a dfuture."))
+  cols0_future <- copy(colnames(dfuture))
   filas_future <- nrow(dfuture)
-  for (i in seq_len(PARAM$qcanaritos)) {
+  for (i in seq(PARAM$qcanaritos)) {
     dfuture[, paste0("canarito_", i) := runif(filas_future)]
   }
 
@@ -194,7 +196,7 @@ tryCatch({
   }
 }, error = function(e) {
   log_error("######################################################")
-  log_error("Se ha producido un error fatal en la Sección 12: Modelo Final.")
+  log_error("Se ha producido un error fatal en la Sección 11: Modelo Final.")
   log_error(paste("Mensaje de R:", e$message))
   log_error("######################################################")
 })

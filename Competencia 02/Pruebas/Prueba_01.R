@@ -38,11 +38,11 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "c02_p7z"
-PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
+PARAM$experimento <- "prueba_01"
+PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
-PARAM$qcanaritos <- 100
+PARAM$qcanaritos <- 5L
 
 # Path a los datos de entrada
 PARAM$generar_ternaria <- FALSE
@@ -60,14 +60,15 @@ PARAM$carpeta_bayesiana <- "Bayesiana" # Aunque no la usemos, los scripts la ref
 PARAM$carpeta_evaluacion <- "Evaluacion"
 PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
+PARAM$modelos_folder <- "Modelos"
 
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 3, 6, 12) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
@@ -160,32 +161,36 @@ PARAM$trainingstrategy$importancias <- 50
 
 # Parámetros fijos de zLightGBM
 PARAM$lgbm_z <- list(
-  boosting = "gbdt",
-  objective = "binary",
-  metric = "custom",
-  first_metric_only = FALSE,
-  boost_from_average = TRUE,
-  feature_pre_filter = FALSE,
-  force_row_wise = TRUE,
-  verbosity = -100,
-  seed = PARAM$semilla_primigenia,
-  max_bin = 31L,
-  min_data_in_leaf = 20L,
-  num_iterations = 9999L, # zLightGBM se detiene solo
-  num_leaves = 999L,
-  learning_rate = 1.0,
-  feature_fraction = 0.50,
-  canaritos = PARAM$qcanaritos, # Fundamental en zLightGBM
-  gradient_bound = 0.15  # Default de zLightGBM 0.1
+  boosting= "gbdt",
+  objective= "binary",
+  metric= "custom",
+  first_metric_only= FALSE,
+  boost_from_average= TRUE,
+  feature_pre_filter= FALSE,
+  force_row_wise= TRUE,
+  verbosity= -100,
+
+  seed= PARAM$semilla_primigenia,
+
+  max_bin= 31L,
+  min_data_in_leaf= 20L,  #este ya es el valor default de LightGBM
+
+  num_iterations= 9999L, # dejo libre la cantidad de arboles, zLightGBM se detiene solo
+  num_leaves= 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
+  learning_rate= 1.0,  # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
+    
+  feature_fraction= 0.50, # un valor equilibrado, habra que probar alternativas ...
+    
+  canaritos= PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
+  gradient_bound= 0.1   # default de zLightGBM
 )
 
-# Parámetros para evaluación (Script 11)
+# Parámetros para evaluación (Script 10)
 PARAM$eval_ensamble <- list()
-PARAM$eval_ensamble$APO <- FALSE # Realizo la comparativa con APO
+PARAM$eval_ensamble$APO <- TRUE # Realizo la comparativa con APO
 PARAM$eval_ensamble$iter <- 5
-PARAM$eval_ensamble$ksemillerio <- 10 # Se multiplica por iter
-PARAM$eval_ensamble$mes_testing <- 202106
-PARAM$eval_ensamble$cortes_evaluacion <- seq(0, 20000, by = 500)
+PARAM$eval_ensamble$ksemillerio <- 1 # Se multiplica por iter
+PARAM$eval_ensamble$cortes_evaluacion <- c(8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000)
 
 # Parámetros para el entrenamiento final y predicción (Script 12)
 PARAM$train_final <- list()
@@ -200,7 +205,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.05 # Undersampling
-PARAM$train_final$ksemillerio <- 50 # Semillerio para modelo final
+PARAM$train_final$ksemillerio <- 10 # Semillerio para modelo final
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -244,15 +249,14 @@ log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
-source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
+#source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
-source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
+#source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
-source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+#source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 #source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
 source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
-#source_con_log(file.path(home_dir, "10_Optimizacion_Bayesiana.R"), "10_Optimizacion_Bayesiana.R")
-source_con_log(file.path(home_dir, "11_Evaluacion_Ensamble_Z.R"), "11_Evaluacion_Ensamble.R")
-source_con_log(file.path(home_dir, "12_Modelo_Final_Z.R"), "12_Modelo_Final.R")
+source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
+#source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")

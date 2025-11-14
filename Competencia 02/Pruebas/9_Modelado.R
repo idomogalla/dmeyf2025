@@ -1,25 +1,29 @@
 #!/usr/bin/env Rscript
-# Target Engineering
-# paso la clase a binaria que tome valores {0,1}  enteros
-# BAJA+1 y BAJA+2 son  1, CONTINUA es 0
-# a partir de ahora ya NO puedo cortar  por prob(BAJA+2) > 1/40
-log_info("Creando clase01.")
-dataset[, clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)]
+# se filtran los meses donde se entrena el modelo final
+dataset_train_final <- dataset[foto_mes %in% PARAM$train_final$training]
 
-# Los campos en los que se entrena
-log_info("Definiendo campos_buenos.")
-campos_buenos <- copy( setdiff(
-    colnames(dataset), PARAM$trainingstrategy$campos_entrenar)
-    )
+cols0 <- copy(colnames(dataset_train_final))
+filas <- nrow(dataset_train_final)
 
-# Cambio las proporciones de POS/NEG
-log_info("Haciendo undersampling.")
+for( i in seq(PARAM$qcanaritos) ){
+  dataset_train_final[, paste0("canarito_",i) := runif( filas) ]
+}
+
+# las columnas canaritos mandatoriamente van al comienzo del dataset
+cols_canaritos <- copy( setdiff( colnames(dataset_train_final), cols0 ) )
+setcolorder( dataset_train_final, c( cols_canaritos, cols0 ) )
+
 set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
-dataset[, azar := runif(nrow(dataset))]
-dataset[, training := 0L]
+dataset_train_final[, azar := runif(nrow(dataset_train_final))]
+dataset_train_final[, training := 0L]
 
-# Undersampling
-dataset[  foto_mes %in%  PARAM$trainingstrategy$training &
-  (azar <= PARAM$trainingstrategy$undersampling | clase_ternaria %in% c("BAJA+1", "BAJA+2")),
+dataset_train_final[
+  (azar <= PARAM$train_final$undersampling | clase_ternaria %in% c("BAJA+1", "BAJA+2")),
   training := 1L
+]
+
+dataset_train_final[, azar:= NULL] # elimino la columna azar
+
+dataset_train_final[,
+  clase01 := ifelse(clase_ternaria %in% c("BAJA+2","BAJA+1"), 1L, 0L)
 ]
