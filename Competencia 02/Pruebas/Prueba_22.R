@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_21"
+PARAM$experimento <- "prueba_22"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -146,10 +146,10 @@ PARAM$reduccion_canaritos$train$gan0 <- -20000
 
 # Parámetros de Training Strategy (para Script 11 - Evaluación)
 PARAM$trainingstrategy <- list()
-PARAM$trainingstrategy$training <- c(
-  201901, 201902, 201903, 201904, 201905, 201906,
-  201907, 201908, 201909, 201910, 201911, 201912,
-  202001, 202002, 202003, 202004, 202005, 202006,
+PARAM$train_final$training <- c(
+  201901, 201902, 201903, 201904, 201906,
+  201907, 201908, 201909, 201911, 201912,
+  202001, 202002, 202003, 202004, 202005,
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )

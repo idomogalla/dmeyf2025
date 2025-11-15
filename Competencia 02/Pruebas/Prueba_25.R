@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_21b"
+PARAM$experimento <- "prueba_25"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -65,7 +65,7 @@ PARAM$modelos_folder <- "Modelos"
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
@@ -85,7 +85,7 @@ PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
 # Los siguientes parámetros se deben modificar
-PARAM$FE_rf$arbolitos <- 15
+PARAM$FE_rf$arbolitos <- 20
 PARAM$FE_rf$hojas_por_arbol <- 16
 PARAM$FE_rf$datos_por_hoja <- 100
 PARAM$FE_rf$mtry_ratio <- 0.2
@@ -146,10 +146,10 @@ PARAM$reduccion_canaritos$train$gan0 <- -20000
 
 # Parámetros de Training Strategy (para Script 11 - Evaluación)
 PARAM$trainingstrategy <- list()
-PARAM$trainingstrategy$training <- c(
-  201901, 201902, 201903, 201904, 201905, 201906,
-  201907, 201908, 201909, 201910, 201911, 201912,
-  202001, 202002, 202003, 202004, 202005, 202006,
+PARAM$train_final$training <- c(
+  201901, 201902, 201903, 201904,  201906,
+  201907, 201908, 201909,  201911, 201912,
+  202001, 202002, 202003, 202004, 202005, 
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )
@@ -198,9 +198,9 @@ PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final 
 PARAM$train_final$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
 PARAM$train_final$future <- c(202106) # Mes para predecir (ej: 202108)
 PARAM$train_final$training <- c(
-  201901, 201902, 201903, 201904, 201905, 201906,
-  201907, 201908, 201909, 201910, 201911, 201912,
-  202001, 202002, 202003, 202004, 202005, 202006,
+  201901, 201902, 201903, 201904, 201906,
+  201907, 201908, 201909, 201911, 201912,
+  202001, 202002, 202003, 202004, 202005,
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )
@@ -250,13 +250,13 @@ log_info("==================================================")
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_7.R"), "2_Eliminacion_de_Features_7")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
-source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_20.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_6.R"), "4_Feature_Engineering_Intra_Mes_6.R")
 source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
 source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 #source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
-#source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
-#source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
-source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
+source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
+source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
+#source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")

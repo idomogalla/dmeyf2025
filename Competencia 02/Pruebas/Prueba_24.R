@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_21b"
+PARAM$experimento <- "prueba_24"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -85,7 +85,7 @@ PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
 # Los siguientes parámetros se deben modificar
-PARAM$FE_rf$arbolitos <- 15
+PARAM$FE_rf$arbolitos <- 20
 PARAM$FE_rf$hojas_por_arbol <- 16
 PARAM$FE_rf$datos_por_hoja <- 100
 PARAM$FE_rf$mtry_ratio <- 0.2
@@ -147,8 +147,8 @@ PARAM$reduccion_canaritos$train$gan0 <- -20000
 # Parámetros de Training Strategy (para Script 11 - Evaluación)
 PARAM$trainingstrategy <- list()
 PARAM$trainingstrategy$training <- c(
-  201901, 201902, 201903, 201904, 201905, 201906,
-  201907, 201908, 201909, 201910, 201911, 201912,
+  #201901, 201902, 201903, 201904, 201905, 201906,
+  #201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
@@ -197,9 +197,9 @@ PARAM$train_final <- list()
 PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final con clase desconocida
 PARAM$train_final$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
 PARAM$train_final$future <- c(202106) # Mes para predecir (ej: 202108)
-PARAM$train_final$training <- c(
-  201901, 201902, 201903, 201904, 201905, 201906,
-  201907, 201908, 201909, 201910, 201911, 201912,
+PARAM$trainingstrategy$training <- c(
+  #201901, 201902, 201903, 201904, 201905, 201906,
+  #201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
@@ -255,8 +255,8 @@ source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
 source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 #source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
-#source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
-#source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
-source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
+source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
+source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
+#source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")
