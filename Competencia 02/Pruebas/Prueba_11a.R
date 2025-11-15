@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_13"
+PARAM$experimento <- "prueba_11"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -120,7 +120,8 @@ PARAM$FE_rf$lgb_param <- list(
   max_drop = 50,
   skip_drop = 0.5,
   extra_trees = FALSE,
-  canaritos = 0 # Me aseguro que es un LGBM común
+  canaritos = 0, # Me aseguro que es un LGBM común
+  gradient_bound = 0 # Me aseguro que es un LGBM común
 )
 
 # Parámetros de Reducción de Dimensionalidad (Canaritos Asesinos)
@@ -153,7 +154,7 @@ PARAM$trainingstrategy$training <- c(
   202101, 202102, 202103, 202104
 )
 PARAM$trainingstrategy$testing <- c(202106) # Mes para script 11
-PARAM$trainingstrategy$undersampling <- 0.05
+PARAM$trainingstrategy$undersampling <- 0.1
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
 PARAM$trainingstrategy$importancias <- 50
@@ -203,7 +204,7 @@ PARAM$train_final$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104
 )
-PARAM$train_final$undersampling <- 0.05 # Undersampling
+PARAM$train_final$undersampling <- 0.1 # Undersampling
 PARAM$train_final$ksemillerio <- 10 # Semillerio para modelo final
 
 #------------------------------------------------------------------------------
@@ -247,7 +248,7 @@ log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_13.R"), "2_Eliminacion_de_Features_7")
+source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_7.R"), "2_Eliminacion_de_Features_7")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_6.R"), "4_Feature_Engineering_Intra_Mes_6.R")
 source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")

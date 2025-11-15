@@ -38,17 +38,17 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_13"
+PARAM$experimento <- "prueba_11"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- FALSE
+PARAM$generar_ternaria <- TRUE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-#PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
-PARAM$dataset_name <- "competencia_02.csv.gz"
+PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+#PARAM$dataset_name <- "competencia_02.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
@@ -120,7 +120,8 @@ PARAM$FE_rf$lgb_param <- list(
   max_drop = 50,
   skip_drop = 0.5,
   extra_trees = FALSE,
-  canaritos = 0 # Me aseguro que es un LGBM común
+  canaritos = 0, # Me aseguro que es un LGBM común
+  gradient_bound = 0 # Me aseguro que es un LGBM común
 )
 
 # Parámetros de Reducción de Dimensionalidad (Canaritos Asesinos)
@@ -154,7 +155,7 @@ PARAM$trainingstrategy$training <- c(
 )
 PARAM$trainingstrategy$testing <- c(202106) # Mes para script 11
 PARAM$trainingstrategy$undersampling <- 0.05
-PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
+PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2", "BAJA+3")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
 PARAM$trainingstrategy$importancias <- 50
 
@@ -246,15 +247,15 @@ log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_f
 log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
-source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_13.R"), "2_Eliminacion_de_Features_7")
+source_con_log(file.path(home_dir, "1_Preprocesamiento_11.R"), "1_Preprocesamiento.R")
+source_con_log(file.path(home_dir, "2_Eliminacion_de_Features_7.R"), "2_Eliminacion_de_Features_7")
 source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes_6.R"), "4_Feature_Engineering_Intra_Mes_6.R")
 source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
-source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "7_Feature_Engineering_RF_11.R"), "7_Feature_Engineering_RF.R")
 #source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
-source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
+source_con_log(file.path(home_dir, "9_Modelado_11.R"), "9_Modelado.R")
 source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
 #source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
 log_info("==================================================")
