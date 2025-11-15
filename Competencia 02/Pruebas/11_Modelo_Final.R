@@ -52,8 +52,8 @@ tryCatch({
   )
 
   # Semillas para el ensamble final
+  primos <- generate_primes(min = 100000, max = 1000000)
   set.seed(PARAM$semilla_primigenia, kind = "L'Ecuyer-CMRG")
-  if(!exists("primos")) primos <- generate_primes(min = 100000, max = 1000000)
   PARAM$train_final$semillas <- sample(primos)[seq( PARAM$train_final$ksemillerio )]
   log_info(paste("Semillas a ser utilizadas en el modelo final para el ensamble:", paste(PARAM$train_final$semillas, collapse = ", ")))
   
@@ -99,7 +99,7 @@ tryCatch({
   # Scoring
   log_info("Aplicando modelos a datos futuros.")
   dfuture <- dataset[foto_mes %in% PARAM$train_final$future ]
-  
+
   # --- Agregar Canaritos al dataset de predicción ---
   log_info(paste("Agregando", PARAM$qcanaritos, "canaritos a dfuture."))
   cols0_future <- copy(colnames(dfuture))
