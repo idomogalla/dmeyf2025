@@ -151,8 +151,8 @@ PARAM$trainingstrategy$training <- c(
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104, 202105, 202106
-)
+  202101, 202102, 202103, 202104
+  )
 PARAM$trainingstrategy$testing <- c(202106) # Mes para script 11
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
@@ -196,13 +196,13 @@ PARAM$eval_ensamble$cortes_evaluacion <- c(8000, 8500, 9000, 9500, 10000, 10500,
 PARAM$train_final <- list()
 PARAM$train_final$produccion <- TRUE # Se activa para generar un archivo final con clase desconocida
 PARAM$train_final$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
-PARAM$train_final$future <- c(202108) # Mes para predecir (ej: 202108)
+PARAM$train_final$future <- c(202106) # Mes para predecir (ej: 202108)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104, 202105, 202106
+  202101, 202102, 202103, 202104
 )
 PARAM$train_final$undersampling <- 0.05 # Undersampling
 PARAM$train_final$ksemillerio <- 15 # Semillerio para modelo final
