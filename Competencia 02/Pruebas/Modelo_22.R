@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "prueba_22a"
+PARAM$experimento <- "Modelo_22"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
@@ -85,7 +85,7 @@ PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
 # Los siguientes parámetros se deben modificar
-PARAM$FE_rf$arbolitos <- 25
+PARAM$FE_rf$arbolitos <- 20
 PARAM$FE_rf$hojas_por_arbol <- 16
 PARAM$FE_rf$datos_por_hoja <- 100
 PARAM$FE_rf$mtry_ratio <- 0.2
@@ -151,9 +151,9 @@ PARAM$train_final$training <- c(
   201907, 201908, 201909, 201911, 201912,
   202001, 202002, 202003, 202004, 202005,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104
+  202101, 202102, 202103, 202104, 202105, 202106
 )
-PARAM$trainingstrategy$testing <- c(202106) # Mes para script 11
+PARAM$trainingstrategy$testing <- c(202108) # Mes para script 11
 PARAM$trainingstrategy$undersampling <- 0.05
 PARAM$trainingstrategy$positivos <- c("BAJA+1", "BAJA+2")
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
@@ -194,18 +194,18 @@ PARAM$eval_ensamble$cortes_evaluacion <- c(8000, 8500, 9000, 9500, 10000, 10500,
 
 # Parámetros para el entrenamiento final y predicción (Script 12)
 PARAM$train_final <- list()
-PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final con clase desconocida
+PARAM$train_final$produccion <- TRUE # Se activa para generar un archivo final con clase desconocida
 PARAM$train_final$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
-PARAM$train_final$future <- c(202106) # Mes para predecir (ej: 202108)
+PARAM$train_final$future <- c(202108) # Mes para predecir (ej: 202108)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201906,
   201907, 201908, 201909, 201911, 201912,
   202001, 202002, 202003, 202004, 202005,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104
+  202101, 202102, 202103, 202104, 202105, 202106
 )
 PARAM$train_final$undersampling <- 0.05 # Undersampling
-PARAM$train_final$ksemillerio <- 10 # Semillerio para modelo final
+PARAM$train_final$ksemillerio <- 15 # Semillerio para modelo final
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -255,8 +255,8 @@ source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
 source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 #source_con_log(file.path(home_dir, "8_Reduccion_Dimensionalidad_Canaritos.R"), "8_Reduccion_Dimensionalidad_Canaritos.R")
-source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
-source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
-#source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
+#source_con_log(file.path(home_dir, "9_Modelado.R"), "9_Modelado.R")
+#source_con_log(file.path(home_dir, "10_Evaluacion_APO.R"), "10_Evaluacion_APO.R")
+source_con_log(file.path(home_dir, "11_Modelo_Final.R"), "12_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")
