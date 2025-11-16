@@ -38,7 +38,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Modelo_22"
+PARAM$experimento <- "Modelo_22_5"
 PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
