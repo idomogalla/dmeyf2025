@@ -45,7 +45,7 @@ PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 PARAM$qcanaritos <- 5L
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- FALSE
+PARAM$generar_ternaria <- TRUE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
 PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
