@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 tryCatch({  
   # se filtran los meses donde se entrena el modelo final
-  log_info("Filtrando datos para el modelo final (según zLineaMuerte).")
+  log_info("Filtrando datos para el modelo final.")
   dataset_train_final <- dataset[foto_mes %in% PARAM$train_final$training]
 
   # Undersampling
