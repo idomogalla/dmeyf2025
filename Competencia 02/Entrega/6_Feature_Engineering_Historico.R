@@ -400,6 +400,9 @@ tryCatch({
   columnas_nuevas <- setdiff(colnames(dataset), columnas_originales)
   log_info("Nuevas columnas creadas:")
   log_info(paste0(columnas_nuevas, collapse = ", "))
+
+  rm(columnas_nuevas, columnas_originales)
+  gc()
 }, error = function(e) {
   log_error("######################################################")
   log_error("Se ha producido un error fatal en la Sección 6: Feature Engineering Histórico.")

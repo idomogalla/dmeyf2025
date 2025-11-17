@@ -79,13 +79,5 @@ AgregaVarRandomForest <- function() {
   log_info("Fin AgregaVarRandomForest().")
 }
 
-# Feature Engineering a partir de hojas de Random Forest
-columnas_originales <- copy(colnames(dataset))
-
 # Aquí se hace el FE con RF
 AgregaVarRandomForest()
-
-log_info("Nuevas columnas creadas:")
-log_info(paste0(columnas_nuevas, collapse = ", "))
-rm(columnas_originales)
-gc(verbose= FALSE)
