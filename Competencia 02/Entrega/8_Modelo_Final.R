@@ -182,16 +182,18 @@ tryCatch({
   log_info(paste("Envíos finales a generar:", paste(envios, collapse = ", ")))
 
   for (envio in envios) {
+    # Asignación de la clase predicha
     tb_prediccion[, Predicted := 0L]
     tb_prediccion[1:envio, Predicted := 1L]
 
     archivo_kaggle <- file.path(dir_kaggle, paste0("KA", PARAM$experimento, "_", envio, ".csv"))
 
-    # grabo el archivo
-    fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
+    # Grabo el archivo
+    fwrite(tb_prediccion[Predicted == 1L, .(numero_de_cliente)],
       file = archivo_kaggle,
-      sep = ","
+      col.names = FALSE
     )
+    
     log_info(paste("Archivo para Kaggle guardado en:", archivo_kaggle))
   }
 }, error = function(e) {
