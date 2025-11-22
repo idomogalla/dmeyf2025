@@ -113,14 +113,11 @@ tryCatch(
 
         # Preparar matriz de features para predicción
         campos_buenos <- setdiff(colnames(dataset), c(PARAM$trainingstrategy$campos_entrenar, "clase_ternaria", "clase01", "training", "azar"))
-        # Asegurarse de usar los mismos campos que en el entrenamiento (esto asume que dataset tiene las mismas columnas)
-        # Una forma más segura es obtener los campos del modelo, pero lgb.load no da eso fácil.
-        # Asumimos consistencia con 8_Evaluacion.R
 
         mfuture <- data.matrix(dataset[foto_mes %in% PARAM$train_final$future, campos_buenos, with = FALSE])
 
         # Definir cortes fijos (APO)
-        cortes_fijos_apo <- c(10500, 11000, 11500, 12000)
+        cortes_fijos_apo <- c(10000, 10500, 11000, 11500, 12000)
 
         mganancias <- matrix(nrow = PARAM$train_final$iter, ncol = length(cortes_fijos_apo))
 
@@ -136,7 +133,6 @@ tryCatch(
         # semillas es el vector de todas las semillas evaluadas
         # PARAM$train_final$ksemillerio es el tamaño del semillerio
         # PARAM$train_final$iter es la cantidad de iteraciones (meta-modelos)
-
         for (vapo in seq(PARAM$train_final$iter)) {
             desde <- 1 + (vapo - 1) * PARAM$train_final$ksemillerio
             hasta <- desde + PARAM$train_final$ksemillerio - 1
@@ -218,7 +214,7 @@ tryCatch(
         tb_pred_final_apo[, Predicted := 0L]
         tb_pred_final_apo[1:corte_cercano, Predicted := 1L]
 
-        archivo_pseudo_kaggle <- file.path(dir_kaggle, paste0("KA_APO_FINAL_", PARAM$experimento, "_", corte_cercano, ".csv"))
+        archivo_pseudo_kaggle <- file.path(dir_kaggle, paste0("APO_FINAL_", PARAM$experimento, "_", corte_cercano, ".csv"))
         fwrite(tb_pred_final_apo[, list(numero_de_cliente, Predicted)], file = archivo_pseudo_kaggle, sep = ",")
 
         log_info(paste("Archivo generado:", archivo_pseudo_kaggle))

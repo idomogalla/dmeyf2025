@@ -13,7 +13,6 @@ tryCatch({
 
   log_info(paste("dtrain nombre de las columnas: ", paste(colnames(dataset), collapse = ", ")))
   log_info(paste("dtrain filas:", nrow(dtrain), "columnas:", ncol(dtrain)))
-  log_info("Guardando el tamaño de dtrain para el Script 12.")
   saveRDS(nrow(dtrain), file = file.path(dir_bayesiana, "nrow_dtrain.rds"))
 
   # Notar que se recorren algunos hiperparametros en forma logaritmica

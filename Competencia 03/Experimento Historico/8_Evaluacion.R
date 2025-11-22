@@ -578,7 +578,7 @@ tryCatch(
     envios_optimos_real_vec <- sort(unique(resultados_ensamble[ganancia_total == max_ganancia_ens, clientes]))
     envios_optimos_real_str <- paste(envios_optimos_real_vec, collapse = ", ")
 
-    envios_manuales <- c(10500, 11000)
+    envios_manuales <- PARAM$train_final$envios_a_generar
 
     envios_optimos_vector <- sort(unique(c(envios_optimos_meseta_vec, envios_optimos_real_vec, envios_manuales)))
 
@@ -632,6 +632,23 @@ tryCatch(
       scipen = 999
     )
     log_info(paste0("Resumen de ganancias (Gran Ensamble) guardado en: ", ruta_resumen_txt))
+
+    # Generar archivos de salida en formato csv
+    log_info("Generando archivos de salida.")
+    dir_kaggle <- file.path(PARAM$experimento_folder, PARAM$carpeta_entregables)
+    dir.create(dir_kaggle, showWarnings = FALSE)
+
+    for (envio in envios_optimos_vector) {
+      tb_prediccion_ensamble[, Predicted := 0L]
+      tb_prediccion_ensamble[1:envio, Predicted := 1L]
+
+      archivo_kaggle <- file.path(dir_kaggle, paste0("Entrega_", PARAM$experimento, "_", envio, ".csv"))
+
+      fwrite(tb_prediccion_ensamble[, list(numero_de_cliente, Predicted)],
+             file = archivo_kaggle,
+             sep = ",")
+      log_info(paste("Archivo generado:", archivo_kaggle))
+    }
 
     # (Limpiar objetos del Gran Ensamble)
     rm(resultados_ensamble, tb_prediccion_ensamble)
