@@ -1,10 +1,20 @@
+#!/usr/bin/env Rscript
 tryCatch(
   {
     # Generación de la clase_ternaria
     if (PARAM$generar_ternaria) {
       log_info("Generando clase_ternaria.")
-      # leo el dataset
-      dataset <- fread(PARAM$input_dataset)
+      # leo el dataset historico
+      dataset_hist <- fread(file.path(PARAM$dir_dataset, PARAM$dataset_hist_name))
+
+      # leo el dataset nuevo
+      dataset_new <- fread(PARAM$input_dataset)
+
+      # unifico
+      dataset <- rbind(dataset_hist, dataset_new)
+
+      rm(dataset_hist, dataset_new)
+      gc()
 
       # calculo el periodo0 consecutivo
       dsimple <- dataset[, list(
