@@ -42,6 +42,7 @@ PARAM$semilla_primigenia <- 200003
 PARAM$generar_ternaria <- TRUE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
 PARAM$dataset_name <- "competencia_03_crudo.csv.gz"
+PARAM$dataset_hist_name <- "competencia_02_crudo.csv.gz"
 PARAM$dataset_ternaria_name <- "competencia_03_ternaria.csv.gz"
 # PARAM$dataset_name <- "competencia_03_ternaria.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
