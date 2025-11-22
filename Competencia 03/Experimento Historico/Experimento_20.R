@@ -68,7 +68,7 @@ PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (der
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(3, 6, 12)
-PARAM$FE_hist$Tendencias$tendencia <- TRUE
+PARAM$FE_hist$Tendencias$tendencia <- FALSE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- FALSE
