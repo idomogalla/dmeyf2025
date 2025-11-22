@@ -35,7 +35,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "main"
+PARAM$experimento <- "experimento_07"
 PARAM$semilla_primigenia <- 200003
 
 # Path a los datos de entrada
@@ -63,8 +63,8 @@ PARAM$modelos_folder <- "Modelos"
 PARAM$FE_hist <- list()
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1) # Número de lags a crear
-PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
+PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
+PARAM$FE_hist$lags$aceleracion <- TRUE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
