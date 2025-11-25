@@ -408,13 +408,21 @@ tryCatch(
     for (semilla_actual in semillas_a_evaluar) {
       log_info(paste0("--- Procesando semilla: ", semilla_actual, " ---"))
 
-      param_entrenamiento$seed <- semilla_actual
-      modelo <- lgb.train(data = dtrain, param = param_entrenamiento)
-
-      # Guardar el modelo
+      # Verificar si el modelo ya existe
       ruta_modelo <- file.path(dir_modelos, paste0("mod_", semilla_actual, ".txt"))
-      lgb.save(modelo, filename = ruta_modelo)
-      log_info(paste("Modelo guardado en:", ruta_modelo))
+
+      if (file.exists(ruta_modelo)) {
+        log_info(paste("Modelo existente encontrado. Cargando desde:", ruta_modelo))
+        modelo <- lgb.load(filename = ruta_modelo)
+      } else {
+        log_info(paste("Modelo no encontrado. Entrenando nuevo modelo para semilla:", semilla_actual))
+        param_entrenamiento$seed <- semilla_actual
+        modelo <- lgb.train(data = dtrain, param = param_entrenamiento)
+
+        # Guardar el modelo
+        lgb.save(modelo, filename = ruta_modelo)
+        log_info(paste("Modelo guardado en:", ruta_modelo))
+      }
 
       imp <- lgb.importance(modelo, percentage = TRUE)
       lista_importancia[[as.character(semilla_actual)]] <- imp
@@ -645,8 +653,9 @@ tryCatch(
       archivo_kaggle <- file.path(dir_kaggle, paste0("Entrega_", PARAM$experimento, "_", envio, ".csv"))
 
       fwrite(tb_prediccion_ensamble[, list(numero_de_cliente, Predicted)],
-             file = archivo_kaggle,
-             sep = ",")
+        file = archivo_kaggle,
+        sep = ","
+      )
       log_info(paste("Archivo generado:", archivo_kaggle))
     }
 
