@@ -451,6 +451,15 @@ tryCatch(
     resultados_ensamble <- data.table()
     setorder(tb_prediccion_ensamble, -prob)
 
+    # Generar archivo con probabilidades (numero_de_cliente, prob)
+    file_probabilidades <- file.path(dir_evaluacion, "prediccion_probabilidades_evaluacion.csv")
+    fwrite(tb_prediccion_ensamble[, .(numero_de_cliente, prob)],
+      file = file_probabilidades,
+      sep = ",",
+      col.names = FALSE
+    )
+    log_info(paste("Tabla de probabilidades guardada en:", file_probabilidades))
+
     for (envios in cortes_evaluacion) {
       if (envios > 0 && envios <= nrow(tb_prediccion_ensamble)) {
         tb_prediccion_ensamble[, Predicted := 0L]
