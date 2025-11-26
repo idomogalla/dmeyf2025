@@ -140,8 +140,6 @@ AgregarVariables_IntraMes <- function(dataset,
     if (atributos_presentes(c("cpayroll_trx", "vmr_mpagominimo"))) dataset[, attr19 := rowSums(cbind(cpayroll_trx, vmr_mpagominimo), na.rm = TRUE)]
     if (atributos_presentes(c("ctrx_quarter_normalizado", "ctarjeta_visa_transacciones", "mpayroll_sobre_edad"))) dataset[, attr20 := rowSums(cbind(ctrx_quarter_normalizado, ctarjeta_visa_transacciones, mpayroll_sobre_edad), na.rm = TRUE)]
     if (atributos_presentes(c("ctrx_quarter", "ctarjeta_visa_transacciones", "cpayroll_trx", "vmr_mpagominimo"))) dataset[, attr21 := rowSums(cbind(ctrx_quarter, ctarjeta_visa_transacciones, cpayroll_trx / vmr_mpagominimo), na.rm = TRUE)]
-  } else {
-    log_info("[Bloque DESACTIVADO] Variables Originales (Base)")
   }
 
   if (run_ratios || run_totales || run_comportamiento || run_riesgo) {
