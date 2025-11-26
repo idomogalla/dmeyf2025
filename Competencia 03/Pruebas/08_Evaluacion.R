@@ -442,11 +442,8 @@ tryCatch(
     predicciones_todas <- rbindlist(lista_predicciones)
     tb_prediccion_ensamble <- predicciones_todas[, .(prob = mean(prob)), by = .(numero_de_cliente, foto_mes)]
 
-    # (Liberamos predicciones_todas solo si APO está apagado)
-    if (PARAM$evaluacion$APO == FALSE) {
-      rm(lista_predicciones, predicciones_todas)
-      gc()
-    }
+    rm(lista_predicciones, predicciones_todas)
+    gc()
 
     resultados_ensamble <- data.table()
     setorder(tb_prediccion_ensamble, -prob)
