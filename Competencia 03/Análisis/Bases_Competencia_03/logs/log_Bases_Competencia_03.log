@@ -1,0 +1,998 @@
+INFO [2025-11-26 15:02:10] ------------------------------------------------------
+INFO [2025-11-26 15:02:10] Inicio del script.
+INFO [2025-11-26 15:02:10] El log se guardará en: logs/log_Bases_Competencia_03.log
+INFO [2025-11-26 15:02:10] El resumen se guardará en: logs/summary.txt
+INFO [2025-11-26 15:02:10] ------------------------------------------------------
+INFO [2025-11-26 15:02:10] Inicio de lectura del dataset...
+INFO [2025-11-26 15:02:36] ------------------------------------------------------
+INFO [2025-11-26 15:02:36] Dataset leído con  4883051  filas y  155  columnas.
+INFO [2025-11-26 15:02:36] ------------------------------------------------------
+INFO [2025-11-26 15:02:36] ------------------------------------------------------
+INFO [2025-11-26 15:02:36] --- Distribución de la clase objetivo a lo largo del tiempo ---
+INFO [2025-11-26 15:02:36] Distribución de la clase objetivo:
+INFO [2025-11-26 15:02:36] foto_mes CONTINUA BAJA+1 BAJA+2
+       <int>    <int>  <int>  <int>
+ 1:   201901   122899    645    729
+ 2:   201902   123961    733    707
+ 3:   201903   124508    708    751
+ 4:   201904   125268    756    514
+ 5:   201905   125993    517    692
+ 6:   201906   127430    696    608
+ 7:   201907   128977    611    680
+ 8:   201908   130883    683    577
+ 9:   201909   132594    581    582
+10:   201910   134798    594    618
+11:   201911   136704    619    673
+12:   201912   138686    678    616
+13:   202001   142298    622    544
+14:   202002   145942    550    168
+15:   202003   148232    168    398
+16:   202004   148420    399    531
+17:   202005   149634    535    623
+18:   202006   151891    626    585
+19:   202007   153922    589    473
+20:   202008   155490    478    493
+21:   202009   156764    500    541
+22:   202010   158171    544    454
+23:   202011   159178    456    616
+24:   202012   159756    622    619
+25:   202101   160080    622    825
+26:   202102   160292    831   1032
+27:   202103   161119   1039    951
+28:   202104   161333    955   1130
+29:   202105   161941   1134    842
+30:   202106   162336    843   1134
+31:   202107   162211   1137   1248
+32:   202108        0   1252      0
+33:   202109        0      0      0
+    foto_mes CONTINUA BAJA+1 BAJA+2
+INFO [2025-11-26 15:02:36] Distribución de la clase objetivo a lo largo del tiempo guardada en distribucion_clase_ternaria.csv
+INFO [2025-11-26 15:02:36] ------------------------------------------------------
+INFO [2025-11-26 15:02:36] --- Análisis de retorno de clientes ---
+INFO [2025-11-26 15:07:36] ------------------------------------------------------
+INFO [2025-11-26 15:07:36] Inicio del script.
+INFO [2025-11-26 15:07:36] El log se guardará en: logs/log_Bases_Competencia_03.log
+INFO [2025-11-26 15:07:36] El resumen se guardará en: logs/summary.txt
+INFO [2025-11-26 15:07:36] ------------------------------------------------------
+INFO [2025-11-26 15:07:36] Inicio de lectura del dataset...
+INFO [2025-11-26 15:07:54] ------------------------------------------------------
+INFO [2025-11-26 15:07:54] Dataset leído con  4883051  filas y  156  columnas.
+INFO [2025-11-26 15:07:54] ------------------------------------------------------
+INFO [2025-11-26 15:07:54] ------------------------------------------------------
+INFO [2025-11-26 15:07:54] --- Distribución de la clase objetivo a lo largo del tiempo ---
+INFO [2025-11-26 15:07:54] Distribución de la clase objetivo:
+INFO [2025-11-26 15:07:54] foto_mes CONTINUA BAJA+1 BAJA+2
+       <int>    <int>  <int>  <int>
+ 1:   201901   122899    645    729
+ 2:   201902   123961    733    707
+ 3:   201903   124508    708    751
+ 4:   201904   125268    756    514
+ 5:   201905   125993    517    692
+ 6:   201906   127430    696    608
+ 7:   201907   128977    611    680
+ 8:   201908   130883    683    577
+ 9:   201909   132594    581    582
+10:   201910   134798    594    618
+11:   201911   136704    619    673
+12:   201912   138686    678    616
+13:   202001   142298    622    544
+14:   202002   145942    550    168
+15:   202003   148232    168    398
+16:   202004   148420    399    531
+17:   202005   149634    535    623
+18:   202006   151891    626    585
+19:   202007   153922    589    473
+20:   202008   155490    478    493
+21:   202009   156764    500    541
+22:   202010   158171    544    454
+23:   202011   159178    456    616
+24:   202012   159756    622    619
+25:   202101   160080    622    825
+26:   202102   160292    831   1032
+27:   202103   161119   1039    951
+28:   202104   161333    955   1130
+29:   202105   161941   1134    842
+30:   202106   162336    843   1134
+31:   202107   162211   1137   1248
+32:   202108        0   1252      0
+33:   202109        0      0      0
+    foto_mes CONTINUA BAJA+1 BAJA+2
+INFO [2025-11-26 15:07:54] Distribución de la clase objetivo a lo largo del tiempo guardada en distribucion_clase_ternaria.csv
+INFO [2025-11-26 15:07:54] ------------------------------------------------------
+INFO [2025-11-26 15:07:54] --- Análisis de retorno de clientes ---
+INFO [2025-11-26 15:08:03] Resumen del análisis de retorno de clientes:
+INFO [2025-11-26 15:08:03] Tipo de ausencia cantidad_clientes_unicos
+              <char>                    <int>
+ 1:           1 mes                        49
+ 2:         2 mes es                       20
+ 3:         3 mes es                       22
+ 4:         4 mes es                       18
+ 5:         5 mes es                       17
+ 6:         6 mes es                       12
+ 7:         7 mes es                        9
+ 8:         8 mes es                       16
+ 9:         9 mes es                       12
+10:        10 mes es                       12
+11:        11 mes es                        7
+12:        12 mes es                        4
+13:        13 mes es                        9
+14:        14 mes es                        8
+15:        15 mes es                        3
+16:        16 mes es                        2
+17:        17 mes es                        2
+18:        18 mes es                        2
+19:        19 mes es                        4
+20:        20 mes es                        5
+21:        21 mes es                        2
+22:        22 mes es                        4
+23:        23 mes es                        4
+24:        24 mes es                        2
+25:        25 mes es                        2
+26:        27 mes es                        2
+27:        30 mes es                        2
+28:        31 mes es                        2
+    Tipo de ausencia cantidad_clientes_unicos
+INFO [2025-11-26 15:08:03] Resumen del análisis de retorno de clientes guardada en retorno_clientes.csv
+INFO [2025-11-26 15:08:03] ------------------------------------------------------
+INFO [2025-11-26 15:08:03] --- Evolución de las variables ---
+INFO [2025-11-26 15:08:03] Generando gráfico de evolución para la feature: active_quarter
+INFO [2025-11-26 15:08:07] Gráfico guardado en: Plots/active_quarter_evolucion.png
+INFO [2025-11-26 15:08:07] Generando gráfico de evolución para la feature: cliente_vip
+INFO [2025-11-26 15:08:11] Gráfico guardado en: Plots/cliente_vip_evolucion.png
+INFO [2025-11-26 15:08:11] Generando gráfico de evolución para la feature: internet
+INFO [2025-11-26 15:08:15] Gráfico guardado en: Plots/internet_evolucion.png
+INFO [2025-11-26 15:08:15] Generando gráfico de evolución para la feature: cliente_edad
+INFO [2025-11-26 15:08:19] Gráfico guardado en: Plots/cliente_edad_evolucion.png
+INFO [2025-11-26 15:08:19] Generando gráfico de evolución para la feature: cliente_antiguedad
+INFO [2025-11-26 15:08:23] Gráfico guardado en: Plots/cliente_antiguedad_evolucion.png
+INFO [2025-11-26 15:08:23] Generando gráfico de evolución para la feature: mrentabilidad
+INFO [2025-11-26 15:08:28] Gráfico guardado en: Plots/mrentabilidad_evolucion.png
+INFO [2025-11-26 15:08:28] Generando gráfico de evolución para la feature: mrentabilidad_annual
+INFO [2025-11-26 15:08:32] Gráfico guardado en: Plots/mrentabilidad_annual_evolucion.png
+INFO [2025-11-26 15:08:32] Generando gráfico de evolución para la feature: mcomisiones
+INFO [2025-11-26 15:08:36] Gráfico guardado en: Plots/mcomisiones_evolucion.png
+INFO [2025-11-26 15:08:36] Generando gráfico de evolución para la feature: mactivos_margen
+INFO [2025-11-26 15:08:41] Gráfico guardado en: Plots/mactivos_margen_evolucion.png
+INFO [2025-11-26 15:08:41] Generando gráfico de evolución para la feature: mpasivos_margen
+INFO [2025-11-26 15:08:45] Gráfico guardado en: Plots/mpasivos_margen_evolucion.png
+INFO [2025-11-26 15:08:45] Generando gráfico de evolución para la feature: cproductos
+INFO [2025-11-26 15:08:49] Gráfico guardado en: Plots/cproductos_evolucion.png
+INFO [2025-11-26 15:08:49] Generando gráfico de evolución para la feature: tcuentas
+INFO [2025-11-26 15:08:53] Gráfico guardado en: Plots/tcuentas_evolucion.png
+INFO [2025-11-26 15:08:53] Generando gráfico de evolución para la feature: ccuenta_corriente
+INFO [2025-11-26 15:08:57] Gráfico guardado en: Plots/ccuenta_corriente_evolucion.png
+INFO [2025-11-26 15:08:57] Generando gráfico de evolución para la feature: mcuenta_corriente_adicional
+INFO [2025-11-26 15:09:01] Gráfico guardado en: Plots/mcuenta_corriente_adicional_evolucion.png
+INFO [2025-11-26 15:09:01] Generando gráfico de evolución para la feature: mcuenta_corriente
+INFO [2025-11-26 15:09:06] Gráfico guardado en: Plots/mcuenta_corriente_evolucion.png
+INFO [2025-11-26 15:09:06] Generando gráfico de evolución para la feature: ccaja_ahorro
+INFO [2025-11-26 15:09:10] Gráfico guardado en: Plots/ccaja_ahorro_evolucion.png
+INFO [2025-11-26 15:09:10] Generando gráfico de evolución para la feature: mcaja_ahorro
+INFO [2025-11-26 15:09:14] Gráfico guardado en: Plots/mcaja_ahorro_evolucion.png
+INFO [2025-11-26 15:09:14] Generando gráfico de evolución para la feature: mcaja_ahorro_adicional
+INFO [2025-11-26 15:09:18] Gráfico guardado en: Plots/mcaja_ahorro_adicional_evolucion.png
+INFO [2025-11-26 15:09:18] Generando gráfico de evolución para la feature: mcaja_ahorro_dolares
+INFO [2025-11-26 15:09:22] Gráfico guardado en: Plots/mcaja_ahorro_dolares_evolucion.png
+INFO [2025-11-26 15:09:22] Generando gráfico de evolución para la feature: cdescubierto_preacordado
+INFO [2025-11-26 15:09:26] Gráfico guardado en: Plots/cdescubierto_preacordado_evolucion.png
+INFO [2025-11-26 15:09:26] Generando gráfico de evolución para la feature: mcuentas_saldo
+INFO [2025-11-26 15:09:31] Gráfico guardado en: Plots/mcuentas_saldo_evolucion.png
+INFO [2025-11-26 15:09:31] Generando gráfico de evolución para la feature: ctarjeta_debito
+INFO [2025-11-26 15:09:35] Gráfico guardado en: Plots/ctarjeta_debito_evolucion.png
+INFO [2025-11-26 15:09:35] Generando gráfico de evolución para la feature: ctarjeta_debito_transacciones
+INFO [2025-11-26 15:09:39] Gráfico guardado en: Plots/ctarjeta_debito_transacciones_evolucion.png
+INFO [2025-11-26 15:09:39] Generando gráfico de evolución para la feature: mautoservicio
+INFO [2025-11-26 15:09:43] Gráfico guardado en: Plots/mautoservicio_evolucion.png
+INFO [2025-11-26 15:09:43] Generando gráfico de evolución para la feature: ctarjeta_visa
+INFO [2025-11-26 15:09:47] Gráfico guardado en: Plots/ctarjeta_visa_evolucion.png
+INFO [2025-11-26 15:09:47] Generando gráfico de evolución para la feature: ctarjeta_visa_transacciones
+INFO [2025-11-26 15:09:51] Gráfico guardado en: Plots/ctarjeta_visa_transacciones_evolucion.png
+INFO [2025-11-26 15:09:51] Generando gráfico de evolución para la feature: mtarjeta_visa_consumo
+INFO [2025-11-26 15:09:56] Gráfico guardado en: Plots/mtarjeta_visa_consumo_evolucion.png
+INFO [2025-11-26 15:09:56] Generando gráfico de evolución para la feature: ctarjeta_master
+INFO [2025-11-26 15:10:00] Gráfico guardado en: Plots/ctarjeta_master_evolucion.png
+INFO [2025-11-26 15:10:00] Generando gráfico de evolución para la feature: ctarjeta_master_transacciones
+INFO [2025-11-26 15:10:04] Gráfico guardado en: Plots/ctarjeta_master_transacciones_evolucion.png
+INFO [2025-11-26 15:10:04] Generando gráfico de evolución para la feature: mtarjeta_master_consumo
+INFO [2025-11-26 15:10:08] Gráfico guardado en: Plots/mtarjeta_master_consumo_evolucion.png
+INFO [2025-11-26 15:10:08] Generando gráfico de evolución para la feature: cprestamos_personales
+INFO [2025-11-26 15:10:12] Gráfico guardado en: Plots/cprestamos_personales_evolucion.png
+INFO [2025-11-26 15:10:12] Generando gráfico de evolución para la feature: mprestamos_personales
+INFO [2025-11-26 15:10:17] Gráfico guardado en: Plots/mprestamos_personales_evolucion.png
+INFO [2025-11-26 15:10:17] Generando gráfico de evolución para la feature: cprestamos_prendarios
+INFO [2025-11-26 15:10:21] Gráfico guardado en: Plots/cprestamos_prendarios_evolucion.png
+INFO [2025-11-26 15:10:21] Generando gráfico de evolución para la feature: mprestamos_prendarios
+INFO [2025-11-26 15:10:25] Gráfico guardado en: Plots/mprestamos_prendarios_evolucion.png
+INFO [2025-11-26 15:10:25] Generando gráfico de evolución para la feature: cprestamos_hipotecarios
+INFO [2025-11-26 15:10:29] Gráfico guardado en: Plots/cprestamos_hipotecarios_evolucion.png
+INFO [2025-11-26 15:10:29] Generando gráfico de evolución para la feature: mprestamos_hipotecarios
+INFO [2025-11-26 15:10:33] Gráfico guardado en: Plots/mprestamos_hipotecarios_evolucion.png
+INFO [2025-11-26 15:10:33] Generando gráfico de evolución para la feature: cplazo_fijo
+INFO [2025-11-26 15:10:37] Gráfico guardado en: Plots/cplazo_fijo_evolucion.png
+INFO [2025-11-26 15:10:37] Generando gráfico de evolución para la feature: mplazo_fijo_dolares
+INFO [2025-11-26 15:10:41] Gráfico guardado en: Plots/mplazo_fijo_dolares_evolucion.png
+INFO [2025-11-26 15:10:41] Generando gráfico de evolución para la feature: mplazo_fijo_pesos
+INFO [2025-11-26 15:10:46] Gráfico guardado en: Plots/mplazo_fijo_pesos_evolucion.png
+INFO [2025-11-26 15:10:46] Generando gráfico de evolución para la feature: cinversion1
+INFO [2025-11-26 15:10:50] Gráfico guardado en: Plots/cinversion1_evolucion.png
+INFO [2025-11-26 15:10:50] Generando gráfico de evolución para la feature: minversion1_pesos
+INFO [2025-11-26 15:10:54] Gráfico guardado en: Plots/minversion1_pesos_evolucion.png
+INFO [2025-11-26 15:10:54] Generando gráfico de evolución para la feature: minversion1_dolares
+INFO [2025-11-26 15:10:58] Gráfico guardado en: Plots/minversion1_dolares_evolucion.png
+INFO [2025-11-26 15:10:58] Generando gráfico de evolución para la feature: cinversion2
+INFO [2025-11-26 15:11:02] Gráfico guardado en: Plots/cinversion2_evolucion.png
+INFO [2025-11-26 15:11:02] Generando gráfico de evolución para la feature: minversion2
+INFO [2025-11-26 15:11:06] Gráfico guardado en: Plots/minversion2_evolucion.png
+INFO [2025-11-26 15:11:06] Generando gráfico de evolución para la feature: cseguro_vida
+INFO [2025-11-26 15:11:10] Gráfico guardado en: Plots/cseguro_vida_evolucion.png
+INFO [2025-11-26 15:11:10] Generando gráfico de evolución para la feature: cseguro_auto
+INFO [2025-11-26 15:11:14] Gráfico guardado en: Plots/cseguro_auto_evolucion.png
+INFO [2025-11-26 15:11:14] Generando gráfico de evolución para la feature: cseguro_vivienda
+INFO [2025-11-26 15:11:18] Gráfico guardado en: Plots/cseguro_vivienda_evolucion.png
+INFO [2025-11-26 15:11:18] Generando gráfico de evolución para la feature: cseguro_accidentes_personales
+INFO [2025-11-26 15:11:22] Gráfico guardado en: Plots/cseguro_accidentes_personales_evolucion.png
+INFO [2025-11-26 15:11:22] Generando gráfico de evolución para la feature: ccaja_seguridad
+INFO [2025-11-26 15:11:26] Gráfico guardado en: Plots/ccaja_seguridad_evolucion.png
+INFO [2025-11-26 15:11:26] Generando gráfico de evolución para la feature: cpayroll_trx
+INFO [2025-11-26 15:11:30] Gráfico guardado en: Plots/cpayroll_trx_evolucion.png
+INFO [2025-11-26 15:11:30] Generando gráfico de evolución para la feature: mpayroll
+INFO [2025-11-26 15:11:34] Gráfico guardado en: Plots/mpayroll_evolucion.png
+INFO [2025-11-26 15:11:34] Generando gráfico de evolución para la feature: mpayroll2
+INFO [2025-11-26 15:11:38] Gráfico guardado en: Plots/mpayroll2_evolucion.png
+INFO [2025-11-26 15:11:38] Generando gráfico de evolución para la feature: cpayroll2_trx
+INFO [2025-11-26 15:11:42] Gráfico guardado en: Plots/cpayroll2_trx_evolucion.png
+INFO [2025-11-26 15:11:42] Generando gráfico de evolución para la feature: ccuenta_debitos_automaticos
+INFO [2025-11-26 15:11:47] Gráfico guardado en: Plots/ccuenta_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:11:47] Generando gráfico de evolución para la feature: mcuenta_debitos_automaticos
+INFO [2025-11-26 15:11:51] Gráfico guardado en: Plots/mcuenta_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:11:51] Generando gráfico de evolución para la feature: ctarjeta_visa_debitos_automaticos
+INFO [2025-11-26 15:11:55] Gráfico guardado en: Plots/ctarjeta_visa_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:11:55] Generando gráfico de evolución para la feature: mttarjeta_visa_debitos_automaticos
+INFO [2025-11-26 15:11:59] Gráfico guardado en: Plots/mttarjeta_visa_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:11:59] Generando gráfico de evolución para la feature: ctarjeta_master_debitos_automaticos
+INFO [2025-11-26 15:12:03] Gráfico guardado en: Plots/ctarjeta_master_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:12:03] Generando gráfico de evolución para la feature: mttarjeta_master_debitos_automaticos
+INFO [2025-11-26 15:12:07] Gráfico guardado en: Plots/mttarjeta_master_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:12:07] Generando gráfico de evolución para la feature: cpagodeservicios
+INFO [2025-11-26 15:12:11] Gráfico guardado en: Plots/cpagodeservicios_evolucion.png
+INFO [2025-11-26 15:12:11] Generando gráfico de evolución para la feature: mpagodeservicios
+INFO [2025-11-26 15:12:15] Gráfico guardado en: Plots/mpagodeservicios_evolucion.png
+INFO [2025-11-26 15:12:15] Generando gráfico de evolución para la feature: cpagomiscuentas
+INFO [2025-11-26 15:12:19] Gráfico guardado en: Plots/cpagomiscuentas_evolucion.png
+INFO [2025-11-26 15:12:19] Generando gráfico de evolución para la feature: mpagomiscuentas
+INFO [2025-11-26 15:12:24] Gráfico guardado en: Plots/mpagomiscuentas_evolucion.png
+INFO [2025-11-26 15:12:24] Generando gráfico de evolución para la feature: ccajeros_propios_descuentos
+INFO [2025-11-26 15:12:28] Gráfico guardado en: Plots/ccajeros_propios_descuentos_evolucion.png
+INFO [2025-11-26 15:12:28] Generando gráfico de evolución para la feature: mcajeros_propios_descuentos
+INFO [2025-11-26 15:12:32] Gráfico guardado en: Plots/mcajeros_propios_descuentos_evolucion.png
+INFO [2025-11-26 15:12:32] Generando gráfico de evolución para la feature: ctarjeta_visa_descuentos
+INFO [2025-11-26 15:12:36] Gráfico guardado en: Plots/ctarjeta_visa_descuentos_evolucion.png
+INFO [2025-11-26 15:12:36] Generando gráfico de evolución para la feature: mtarjeta_visa_descuentos
+INFO [2025-11-26 15:12:40] Gráfico guardado en: Plots/mtarjeta_visa_descuentos_evolucion.png
+INFO [2025-11-26 15:12:40] Generando gráfico de evolución para la feature: ctarjeta_master_descuentos
+INFO [2025-11-26 15:12:44] Gráfico guardado en: Plots/ctarjeta_master_descuentos_evolucion.png
+INFO [2025-11-26 15:12:44] Generando gráfico de evolución para la feature: mtarjeta_master_descuentos
+INFO [2025-11-26 15:12:48] Gráfico guardado en: Plots/mtarjeta_master_descuentos_evolucion.png
+INFO [2025-11-26 15:12:48] Generando gráfico de evolución para la feature: ccomisiones_mantenimiento
+INFO [2025-11-26 15:12:52] Gráfico guardado en: Plots/ccomisiones_mantenimiento_evolucion.png
+INFO [2025-11-26 15:12:52] Generando gráfico de evolución para la feature: mcomisiones_mantenimiento
+INFO [2025-11-26 15:12:56] Gráfico guardado en: Plots/mcomisiones_mantenimiento_evolucion.png
+INFO [2025-11-26 15:12:56] Generando gráfico de evolución para la feature: ccomisiones_otras
+INFO [2025-11-26 15:13:01] Gráfico guardado en: Plots/ccomisiones_otras_evolucion.png
+INFO [2025-11-26 15:13:01] Generando gráfico de evolución para la feature: mcomisiones_otras
+INFO [2025-11-26 15:13:05] Gráfico guardado en: Plots/mcomisiones_otras_evolucion.png
+INFO [2025-11-26 15:13:05] Generando gráfico de evolución para la feature: cforex
+INFO [2025-11-26 15:13:09] Gráfico guardado en: Plots/cforex_evolucion.png
+INFO [2025-11-26 15:13:09] Generando gráfico de evolución para la feature: cforex_buy
+INFO [2025-11-26 15:13:14] Gráfico guardado en: Plots/cforex_buy_evolucion.png
+INFO [2025-11-26 15:13:14] Generando gráfico de evolución para la feature: mforex_buy
+INFO [2025-11-26 15:13:18] Gráfico guardado en: Plots/mforex_buy_evolucion.png
+INFO [2025-11-26 15:13:18] Generando gráfico de evolución para la feature: cforex_sell
+INFO [2025-11-26 15:13:22] Gráfico guardado en: Plots/cforex_sell_evolucion.png
+INFO [2025-11-26 15:13:22] Generando gráfico de evolución para la feature: mforex_sell
+INFO [2025-11-26 15:13:26] Gráfico guardado en: Plots/mforex_sell_evolucion.png
+INFO [2025-11-26 15:13:26] Generando gráfico de evolución para la feature: ctransferencias_recibidas
+INFO [2025-11-26 15:13:29] Gráfico guardado en: Plots/ctransferencias_recibidas_evolucion.png
+INFO [2025-11-26 15:13:29] Generando gráfico de evolución para la feature: mtransferencias_recibidas
+INFO [2025-11-26 15:13:34] Gráfico guardado en: Plots/mtransferencias_recibidas_evolucion.png
+INFO [2025-11-26 15:13:34] Generando gráfico de evolución para la feature: ctransferencias_emitidas
+INFO [2025-11-26 15:13:37] Gráfico guardado en: Plots/ctransferencias_emitidas_evolucion.png
+INFO [2025-11-26 15:13:37] Generando gráfico de evolución para la feature: mtransferencias_emitidas
+INFO [2025-11-26 15:13:41] Gráfico guardado en: Plots/mtransferencias_emitidas_evolucion.png
+INFO [2025-11-26 15:13:41] Generando gráfico de evolución para la feature: cextraccion_autoservicio
+INFO [2025-11-26 15:13:45] Gráfico guardado en: Plots/cextraccion_autoservicio_evolucion.png
+INFO [2025-11-26 15:13:45] Generando gráfico de evolución para la feature: mextraccion_autoservicio
+INFO [2025-11-26 15:13:49] Gráfico guardado en: Plots/mextraccion_autoservicio_evolucion.png
+INFO [2025-11-26 15:13:49] Generando gráfico de evolución para la feature: ccheques_depositados
+INFO [2025-11-26 15:13:52] Gráfico guardado en: Plots/ccheques_depositados_evolucion.png
+INFO [2025-11-26 15:13:52] Generando gráfico de evolución para la feature: mcheques_depositados
+INFO [2025-11-26 15:13:56] Gráfico guardado en: Plots/mcheques_depositados_evolucion.png
+INFO [2025-11-26 15:13:56] Generando gráfico de evolución para la feature: ccheques_emitidos
+INFO [2025-11-26 15:14:00] Gráfico guardado en: Plots/ccheques_emitidos_evolucion.png
+INFO [2025-11-26 15:14:00] Generando gráfico de evolución para la feature: mcheques_emitidos
+INFO [2025-11-26 15:14:04] Gráfico guardado en: Plots/mcheques_emitidos_evolucion.png
+INFO [2025-11-26 15:14:04] Generando gráfico de evolución para la feature: ccheques_depositados_rechazados
+INFO [2025-11-26 15:14:08] Gráfico guardado en: Plots/ccheques_depositados_rechazados_evolucion.png
+INFO [2025-11-26 15:14:08] Generando gráfico de evolución para la feature: mcheques_depositados_rechazados
+INFO [2025-11-26 15:14:12] Gráfico guardado en: Plots/mcheques_depositados_rechazados_evolucion.png
+INFO [2025-11-26 15:14:12] Generando gráfico de evolución para la feature: ccheques_emitidos_rechazados
+INFO [2025-11-26 15:14:16] Gráfico guardado en: Plots/ccheques_emitidos_rechazados_evolucion.png
+INFO [2025-11-26 15:14:16] Generando gráfico de evolución para la feature: mcheques_emitidos_rechazados
+INFO [2025-11-26 15:14:20] Gráfico guardado en: Plots/mcheques_emitidos_rechazados_evolucion.png
+INFO [2025-11-26 15:14:20] Generando gráfico de evolución para la feature: tcallcenter
+INFO [2025-11-26 15:14:23] Gráfico guardado en: Plots/tcallcenter_evolucion.png
+INFO [2025-11-26 15:14:23] Generando gráfico de evolución para la feature: ccallcenter_transacciones
+INFO [2025-11-26 15:14:27] Gráfico guardado en: Plots/ccallcenter_transacciones_evolucion.png
+INFO [2025-11-26 15:14:27] Generando gráfico de evolución para la feature: thomebanking
+INFO [2025-11-26 15:14:31] Gráfico guardado en: Plots/thomebanking_evolucion.png
+INFO [2025-11-26 15:14:31] Generando gráfico de evolución para la feature: chomebanking_transacciones
+INFO [2025-11-26 15:14:35] Gráfico guardado en: Plots/chomebanking_transacciones_evolucion.png
+INFO [2025-11-26 15:14:35] Generando gráfico de evolución para la feature: ccajas_transacciones
+INFO [2025-11-26 15:14:39] Gráfico guardado en: Plots/ccajas_transacciones_evolucion.png
+INFO [2025-11-26 15:14:39] Generando gráfico de evolución para la feature: ccajas_consultas
+INFO [2025-11-26 15:14:43] Gráfico guardado en: Plots/ccajas_consultas_evolucion.png
+INFO [2025-11-26 15:14:43] Generando gráfico de evolución para la feature: ccajas_depositos
+INFO [2025-11-26 15:14:46] Gráfico guardado en: Plots/ccajas_depositos_evolucion.png
+INFO [2025-11-26 15:14:46] Generando gráfico de evolución para la feature: ccajas_extracciones
+INFO [2025-11-26 15:14:50] Gráfico guardado en: Plots/ccajas_extracciones_evolucion.png
+INFO [2025-11-26 15:14:50] Generando gráfico de evolución para la feature: ccajas_otras
+INFO [2025-11-26 15:14:54] Gráfico guardado en: Plots/ccajas_otras_evolucion.png
+INFO [2025-11-26 15:14:54] Generando gráfico de evolución para la feature: catm_trx
+INFO [2025-11-26 15:14:58] Gráfico guardado en: Plots/catm_trx_evolucion.png
+INFO [2025-11-26 15:14:58] Generando gráfico de evolución para la feature: matm
+INFO [2025-11-26 15:15:02] Gráfico guardado en: Plots/matm_evolucion.png
+INFO [2025-11-26 15:15:02] Generando gráfico de evolución para la feature: catm_trx_other
+INFO [2025-11-26 15:15:07] Gráfico guardado en: Plots/catm_trx_other_evolucion.png
+INFO [2025-11-26 15:15:07] Generando gráfico de evolución para la feature: matm_other
+INFO [2025-11-26 15:15:12] Gráfico guardado en: Plots/matm_other_evolucion.png
+INFO [2025-11-26 15:15:12] Generando gráfico de evolución para la feature: ctrx_quarter
+INFO [2025-11-26 15:15:16] Gráfico guardado en: Plots/ctrx_quarter_evolucion.png
+INFO [2025-11-26 15:15:16] Generando gráfico de evolución para la feature: tmobile_app
+INFO [2025-11-26 15:15:20] Gráfico guardado en: Plots/tmobile_app_evolucion.png
+INFO [2025-11-26 15:15:20] Generando gráfico de evolución para la feature: cmobile_app_trx
+INFO [2025-11-26 15:15:24] Gráfico guardado en: Plots/cmobile_app_trx_evolucion.png
+INFO [2025-11-26 15:15:24] Generando gráfico de evolución para la feature: Master_delinquency
+INFO [2025-11-26 15:15:27] Gráfico guardado en: Plots/Master_delinquency_evolucion.png
+INFO [2025-11-26 15:15:27] Generando gráfico de evolución para la feature: Master_status
+INFO [2025-11-26 15:15:31] Gráfico guardado en: Plots/Master_status_evolucion.png
+INFO [2025-11-26 15:15:31] Generando gráfico de evolución para la feature: Master_mfinanciacion_limite
+INFO [2025-11-26 15:15:35] Gráfico guardado en: Plots/Master_mfinanciacion_limite_evolucion.png
+INFO [2025-11-26 15:15:35] Generando gráfico de evolución para la feature: Master_Fvencimiento
+INFO [2025-11-26 15:15:39] Gráfico guardado en: Plots/Master_Fvencimiento_evolucion.png
+INFO [2025-11-26 15:15:39] Generando gráfico de evolución para la feature: Master_Finiciomora
+INFO [2025-11-26 15:15:43] Gráfico guardado en: Plots/Master_Finiciomora_evolucion.png
+INFO [2025-11-26 15:15:43] Generando gráfico de evolución para la feature: Master_msaldototal
+INFO [2025-11-26 15:15:47] Gráfico guardado en: Plots/Master_msaldototal_evolucion.png
+INFO [2025-11-26 15:15:47] Generando gráfico de evolución para la feature: Master_msaldopesos
+INFO [2025-11-26 15:15:51] Gráfico guardado en: Plots/Master_msaldopesos_evolucion.png
+INFO [2025-11-26 15:15:51] Generando gráfico de evolución para la feature: Master_msaldodolares
+INFO [2025-11-26 15:15:55] Gráfico guardado en: Plots/Master_msaldodolares_evolucion.png
+INFO [2025-11-26 15:15:55] Generando gráfico de evolución para la feature: Master_mconsumospesos
+INFO [2025-11-26 15:15:59] Gráfico guardado en: Plots/Master_mconsumospesos_evolucion.png
+INFO [2025-11-26 15:15:59] Generando gráfico de evolución para la feature: Master_mconsumosdolares
+INFO [2025-11-26 15:16:03] Gráfico guardado en: Plots/Master_mconsumosdolares_evolucion.png
+INFO [2025-11-26 15:16:03] Generando gráfico de evolución para la feature: Master_mlimitecompra
+INFO [2025-11-26 15:16:06] Gráfico guardado en: Plots/Master_mlimitecompra_evolucion.png
+INFO [2025-11-26 15:16:06] Generando gráfico de evolución para la feature: Master_madelantopesos
+INFO [2025-11-26 15:16:10] Gráfico guardado en: Plots/Master_madelantopesos_evolucion.png
+INFO [2025-11-26 15:16:10] Generando gráfico de evolución para la feature: Master_madelantodolares
+INFO [2025-11-26 15:16:14] Gráfico guardado en: Plots/Master_madelantodolares_evolucion.png
+INFO [2025-11-26 15:16:14] Generando gráfico de evolución para la feature: Master_fultimo_cierre
+INFO [2025-11-26 15:16:18] Gráfico guardado en: Plots/Master_fultimo_cierre_evolucion.png
+INFO [2025-11-26 15:16:18] Generando gráfico de evolución para la feature: Master_mpagado
+INFO [2025-11-26 15:16:22] Gráfico guardado en: Plots/Master_mpagado_evolucion.png
+INFO [2025-11-26 15:16:22] Generando gráfico de evolución para la feature: Master_mpagospesos
+INFO [2025-11-26 15:16:26] Gráfico guardado en: Plots/Master_mpagospesos_evolucion.png
+INFO [2025-11-26 15:16:26] Generando gráfico de evolución para la feature: Master_mpagosdolares
+INFO [2025-11-26 15:16:30] Gráfico guardado en: Plots/Master_mpagosdolares_evolucion.png
+INFO [2025-11-26 15:16:30] Generando gráfico de evolución para la feature: Master_fechaalta
+INFO [2025-11-26 15:16:34] Gráfico guardado en: Plots/Master_fechaalta_evolucion.png
+INFO [2025-11-26 15:16:34] Generando gráfico de evolución para la feature: Master_mconsumototal
+INFO [2025-11-26 15:16:38] Gráfico guardado en: Plots/Master_mconsumototal_evolucion.png
+INFO [2025-11-26 15:16:38] Generando gráfico de evolución para la feature: Master_cconsumos
+INFO [2025-11-26 15:16:42] Gráfico guardado en: Plots/Master_cconsumos_evolucion.png
+INFO [2025-11-26 15:16:42] Generando gráfico de evolución para la feature: Master_cadelantosefectivo
+INFO [2025-11-26 15:16:46] Gráfico guardado en: Plots/Master_cadelantosefectivo_evolucion.png
+INFO [2025-11-26 15:16:46] Generando gráfico de evolución para la feature: Master_mpagominimo
+INFO [2025-11-26 15:16:50] Gráfico guardado en: Plots/Master_mpagominimo_evolucion.png
+INFO [2025-11-26 15:16:50] Generando gráfico de evolución para la feature: Visa_delinquency
+INFO [2025-11-26 15:16:54] Gráfico guardado en: Plots/Visa_delinquency_evolucion.png
+INFO [2025-11-26 15:16:54] Generando gráfico de evolución para la feature: Visa_status
+INFO [2025-11-26 15:16:57] Gráfico guardado en: Plots/Visa_status_evolucion.png
+INFO [2025-11-26 15:16:57] Generando gráfico de evolución para la feature: Visa_mfinanciacion_limite
+INFO [2025-11-26 15:17:01] Gráfico guardado en: Plots/Visa_mfinanciacion_limite_evolucion.png
+INFO [2025-11-26 15:17:01] Generando gráfico de evolución para la feature: Visa_Fvencimiento
+INFO [2025-11-26 15:17:05] Gráfico guardado en: Plots/Visa_Fvencimiento_evolucion.png
+INFO [2025-11-26 15:17:05] Generando gráfico de evolución para la feature: Visa_Finiciomora
+INFO [2025-11-26 15:17:09] Gráfico guardado en: Plots/Visa_Finiciomora_evolucion.png
+INFO [2025-11-26 15:17:09] Generando gráfico de evolución para la feature: Visa_msaldototal
+INFO [2025-11-26 15:17:13] Gráfico guardado en: Plots/Visa_msaldototal_evolucion.png
+INFO [2025-11-26 15:17:13] Generando gráfico de evolución para la feature: Visa_msaldopesos
+INFO [2025-11-26 15:17:17] Gráfico guardado en: Plots/Visa_msaldopesos_evolucion.png
+INFO [2025-11-26 15:17:17] Generando gráfico de evolución para la feature: Visa_msaldodolares
+INFO [2025-11-26 15:17:22] Gráfico guardado en: Plots/Visa_msaldodolares_evolucion.png
+INFO [2025-11-26 15:17:22] Generando gráfico de evolución para la feature: Visa_mconsumospesos
+INFO [2025-11-26 15:17:25] Gráfico guardado en: Plots/Visa_mconsumospesos_evolucion.png
+INFO [2025-11-26 15:17:25] Generando gráfico de evolución para la feature: Visa_mconsumosdolares
+INFO [2025-11-26 15:17:29] Gráfico guardado en: Plots/Visa_mconsumosdolares_evolucion.png
+INFO [2025-11-26 15:17:29] Generando gráfico de evolución para la feature: Visa_mlimitecompra
+INFO [2025-11-26 15:17:33] Gráfico guardado en: Plots/Visa_mlimitecompra_evolucion.png
+INFO [2025-11-26 15:17:33] Generando gráfico de evolución para la feature: Visa_madelantopesos
+INFO [2025-11-26 15:17:37] Gráfico guardado en: Plots/Visa_madelantopesos_evolucion.png
+INFO [2025-11-26 15:17:37] Generando gráfico de evolución para la feature: Visa_madelantodolares
+INFO [2025-11-26 15:17:41] Gráfico guardado en: Plots/Visa_madelantodolares_evolucion.png
+INFO [2025-11-26 15:17:41] Generando gráfico de evolución para la feature: Visa_fultimo_cierre
+INFO [2025-11-26 15:17:45] Gráfico guardado en: Plots/Visa_fultimo_cierre_evolucion.png
+INFO [2025-11-26 15:17:45] Generando gráfico de evolución para la feature: Visa_mpagado
+INFO [2025-11-26 15:17:49] Gráfico guardado en: Plots/Visa_mpagado_evolucion.png
+INFO [2025-11-26 15:17:49] Generando gráfico de evolución para la feature: Visa_mpagospesos
+INFO [2025-11-26 15:17:53] Gráfico guardado en: Plots/Visa_mpagospesos_evolucion.png
+INFO [2025-11-26 15:17:53] Generando gráfico de evolución para la feature: Visa_mpagosdolares
+INFO [2025-11-26 15:17:57] Gráfico guardado en: Plots/Visa_mpagosdolares_evolucion.png
+INFO [2025-11-26 15:17:57] Generando gráfico de evolución para la feature: Visa_fechaalta
+INFO [2025-11-26 15:18:01] Gráfico guardado en: Plots/Visa_fechaalta_evolucion.png
+INFO [2025-11-26 15:18:01] Generando gráfico de evolución para la feature: Visa_mconsumototal
+INFO [2025-11-26 15:18:05] Gráfico guardado en: Plots/Visa_mconsumototal_evolucion.png
+INFO [2025-11-26 15:18:05] Generando gráfico de evolución para la feature: Visa_cconsumos
+INFO [2025-11-26 15:18:09] Gráfico guardado en: Plots/Visa_cconsumos_evolucion.png
+INFO [2025-11-26 15:18:09] Generando gráfico de evolución para la feature: Visa_cadelantosefectivo
+INFO [2025-11-26 15:18:13] Gráfico guardado en: Plots/Visa_cadelantosefectivo_evolucion.png
+INFO [2025-11-26 15:18:13] Generando gráfico de evolución para la feature: Visa_mpagominimo
+INFO [2025-11-26 15:18:18] Gráfico guardado en: Plots/Visa_mpagominimo_evolucion.png
+INFO [2025-11-26 15:18:18] Todos los gráficos de evolución de features generados.
+INFO [2025-11-26 15:18:18] ------------------------------------------------------
+INFO [2025-11-26 15:18:18] Generando reporte HTML con los gráficos...
+INFO [2025-11-26 15:25:29] ------------------------------------------------------
+INFO [2025-11-26 15:25:29] Inicio del script.
+INFO [2025-11-26 15:25:29] El log se guardará en: logs/log_Bases_Competencia_03.log
+INFO [2025-11-26 15:25:29] El resumen se guardará en: logs/summary.txt
+INFO [2025-11-26 15:25:29] ------------------------------------------------------
+INFO [2025-11-26 15:25:29] Inicio de lectura del dataset...
+INFO [2025-11-26 15:25:53] ------------------------------------------------------
+INFO [2025-11-26 15:25:53] Dataset leído con  4883051  filas y  156  columnas.
+INFO [2025-11-26 15:25:53] ------------------------------------------------------
+INFO [2025-11-26 15:25:53] ------------------------------------------------------
+INFO [2025-11-26 15:25:53] --- Distribución de la clase objetivo a lo largo del tiempo ---
+INFO [2025-11-26 15:25:53] Distribución de la clase objetivo:
+INFO [2025-11-26 15:25:53] foto_mes CONTINUA BAJA+1 BAJA+2
+       <int>    <int>  <int>  <int>
+ 1:   201901   122899    645    729
+ 2:   201902   123961    733    707
+ 3:   201903   124508    708    751
+ 4:   201904   125268    756    514
+ 5:   201905   125993    517    692
+ 6:   201906   127430    696    608
+ 7:   201907   128977    611    680
+ 8:   201908   130883    683    577
+ 9:   201909   132594    581    582
+10:   201910   134798    594    618
+11:   201911   136704    619    673
+12:   201912   138686    678    616
+13:   202001   142298    622    544
+14:   202002   145942    550    168
+15:   202003   148232    168    398
+16:   202004   148420    399    531
+17:   202005   149634    535    623
+18:   202006   151891    626    585
+19:   202007   153922    589    473
+20:   202008   155490    478    493
+21:   202009   156764    500    541
+22:   202010   158171    544    454
+23:   202011   159178    456    616
+24:   202012   159756    622    619
+25:   202101   160080    622    825
+26:   202102   160292    831   1032
+27:   202103   161119   1039    951
+28:   202104   161333    955   1130
+29:   202105   161941   1134    842
+30:   202106   162336    843   1134
+31:   202107   162211   1137   1248
+32:   202108        0   1252      0
+33:   202109        0      0      0
+    foto_mes CONTINUA BAJA+1 BAJA+2
+INFO [2025-11-26 15:25:53] Distribución de la clase objetivo a lo largo del tiempo guardada en distribucion_clase_ternaria.csv
+INFO [2025-11-26 15:25:53] ------------------------------------------------------
+INFO [2025-11-26 15:25:53] --- Análisis de retorno de clientes ---
+INFO [2025-11-26 15:26:02] Resumen del análisis de retorno de clientes:
+INFO [2025-11-26 15:26:02] Tipo de ausencia cantidad_clientes_unicos
+              <char>                    <int>
+ 1:           1 mes                        49
+ 2:         2 mes es                       20
+ 3:         3 mes es                       22
+ 4:         4 mes es                       18
+ 5:         5 mes es                       17
+ 6:         6 mes es                       12
+ 7:         7 mes es                        9
+ 8:         8 mes es                       16
+ 9:         9 mes es                       12
+10:        10 mes es                       12
+11:        11 mes es                        7
+12:        12 mes es                        4
+13:        13 mes es                        9
+14:        14 mes es                        8
+15:        15 mes es                        3
+16:        16 mes es                        2
+17:        17 mes es                        2
+18:        18 mes es                        2
+19:        19 mes es                        4
+20:        20 mes es                        5
+21:        21 mes es                        2
+22:        22 mes es                        4
+23:        23 mes es                        4
+24:        24 mes es                        2
+25:        25 mes es                        2
+26:        27 mes es                        2
+27:        30 mes es                        2
+28:        31 mes es                        2
+    Tipo de ausencia cantidad_clientes_unicos
+INFO [2025-11-26 15:26:02] Resumen del análisis de retorno de clientes guardada en retorno_clientes.csv
+INFO [2025-11-26 15:26:02] ------------------------------------------------------
+INFO [2025-11-26 15:26:02] --- Evolución de las variables ---
+INFO [2025-11-26 15:26:02] Generando gráfico de evolución para la feature: active_quarter
+INFO [2025-11-26 15:26:07] Gráfico guardado en: Plots/active_quarter_evolucion.png
+INFO [2025-11-26 15:26:07] Generando gráfico de evolución para la feature: cliente_vip
+INFO [2025-11-26 15:26:11] Gráfico guardado en: Plots/cliente_vip_evolucion.png
+INFO [2025-11-26 15:26:11] Generando gráfico de evolución para la feature: internet
+INFO [2025-11-26 15:26:16] Gráfico guardado en: Plots/internet_evolucion.png
+INFO [2025-11-26 15:26:16] Generando gráfico de evolución para la feature: cliente_edad
+INFO [2025-11-26 15:26:19] Gráfico guardado en: Plots/cliente_edad_evolucion.png
+INFO [2025-11-26 15:26:19] Generando gráfico de evolución para la feature: cliente_antiguedad
+INFO [2025-11-26 15:26:23] Gráfico guardado en: Plots/cliente_antiguedad_evolucion.png
+INFO [2025-11-26 15:26:23] Generando gráfico de evolución para la feature: mrentabilidad
+INFO [2025-11-26 15:26:28] Gráfico guardado en: Plots/mrentabilidad_evolucion.png
+INFO [2025-11-26 15:26:28] Generando gráfico de evolución para la feature: mrentabilidad_annual
+INFO [2025-11-26 15:26:33] Gráfico guardado en: Plots/mrentabilidad_annual_evolucion.png
+INFO [2025-11-26 15:26:33] Generando gráfico de evolución para la feature: mcomisiones
+INFO [2025-11-26 15:26:38] Gráfico guardado en: Plots/mcomisiones_evolucion.png
+INFO [2025-11-26 15:26:38] Generando gráfico de evolución para la feature: mactivos_margen
+INFO [2025-11-26 15:26:43] Gráfico guardado en: Plots/mactivos_margen_evolucion.png
+INFO [2025-11-26 15:26:43] Generando gráfico de evolución para la feature: mpasivos_margen
+INFO [2025-11-26 15:26:49] Gráfico guardado en: Plots/mpasivos_margen_evolucion.png
+INFO [2025-11-26 15:26:49] Generando gráfico de evolución para la feature: cproductos
+INFO [2025-11-26 15:26:54] Gráfico guardado en: Plots/cproductos_evolucion.png
+INFO [2025-11-26 15:26:54] Generando gráfico de evolución para la feature: tcuentas
+INFO [2025-11-26 15:26:59] Gráfico guardado en: Plots/tcuentas_evolucion.png
+INFO [2025-11-26 15:26:59] Generando gráfico de evolución para la feature: ccuenta_corriente
+INFO [2025-11-26 15:27:03] Gráfico guardado en: Plots/ccuenta_corriente_evolucion.png
+INFO [2025-11-26 15:27:03] Generando gráfico de evolución para la feature: mcuenta_corriente_adicional
+INFO [2025-11-26 15:27:08] Gráfico guardado en: Plots/mcuenta_corriente_adicional_evolucion.png
+INFO [2025-11-26 15:27:08] Generando gráfico de evolución para la feature: mcuenta_corriente
+INFO [2025-11-26 15:27:13] Gráfico guardado en: Plots/mcuenta_corriente_evolucion.png
+INFO [2025-11-26 15:27:13] Generando gráfico de evolución para la feature: ccaja_ahorro
+INFO [2025-11-26 15:27:18] Gráfico guardado en: Plots/ccaja_ahorro_evolucion.png
+INFO [2025-11-26 15:27:18] Generando gráfico de evolución para la feature: mcaja_ahorro
+INFO [2025-11-26 15:27:23] Gráfico guardado en: Plots/mcaja_ahorro_evolucion.png
+INFO [2025-11-26 15:27:23] Generando gráfico de evolución para la feature: mcaja_ahorro_adicional
+INFO [2025-11-26 15:27:28] Gráfico guardado en: Plots/mcaja_ahorro_adicional_evolucion.png
+INFO [2025-11-26 15:27:28] Generando gráfico de evolución para la feature: mcaja_ahorro_dolares
+INFO [2025-11-26 15:27:31] Gráfico guardado en: Plots/mcaja_ahorro_dolares_evolucion.png
+INFO [2025-11-26 15:27:31] Generando gráfico de evolución para la feature: cdescubierto_preacordado
+INFO [2025-11-26 15:27:35] Gráfico guardado en: Plots/cdescubierto_preacordado_evolucion.png
+INFO [2025-11-26 15:27:35] Generando gráfico de evolución para la feature: mcuentas_saldo
+INFO [2025-11-26 15:27:39] Gráfico guardado en: Plots/mcuentas_saldo_evolucion.png
+INFO [2025-11-26 15:27:39] Generando gráfico de evolución para la feature: ctarjeta_debito
+INFO [2025-11-26 15:27:43] Gráfico guardado en: Plots/ctarjeta_debito_evolucion.png
+INFO [2025-11-26 15:27:43] Generando gráfico de evolución para la feature: ctarjeta_debito_transacciones
+INFO [2025-11-26 15:27:46] Gráfico guardado en: Plots/ctarjeta_debito_transacciones_evolucion.png
+INFO [2025-11-26 15:27:46] Generando gráfico de evolución para la feature: mautoservicio
+INFO [2025-11-26 15:27:50] Gráfico guardado en: Plots/mautoservicio_evolucion.png
+INFO [2025-11-26 15:27:50] Generando gráfico de evolución para la feature: ctarjeta_visa
+INFO [2025-11-26 15:27:54] Gráfico guardado en: Plots/ctarjeta_visa_evolucion.png
+INFO [2025-11-26 15:27:54] Generando gráfico de evolución para la feature: ctarjeta_visa_transacciones
+INFO [2025-11-26 15:27:57] Gráfico guardado en: Plots/ctarjeta_visa_transacciones_evolucion.png
+INFO [2025-11-26 15:27:57] Generando gráfico de evolución para la feature: mtarjeta_visa_consumo
+INFO [2025-11-26 15:28:01] Gráfico guardado en: Plots/mtarjeta_visa_consumo_evolucion.png
+INFO [2025-11-26 15:28:01] Generando gráfico de evolución para la feature: ctarjeta_master
+INFO [2025-11-26 15:28:05] Gráfico guardado en: Plots/ctarjeta_master_evolucion.png
+INFO [2025-11-26 15:28:05] Generando gráfico de evolución para la feature: ctarjeta_master_transacciones
+INFO [2025-11-26 15:28:08] Gráfico guardado en: Plots/ctarjeta_master_transacciones_evolucion.png
+INFO [2025-11-26 15:28:08] Generando gráfico de evolución para la feature: mtarjeta_master_consumo
+INFO [2025-11-26 15:28:12] Gráfico guardado en: Plots/mtarjeta_master_consumo_evolucion.png
+INFO [2025-11-26 15:28:12] Generando gráfico de evolución para la feature: cprestamos_personales
+INFO [2025-11-26 15:28:16] Gráfico guardado en: Plots/cprestamos_personales_evolucion.png
+INFO [2025-11-26 15:28:16] Generando gráfico de evolución para la feature: mprestamos_personales
+INFO [2025-11-26 15:28:19] Gráfico guardado en: Plots/mprestamos_personales_evolucion.png
+INFO [2025-11-26 15:28:19] Generando gráfico de evolución para la feature: cprestamos_prendarios
+INFO [2025-11-26 15:28:23] Gráfico guardado en: Plots/cprestamos_prendarios_evolucion.png
+INFO [2025-11-26 15:28:23] Generando gráfico de evolución para la feature: mprestamos_prendarios
+INFO [2025-11-26 15:28:26] Gráfico guardado en: Plots/mprestamos_prendarios_evolucion.png
+INFO [2025-11-26 15:28:26] Generando gráfico de evolución para la feature: cprestamos_hipotecarios
+INFO [2025-11-26 15:28:30] Gráfico guardado en: Plots/cprestamos_hipotecarios_evolucion.png
+INFO [2025-11-26 15:28:30] Generando gráfico de evolución para la feature: mprestamos_hipotecarios
+INFO [2025-11-26 15:28:33] Gráfico guardado en: Plots/mprestamos_hipotecarios_evolucion.png
+INFO [2025-11-26 15:28:33] Generando gráfico de evolución para la feature: cplazo_fijo
+INFO [2025-11-26 15:28:37] Gráfico guardado en: Plots/cplazo_fijo_evolucion.png
+INFO [2025-11-26 15:28:37] Generando gráfico de evolución para la feature: mplazo_fijo_dolares
+INFO [2025-11-26 15:28:41] Gráfico guardado en: Plots/mplazo_fijo_dolares_evolucion.png
+INFO [2025-11-26 15:28:41] Generando gráfico de evolución para la feature: mplazo_fijo_pesos
+INFO [2025-11-26 15:28:44] Gráfico guardado en: Plots/mplazo_fijo_pesos_evolucion.png
+INFO [2025-11-26 15:28:44] Generando gráfico de evolución para la feature: cinversion1
+INFO [2025-11-26 15:28:48] Gráfico guardado en: Plots/cinversion1_evolucion.png
+INFO [2025-11-26 15:28:48] Generando gráfico de evolución para la feature: minversion1_pesos
+INFO [2025-11-26 15:28:51] Gráfico guardado en: Plots/minversion1_pesos_evolucion.png
+INFO [2025-11-26 15:28:51] Generando gráfico de evolución para la feature: minversion1_dolares
+INFO [2025-11-26 15:28:55] Gráfico guardado en: Plots/minversion1_dolares_evolucion.png
+INFO [2025-11-26 15:28:55] Generando gráfico de evolución para la feature: cinversion2
+INFO [2025-11-26 15:28:59] Gráfico guardado en: Plots/cinversion2_evolucion.png
+INFO [2025-11-26 15:28:59] Generando gráfico de evolución para la feature: minversion2
+INFO [2025-11-26 15:29:02] Gráfico guardado en: Plots/minversion2_evolucion.png
+INFO [2025-11-26 15:29:02] Generando gráfico de evolución para la feature: cseguro_vida
+INFO [2025-11-26 15:29:06] Gráfico guardado en: Plots/cseguro_vida_evolucion.png
+INFO [2025-11-26 15:29:06] Generando gráfico de evolución para la feature: cseguro_auto
+INFO [2025-11-26 15:29:10] Gráfico guardado en: Plots/cseguro_auto_evolucion.png
+INFO [2025-11-26 15:29:10] Generando gráfico de evolución para la feature: cseguro_vivienda
+INFO [2025-11-26 15:29:13] Gráfico guardado en: Plots/cseguro_vivienda_evolucion.png
+INFO [2025-11-26 15:29:13] Generando gráfico de evolución para la feature: cseguro_accidentes_personales
+INFO [2025-11-26 15:29:17] Gráfico guardado en: Plots/cseguro_accidentes_personales_evolucion.png
+INFO [2025-11-26 15:29:17] Generando gráfico de evolución para la feature: ccaja_seguridad
+INFO [2025-11-26 15:29:21] Gráfico guardado en: Plots/ccaja_seguridad_evolucion.png
+INFO [2025-11-26 15:29:21] Generando gráfico de evolución para la feature: cpayroll_trx
+INFO [2025-11-26 15:29:24] Gráfico guardado en: Plots/cpayroll_trx_evolucion.png
+INFO [2025-11-26 15:29:24] Generando gráfico de evolución para la feature: mpayroll
+INFO [2025-11-26 15:29:28] Gráfico guardado en: Plots/mpayroll_evolucion.png
+INFO [2025-11-26 15:29:28] Generando gráfico de evolución para la feature: mpayroll2
+INFO [2025-11-26 15:29:32] Gráfico guardado en: Plots/mpayroll2_evolucion.png
+INFO [2025-11-26 15:29:32] Generando gráfico de evolución para la feature: cpayroll2_trx
+INFO [2025-11-26 15:29:35] Gráfico guardado en: Plots/cpayroll2_trx_evolucion.png
+INFO [2025-11-26 15:29:35] Generando gráfico de evolución para la feature: ccuenta_debitos_automaticos
+INFO [2025-11-26 15:29:39] Gráfico guardado en: Plots/ccuenta_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:29:39] Generando gráfico de evolución para la feature: mcuenta_debitos_automaticos
+INFO [2025-11-26 15:29:43] Gráfico guardado en: Plots/mcuenta_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:29:43] Generando gráfico de evolución para la feature: ctarjeta_visa_debitos_automaticos
+INFO [2025-11-26 15:29:46] Gráfico guardado en: Plots/ctarjeta_visa_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:29:46] Generando gráfico de evolución para la feature: mttarjeta_visa_debitos_automaticos
+INFO [2025-11-26 15:29:50] Gráfico guardado en: Plots/mttarjeta_visa_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:29:50] Generando gráfico de evolución para la feature: ctarjeta_master_debitos_automaticos
+INFO [2025-11-26 15:29:53] Gráfico guardado en: Plots/ctarjeta_master_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:29:53] Generando gráfico de evolución para la feature: mttarjeta_master_debitos_automaticos
+INFO [2025-11-26 15:29:57] Gráfico guardado en: Plots/mttarjeta_master_debitos_automaticos_evolucion.png
+INFO [2025-11-26 15:29:57] Generando gráfico de evolución para la feature: cpagodeservicios
+INFO [2025-11-26 15:30:01] Gráfico guardado en: Plots/cpagodeservicios_evolucion.png
+INFO [2025-11-26 15:30:01] Generando gráfico de evolución para la feature: mpagodeservicios
+INFO [2025-11-26 15:30:05] Gráfico guardado en: Plots/mpagodeservicios_evolucion.png
+INFO [2025-11-26 15:30:05] Generando gráfico de evolución para la feature: cpagomiscuentas
+INFO [2025-11-26 15:30:09] Gráfico guardado en: Plots/cpagomiscuentas_evolucion.png
+INFO [2025-11-26 15:30:09] Generando gráfico de evolución para la feature: mpagomiscuentas
+INFO [2025-11-26 15:30:12] Gráfico guardado en: Plots/mpagomiscuentas_evolucion.png
+INFO [2025-11-26 15:30:12] Generando gráfico de evolución para la feature: ccajeros_propios_descuentos
+INFO [2025-11-26 15:30:16] Gráfico guardado en: Plots/ccajeros_propios_descuentos_evolucion.png
+INFO [2025-11-26 15:30:16] Generando gráfico de evolución para la feature: mcajeros_propios_descuentos
+INFO [2025-11-26 15:30:19] Gráfico guardado en: Plots/mcajeros_propios_descuentos_evolucion.png
+INFO [2025-11-26 15:30:19] Generando gráfico de evolución para la feature: ctarjeta_visa_descuentos
+INFO [2025-11-26 15:30:23] Gráfico guardado en: Plots/ctarjeta_visa_descuentos_evolucion.png
+INFO [2025-11-26 15:30:23] Generando gráfico de evolución para la feature: mtarjeta_visa_descuentos
+INFO [2025-11-26 15:30:27] Gráfico guardado en: Plots/mtarjeta_visa_descuentos_evolucion.png
+INFO [2025-11-26 15:30:27] Generando gráfico de evolución para la feature: ctarjeta_master_descuentos
+INFO [2025-11-26 15:30:30] Gráfico guardado en: Plots/ctarjeta_master_descuentos_evolucion.png
+INFO [2025-11-26 15:30:30] Generando gráfico de evolución para la feature: mtarjeta_master_descuentos
+INFO [2025-11-26 15:30:34] Gráfico guardado en: Plots/mtarjeta_master_descuentos_evolucion.png
+INFO [2025-11-26 15:30:34] Generando gráfico de evolución para la feature: ccomisiones_mantenimiento
+INFO [2025-11-26 15:30:37] Gráfico guardado en: Plots/ccomisiones_mantenimiento_evolucion.png
+INFO [2025-11-26 15:30:37] Generando gráfico de evolución para la feature: mcomisiones_mantenimiento
+INFO [2025-11-26 15:30:41] Gráfico guardado en: Plots/mcomisiones_mantenimiento_evolucion.png
+INFO [2025-11-26 15:30:41] Generando gráfico de evolución para la feature: ccomisiones_otras
+INFO [2025-11-26 15:30:44] Gráfico guardado en: Plots/ccomisiones_otras_evolucion.png
+INFO [2025-11-26 15:30:44] Generando gráfico de evolución para la feature: mcomisiones_otras
+INFO [2025-11-26 15:30:48] Gráfico guardado en: Plots/mcomisiones_otras_evolucion.png
+INFO [2025-11-26 15:30:48] Generando gráfico de evolución para la feature: cforex
+INFO [2025-11-26 15:30:52] Gráfico guardado en: Plots/cforex_evolucion.png
+INFO [2025-11-26 15:30:52] Generando gráfico de evolución para la feature: cforex_buy
+INFO [2025-11-26 15:30:55] Gráfico guardado en: Plots/cforex_buy_evolucion.png
+INFO [2025-11-26 15:30:55] Generando gráfico de evolución para la feature: mforex_buy
+INFO [2025-11-26 15:30:59] Gráfico guardado en: Plots/mforex_buy_evolucion.png
+INFO [2025-11-26 15:30:59] Generando gráfico de evolución para la feature: cforex_sell
+INFO [2025-11-26 15:31:02] Gráfico guardado en: Plots/cforex_sell_evolucion.png
+INFO [2025-11-26 15:31:02] Generando gráfico de evolución para la feature: mforex_sell
+INFO [2025-11-26 15:31:06] Gráfico guardado en: Plots/mforex_sell_evolucion.png
+INFO [2025-11-26 15:31:06] Generando gráfico de evolución para la feature: ctransferencias_recibidas
+INFO [2025-11-26 15:31:10] Gráfico guardado en: Plots/ctransferencias_recibidas_evolucion.png
+INFO [2025-11-26 15:31:10] Generando gráfico de evolución para la feature: mtransferencias_recibidas
+INFO [2025-11-26 15:31:13] Gráfico guardado en: Plots/mtransferencias_recibidas_evolucion.png
+INFO [2025-11-26 15:31:13] Generando gráfico de evolución para la feature: ctransferencias_emitidas
+INFO [2025-11-26 15:31:17] Gráfico guardado en: Plots/ctransferencias_emitidas_evolucion.png
+INFO [2025-11-26 15:31:17] Generando gráfico de evolución para la feature: mtransferencias_emitidas
+INFO [2025-11-26 15:31:20] Gráfico guardado en: Plots/mtransferencias_emitidas_evolucion.png
+INFO [2025-11-26 15:31:20] Generando gráfico de evolución para la feature: cextraccion_autoservicio
+INFO [2025-11-26 15:31:24] Gráfico guardado en: Plots/cextraccion_autoservicio_evolucion.png
+INFO [2025-11-26 15:31:24] Generando gráfico de evolución para la feature: mextraccion_autoservicio
+INFO [2025-11-26 15:31:28] Gráfico guardado en: Plots/mextraccion_autoservicio_evolucion.png
+INFO [2025-11-26 15:31:28] Generando gráfico de evolución para la feature: ccheques_depositados
+INFO [2025-11-26 15:31:31] Gráfico guardado en: Plots/ccheques_depositados_evolucion.png
+INFO [2025-11-26 15:31:31] Generando gráfico de evolución para la feature: mcheques_depositados
+INFO [2025-11-26 15:31:35] Gráfico guardado en: Plots/mcheques_depositados_evolucion.png
+INFO [2025-11-26 15:31:35] Generando gráfico de evolución para la feature: ccheques_emitidos
+INFO [2025-11-26 15:31:38] Gráfico guardado en: Plots/ccheques_emitidos_evolucion.png
+INFO [2025-11-26 15:31:38] Generando gráfico de evolución para la feature: mcheques_emitidos
+INFO [2025-11-26 15:31:42] Gráfico guardado en: Plots/mcheques_emitidos_evolucion.png
+INFO [2025-11-26 15:31:42] Generando gráfico de evolución para la feature: ccheques_depositados_rechazados
+INFO [2025-11-26 15:31:46] Gráfico guardado en: Plots/ccheques_depositados_rechazados_evolucion.png
+INFO [2025-11-26 15:31:46] Generando gráfico de evolución para la feature: mcheques_depositados_rechazados
+INFO [2025-11-26 15:31:49] Gráfico guardado en: Plots/mcheques_depositados_rechazados_evolucion.png
+INFO [2025-11-26 15:31:49] Generando gráfico de evolución para la feature: ccheques_emitidos_rechazados
+INFO [2025-11-26 15:31:53] Gráfico guardado en: Plots/ccheques_emitidos_rechazados_evolucion.png
+INFO [2025-11-26 15:31:53] Generando gráfico de evolución para la feature: mcheques_emitidos_rechazados
+INFO [2025-11-26 15:31:57] Gráfico guardado en: Plots/mcheques_emitidos_rechazados_evolucion.png
+INFO [2025-11-26 15:31:57] Generando gráfico de evolución para la feature: tcallcenter
+INFO [2025-11-26 15:32:01] Gráfico guardado en: Plots/tcallcenter_evolucion.png
+INFO [2025-11-26 15:32:01] Generando gráfico de evolución para la feature: ccallcenter_transacciones
+INFO [2025-11-26 15:32:04] Gráfico guardado en: Plots/ccallcenter_transacciones_evolucion.png
+INFO [2025-11-26 15:32:04] Generando gráfico de evolución para la feature: thomebanking
+INFO [2025-11-26 15:32:08] Gráfico guardado en: Plots/thomebanking_evolucion.png
+INFO [2025-11-26 15:32:08] Generando gráfico de evolución para la feature: chomebanking_transacciones
+INFO [2025-11-26 15:32:12] Gráfico guardado en: Plots/chomebanking_transacciones_evolucion.png
+INFO [2025-11-26 15:32:12] Generando gráfico de evolución para la feature: ccajas_transacciones
+INFO [2025-11-26 15:32:15] Gráfico guardado en: Plots/ccajas_transacciones_evolucion.png
+INFO [2025-11-26 15:32:15] Generando gráfico de evolución para la feature: ccajas_consultas
+INFO [2025-11-26 15:32:19] Gráfico guardado en: Plots/ccajas_consultas_evolucion.png
+INFO [2025-11-26 15:32:19] Generando gráfico de evolución para la feature: ccajas_depositos
+INFO [2025-11-26 15:32:22] Gráfico guardado en: Plots/ccajas_depositos_evolucion.png
+INFO [2025-11-26 15:32:22] Generando gráfico de evolución para la feature: ccajas_extracciones
+INFO [2025-11-26 15:32:26] Gráfico guardado en: Plots/ccajas_extracciones_evolucion.png
+INFO [2025-11-26 15:32:26] Generando gráfico de evolución para la feature: ccajas_otras
+INFO [2025-11-26 15:32:29] Gráfico guardado en: Plots/ccajas_otras_evolucion.png
+INFO [2025-11-26 15:32:29] Generando gráfico de evolución para la feature: catm_trx
+INFO [2025-11-26 15:32:33] Gráfico guardado en: Plots/catm_trx_evolucion.png
+INFO [2025-11-26 15:32:33] Generando gráfico de evolución para la feature: matm
+INFO [2025-11-26 15:32:36] Gráfico guardado en: Plots/matm_evolucion.png
+INFO [2025-11-26 15:32:36] Generando gráfico de evolución para la feature: catm_trx_other
+INFO [2025-11-26 15:32:40] Gráfico guardado en: Plots/catm_trx_other_evolucion.png
+INFO [2025-11-26 15:32:40] Generando gráfico de evolución para la feature: matm_other
+INFO [2025-11-26 15:32:44] Gráfico guardado en: Plots/matm_other_evolucion.png
+INFO [2025-11-26 15:32:44] Generando gráfico de evolución para la feature: ctrx_quarter
+INFO [2025-11-26 15:32:47] Gráfico guardado en: Plots/ctrx_quarter_evolucion.png
+INFO [2025-11-26 15:32:47] Generando gráfico de evolución para la feature: tmobile_app
+INFO [2025-11-26 15:32:51] Gráfico guardado en: Plots/tmobile_app_evolucion.png
+INFO [2025-11-26 15:32:51] Generando gráfico de evolución para la feature: cmobile_app_trx
+INFO [2025-11-26 15:32:55] Gráfico guardado en: Plots/cmobile_app_trx_evolucion.png
+INFO [2025-11-26 15:32:55] Generando gráfico de evolución para la feature: Master_delinquency
+INFO [2025-11-26 15:32:58] Gráfico guardado en: Plots/Master_delinquency_evolucion.png
+INFO [2025-11-26 15:32:58] Generando gráfico de evolución para la feature: Master_status
+INFO [2025-11-26 15:33:02] Gráfico guardado en: Plots/Master_status_evolucion.png
+INFO [2025-11-26 15:33:02] Generando gráfico de evolución para la feature: Master_mfinanciacion_limite
+INFO [2025-11-26 15:33:06] Gráfico guardado en: Plots/Master_mfinanciacion_limite_evolucion.png
+INFO [2025-11-26 15:33:06] Generando gráfico de evolución para la feature: Master_Fvencimiento
+INFO [2025-11-26 15:33:09] Gráfico guardado en: Plots/Master_Fvencimiento_evolucion.png
+INFO [2025-11-26 15:33:09] Generando gráfico de evolución para la feature: Master_Finiciomora
+INFO [2025-11-26 15:33:13] Gráfico guardado en: Plots/Master_Finiciomora_evolucion.png
+INFO [2025-11-26 15:33:13] Generando gráfico de evolución para la feature: Master_msaldototal
+INFO [2025-11-26 15:33:16] Gráfico guardado en: Plots/Master_msaldototal_evolucion.png
+INFO [2025-11-26 15:33:16] Generando gráfico de evolución para la feature: Master_msaldopesos
+INFO [2025-11-26 15:33:20] Gráfico guardado en: Plots/Master_msaldopesos_evolucion.png
+INFO [2025-11-26 15:33:20] Generando gráfico de evolución para la feature: Master_msaldodolares
+INFO [2025-11-26 15:33:24] Gráfico guardado en: Plots/Master_msaldodolares_evolucion.png
+INFO [2025-11-26 15:33:24] Generando gráfico de evolución para la feature: Master_mconsumospesos
+INFO [2025-11-26 15:33:27] Gráfico guardado en: Plots/Master_mconsumospesos_evolucion.png
+INFO [2025-11-26 15:33:27] Generando gráfico de evolución para la feature: Master_mconsumosdolares
+INFO [2025-11-26 15:33:32] Gráfico guardado en: Plots/Master_mconsumosdolares_evolucion.png
+INFO [2025-11-26 15:33:32] Generando gráfico de evolución para la feature: Master_mlimitecompra
+INFO [2025-11-26 15:33:36] Gráfico guardado en: Plots/Master_mlimitecompra_evolucion.png
+INFO [2025-11-26 15:33:36] Generando gráfico de evolución para la feature: Master_madelantopesos
+INFO [2025-11-26 15:33:41] Gráfico guardado en: Plots/Master_madelantopesos_evolucion.png
+INFO [2025-11-26 15:33:41] Generando gráfico de evolución para la feature: Master_madelantodolares
+INFO [2025-11-26 15:33:45] Gráfico guardado en: Plots/Master_madelantodolares_evolucion.png
+INFO [2025-11-26 15:33:45] Generando gráfico de evolución para la feature: Master_fultimo_cierre
+INFO [2025-11-26 15:33:50] Gráfico guardado en: Plots/Master_fultimo_cierre_evolucion.png
+INFO [2025-11-26 15:33:50] Generando gráfico de evolución para la feature: Master_mpagado
+INFO [2025-11-26 15:33:54] Gráfico guardado en: Plots/Master_mpagado_evolucion.png
+INFO [2025-11-26 15:33:54] Generando gráfico de evolución para la feature: Master_mpagospesos
+INFO [2025-11-26 15:33:59] Gráfico guardado en: Plots/Master_mpagospesos_evolucion.png
+INFO [2025-11-26 15:33:59] Generando gráfico de evolución para la feature: Master_mpagosdolares
+INFO [2025-11-26 15:34:03] Gráfico guardado en: Plots/Master_mpagosdolares_evolucion.png
+INFO [2025-11-26 15:34:03] Generando gráfico de evolución para la feature: Master_fechaalta
+INFO [2025-11-26 15:34:08] Gráfico guardado en: Plots/Master_fechaalta_evolucion.png
+INFO [2025-11-26 15:34:08] Generando gráfico de evolución para la feature: Master_mconsumototal
+INFO [2025-11-26 15:34:12] Gráfico guardado en: Plots/Master_mconsumototal_evolucion.png
+INFO [2025-11-26 15:34:12] Generando gráfico de evolución para la feature: Master_cconsumos
+INFO [2025-11-26 15:34:16] Gráfico guardado en: Plots/Master_cconsumos_evolucion.png
+INFO [2025-11-26 15:34:16] Generando gráfico de evolución para la feature: Master_cadelantosefectivo
+INFO [2025-11-26 15:34:21] Gráfico guardado en: Plots/Master_cadelantosefectivo_evolucion.png
+INFO [2025-11-26 15:34:21] Generando gráfico de evolución para la feature: Master_mpagominimo
+INFO [2025-11-26 15:34:25] Gráfico guardado en: Plots/Master_mpagominimo_evolucion.png
+INFO [2025-11-26 15:34:25] Generando gráfico de evolución para la feature: Visa_delinquency
+INFO [2025-11-26 15:34:30] Gráfico guardado en: Plots/Visa_delinquency_evolucion.png
+INFO [2025-11-26 15:34:30] Generando gráfico de evolución para la feature: Visa_status
+INFO [2025-11-26 15:34:34] Gráfico guardado en: Plots/Visa_status_evolucion.png
+INFO [2025-11-26 15:34:34] Generando gráfico de evolución para la feature: Visa_mfinanciacion_limite
+INFO [2025-11-26 15:34:39] Gráfico guardado en: Plots/Visa_mfinanciacion_limite_evolucion.png
+INFO [2025-11-26 15:34:39] Generando gráfico de evolución para la feature: Visa_Fvencimiento
+INFO [2025-11-26 15:34:43] Gráfico guardado en: Plots/Visa_Fvencimiento_evolucion.png
+INFO [2025-11-26 15:34:43] Generando gráfico de evolución para la feature: Visa_Finiciomora
+INFO [2025-11-26 15:34:47] Gráfico guardado en: Plots/Visa_Finiciomora_evolucion.png
+INFO [2025-11-26 15:34:47] Generando gráfico de evolución para la feature: Visa_msaldototal
+INFO [2025-11-26 15:34:52] Gráfico guardado en: Plots/Visa_msaldototal_evolucion.png
+INFO [2025-11-26 15:34:52] Generando gráfico de evolución para la feature: Visa_msaldopesos
+INFO [2025-11-26 15:34:57] Gráfico guardado en: Plots/Visa_msaldopesos_evolucion.png
+INFO [2025-11-26 15:34:57] Generando gráfico de evolución para la feature: Visa_msaldodolares
+INFO [2025-11-26 15:35:01] Gráfico guardado en: Plots/Visa_msaldodolares_evolucion.png
+INFO [2025-11-26 15:35:01] Generando gráfico de evolución para la feature: Visa_mconsumospesos
+INFO [2025-11-26 15:35:06] Gráfico guardado en: Plots/Visa_mconsumospesos_evolucion.png
+INFO [2025-11-26 15:35:06] Generando gráfico de evolución para la feature: Visa_mconsumosdolares
+INFO [2025-11-26 15:35:11] Gráfico guardado en: Plots/Visa_mconsumosdolares_evolucion.png
+INFO [2025-11-26 15:35:11] Generando gráfico de evolución para la feature: Visa_mlimitecompra
+INFO [2025-11-26 15:35:15] Gráfico guardado en: Plots/Visa_mlimitecompra_evolucion.png
+INFO [2025-11-26 15:35:15] Generando gráfico de evolución para la feature: Visa_madelantopesos
+INFO [2025-11-26 15:35:20] Gráfico guardado en: Plots/Visa_madelantopesos_evolucion.png
+INFO [2025-11-26 15:35:20] Generando gráfico de evolución para la feature: Visa_madelantodolares
+INFO [2025-11-26 15:35:24] Gráfico guardado en: Plots/Visa_madelantodolares_evolucion.png
+INFO [2025-11-26 15:35:24] Generando gráfico de evolución para la feature: Visa_fultimo_cierre
+INFO [2025-11-26 15:35:29] Gráfico guardado en: Plots/Visa_fultimo_cierre_evolucion.png
+INFO [2025-11-26 15:35:29] Generando gráfico de evolución para la feature: Visa_mpagado
+INFO [2025-11-26 15:35:33] Gráfico guardado en: Plots/Visa_mpagado_evolucion.png
+INFO [2025-11-26 15:35:33] Generando gráfico de evolución para la feature: Visa_mpagospesos
+INFO [2025-11-26 15:35:38] Gráfico guardado en: Plots/Visa_mpagospesos_evolucion.png
+INFO [2025-11-26 15:35:38] Generando gráfico de evolución para la feature: Visa_mpagosdolares
+INFO [2025-11-26 15:35:43] Gráfico guardado en: Plots/Visa_mpagosdolares_evolucion.png
+INFO [2025-11-26 15:35:43] Generando gráfico de evolución para la feature: Visa_fechaalta
+INFO [2025-11-26 15:35:48] Gráfico guardado en: Plots/Visa_fechaalta_evolucion.png
+INFO [2025-11-26 15:35:48] Generando gráfico de evolución para la feature: Visa_mconsumototal
+INFO [2025-11-26 15:35:53] Gráfico guardado en: Plots/Visa_mconsumototal_evolucion.png
+INFO [2025-11-26 15:35:53] Generando gráfico de evolución para la feature: Visa_cconsumos
+INFO [2025-11-26 15:35:57] Gráfico guardado en: Plots/Visa_cconsumos_evolucion.png
+INFO [2025-11-26 15:35:57] Generando gráfico de evolución para la feature: Visa_cadelantosefectivo
+INFO [2025-11-26 15:36:02] Gráfico guardado en: Plots/Visa_cadelantosefectivo_evolucion.png
+INFO [2025-11-26 15:36:02] Generando gráfico de evolución para la feature: Visa_mpagominimo
+INFO [2025-11-26 15:36:06] Gráfico guardado en: Plots/Visa_mpagominimo_evolucion.png
+INFO [2025-11-26 15:36:06] Todos los gráficos de evolución de features generados.
+INFO [2025-11-26 15:36:06] ------------------------------------------------------
+INFO [2025-11-26 15:36:06] Generando reporte HTML con los gráficos...
+INFO [2025-11-26 15:36:11] Evolución histórica de las features guardada en evolucion_features.html
+INFO [2025-11-26 15:36:11] ------------------------------------------------------
+INFO [2025-11-26 15:36:11] --- Resumen de características con ceros/NaN ---
+INFO [2025-11-26 15:36:33] Resumen de características con ceros/NaN:
+INFO [2025-11-26 15:36:33] Key: <foto_mes>
+   foto_mes active_quarter cliente_vip internet cliente_edad cliente_antiguedad mrentabilidad mrentabilidad_annual mcomisiones mactivos_margen
+      <int>         <char>      <char>   <char>       <char>             <char>        <char>               <char>      <char>          <char>
+1:   201901                                                                                                                                   
+2:   201902                                                                                                                                   
+3:   201903                                                                                                                                   
+4:   201904                                                                                                                                   
+5:   201905                                                                                 0                    0           0               0
+   mpasivos_margen cproductos tcuentas ccuenta_corriente mcuenta_corriente_adicional mcuenta_corriente ccaja_ahorro mcaja_ahorro
+            <char>     <char>   <char>            <char>                      <char>            <char>       <char>       <char>
+1:                                                                                                                              
+2:                                                                                                                              
+3:                                                                                                                              
+4:                                                                                                                              
+5:               0                                                                                                              
+   mcaja_ahorro_adicional mcaja_ahorro_dolares cdescubierto_preacordado mcuentas_saldo ctarjeta_debito ctarjeta_debito_transacciones
+                   <char>               <char>                   <char>         <char>          <char>                        <char>
+1:                                                                                                                                  
+2:                                                                                                                                  
+3:                                                                                                                                  
+4:                                                                                                                                  
+5:                                                                                                                                  
+   mautoservicio ctarjeta_visa ctarjeta_visa_transacciones mtarjeta_visa_consumo ctarjeta_master ctarjeta_master_transacciones
+          <char>        <char>                      <char>                <char>          <char>                        <char>
+1:                                                                                                                            
+2:                                                                                                                            
+3:                                                                                                                            
+4:                                                                                                                            
+5:                                                                                                                            
+   mtarjeta_master_consumo cprestamos_personales mprestamos_personales cprestamos_prendarios mprestamos_prendarios cprestamos_hipotecarios
+                    <char>                <char>                <char>                <char>                <char>                  <char>
+1:                                                                                                                                        
+2:                                                                                                                                        
+3:                                                                                                                                        
+4:                                                                                                                                        
+5:                                                                                                                                        
+   mprestamos_hipotecarios cplazo_fijo mplazo_fijo_dolares mplazo_fijo_pesos cinversion1 minversion1_pesos minversion1_dolares cinversion2
+                    <char>      <char>              <char>            <char>      <char>            <char>              <char>      <char>
+1:                                                                                                                                        
+2:                                                                                                                                        
+3:                                                                                                                                        
+4:                                                                                                                                        
+5:                                                                                                                                        
+   minversion2 cseguro_vida cseguro_auto cseguro_vivienda cseguro_accidentes_personales ccaja_seguridad cpayroll_trx mpayroll mpayroll2
+        <char>       <char>       <char>           <char>                        <char>          <char>       <char>   <char>    <char>
+1:                                                                                                                                     
+2:                                                                                                                                     
+3:                                                                                                                                     
+4:                                                                                                                                     
+5:                                                                                                                                     
+   cpayroll2_trx ccuenta_debitos_automaticos mcuenta_debitos_automaticos ctarjeta_visa_debitos_automaticos mttarjeta_visa_debitos_automaticos
+          <char>                      <char>                      <char>                            <char>                             <char>
+1:                                                                                                                                           
+2:                                                                                                                                           
+3:                                                                                                                                           
+4:                                                                                                       0                                  0
+5:                                                                                                                                           
+   ctarjeta_master_debitos_automaticos mttarjeta_master_debitos_automaticos cpagodeservicios mpagodeservicios cpagomiscuentas mpagomiscuentas
+                                <char>                               <char>           <char>           <char>          <char>          <char>
+1:                                                                                                                                           
+2:                                                                                                                                           
+3:                                                                                                                                           
+4:                                                                                                                                           
+5:                                                                                                                                           
+   ccajeros_propios_descuentos mcajeros_propios_descuentos ctarjeta_visa_descuentos mtarjeta_visa_descuentos ctarjeta_master_descuentos
+                        <char>                      <char>                   <char>                   <char>                     <char>
+1:                                                                                                                                     
+2:                                                                                                                                     
+3:                                                                                                                                     
+4:                                                                                                                                     
+5:                                                                                                                                     
+   mtarjeta_master_descuentos ccomisiones_mantenimiento mcomisiones_mantenimiento ccomisiones_otras mcomisiones_otras cforex cforex_buy
+                       <char>                    <char>                    <char>            <char>            <char> <char>     <char>
+1:                                                                                                                                     
+2:                                                                                                                                     
+3:                                                                                                                                     
+4:                                                                                                                                     
+5:                                                                                                0                 0                  
+   mforex_buy cforex_sell mforex_sell ctransferencias_recibidas mtransferencias_recibidas ctransferencias_emitidas mtransferencias_emitidas
+       <char>      <char>      <char>                    <char>                    <char>                   <char>                   <char>
+1:                                                                                                                                         
+2:                                                                                                                                         
+3:                                                                                                                                         
+4:                                                                                                                                         
+5:                                                                                                                                         
+   cextraccion_autoservicio mextraccion_autoservicio ccheques_depositados mcheques_depositados ccheques_emitidos mcheques_emitidos
+                     <char>                   <char>               <char>               <char>            <char>            <char>
+1:                                                                                                                                
+2:                                                                                                                                
+3:                                                                                                                                
+4:                                                                                                                                
+5:                                                                                                                                
+   ccheques_depositados_rechazados mcheques_depositados_rechazados ccheques_emitidos_rechazados mcheques_emitidos_rechazados tcallcenter
+                            <char>                          <char>                       <char>                       <char>      <char>
+1:                                                                                                                                      
+2:                                                                                                                                      
+3:                                                                                                                                      
+4:                                                                                                                                      
+5:                                                                                                                                      
+   ccallcenter_transacciones thomebanking chomebanking_transacciones ccajas_transacciones ccajas_consultas ccajas_depositos ccajas_extracciones
+                      <char>       <char>                     <char>               <char>           <char>           <char>              <char>
+1:                                                                                                                                             
+2:                                                                                                                                             
+3:                                                                                                                                             
+4:                                                                                                                                             
+5:                                                                                                                                             
+   ccajas_otras catm_trx   matm catm_trx_other matm_other ctrx_quarter tmobile_app cmobile_app_trx Master_delinquency Master_status
+         <char>   <char> <char>         <char>     <char>       <char>      <char>          <char>             <char>        <char>
+1:                                                                             NaN             NaN                                 
+2:                                                                             NaN             NaN                                 
+3:                                                                             NaN             NaN                                 
+4:                                                                             NaN             NaN                                 
+5:                                                                             NaN             NaN                                 
+   Master_mfinanciacion_limite Master_Fvencimiento Master_Finiciomora Master_msaldototal Master_msaldopesos Master_msaldodolares
+                        <char>              <char>             <char>             <char>             <char>               <char>
+1:                                                                                                                              
+2:                                                                                                                              
+3:                                                                                                                              
+4:                                                                                                                              
+5:                                                                                                                              
+   Master_mconsumospesos Master_mconsumosdolares Master_mlimitecompra Master_madelantopesos Master_madelantodolares Master_fultimo_cierre
+                  <char>                  <char>               <char>                <char>                  <char>                <char>
+1:                                                                                                                                       
+2:                                                                                                                                       
+3:                                                                                                                                       
+4:                                                                                                                                       
+5:                                                                                                                                       
+   Master_mpagado Master_mpagospesos Master_mpagosdolares Master_fechaalta Master_mconsumototal Master_cconsumos Master_cadelantosefectivo
+           <char>             <char>               <char>           <char>               <char>           <char>                    <char>
+1:                                                                                                                                        
+2:                                                                                                                                        
+3:                                                                                                                                        
+4:                                                                                                                                        
+5:                                                                                                                                        
+   Master_mpagominimo Visa_delinquency Visa_status Visa_mfinanciacion_limite Visa_Fvencimiento Visa_Finiciomora Visa_msaldototal Visa_msaldopesos
+               <char>           <char>      <char>                    <char>            <char>           <char>           <char>           <char>
+1:                                                                                                                                               
+2:                                                                                                                                               
+3:                                                                                                                                               
+4:                                                                                                                                               
+5:                                                                                                                                               
+   Visa_msaldodolares Visa_mconsumospesos Visa_mconsumosdolares Visa_mlimitecompra Visa_madelantopesos Visa_madelantodolares Visa_fultimo_cierre
+               <char>              <char>                <char>             <char>              <char>                <char>              <char>
+1:                                                                                                                                              
+2:                                                                                                                                              
+3:                                                                                                                                              
+4:                                                                                                                                              
+5:                                                                                                                                              
+   Visa_mpagado Visa_mpagospesos Visa_mpagosdolares Visa_fechaalta Visa_mconsumototal Visa_cconsumos Visa_cadelantosefectivo Visa_mpagominimo
+         <char>           <char>             <char>         <char>             <char>         <char>                  <char>           <char>
+1:                                                                                                                                           
+2:                                                                                                                                           
+3:                                                                                                                                           
+4:                                                                                                                                           
+5:                                                                                                                                           
+[ reached 'max' / getOption("max.print") -- omitted 29 rows ]
+INFO [2025-11-26 15:36:33] Resumen de características con ceros/NaN guardada en columnas_con_cero_o_nan.csv
