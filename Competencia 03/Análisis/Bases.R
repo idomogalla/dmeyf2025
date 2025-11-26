@@ -1,6 +1,8 @@
 suppressPackageStartupMessages({
   if (!require("logger")) install.packages("logger")
   library("logger")
+  if (!require("R.utils")) install.packages("R.utils")
+  library("R.utils")
   if (!require("data.table")) install.packages("data.table")
   library("data.table")
   if (!require("ggplot2")) install.packages("ggplot2")
@@ -21,9 +23,10 @@ PARAM <- list()
 PARAM$experimento <- "Bases_Competencia_03" # nolint
 PARAM$dir_experimento <- paste0("~/buckets/b1/exp/", PARAM$experimento)
 PARAM$dir_dataset <- "~/buckets/b1/datasets/"
-PARAM$carpeta_logs <- "logs/"
+PARAM$name_dataset <- "datasets_competencia_03_ternaria.csv.gz"
+PARAM$carpeta_logs <- "logs"
 PARAM$archivo_summary_log <- "summary.txt"
-PARAM$carpeta_graficos <- "Plots/"
+PARAM$carpeta_graficos <- "Plots"
 
 # ----- Configuración del Logger -----
 # Creo la carpeta del experimento
@@ -54,7 +57,6 @@ cat(paste0("Fecha: ", Sys.time(), "\n\n"),
   append = TRUE
 )
 
-
 log_info("------------------------------------------------------")
 log_info("Inicio del script.")
 log_info(paste("El log se guardará en:", log_file))
@@ -65,7 +67,8 @@ log_info("------------------------------------------------------")
 # Sección 2: Lectura del Dataset
 #------------------------------------------------------
 log_info("Inicio de lectura del dataset...")
-dataset <- fread(file.path(PARAM$dir_dataset, "competencia_03_ternaria.csv.gz"), stringsAsFactors = TRUE)
+dataset <- fread(file.path(PARAM$dir_dataset, PARAM$name_dataset), stringsAsFactors = TRUE)
+dataset[, periodo0 := as.integer(foto_mes/100)*12 + foto_mes%%100]
 
 log_info("------------------------------------------------------")
 log_info(paste("Dataset leído con ", nrow(dataset), " filas y ", ncol(dataset), " columnas."))

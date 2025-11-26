@@ -1,0 +1,629 @@
+
+---
+title: "Reporte de Evolución de Características"
+output: html_document
+---
+
+<style>
+body {
+  /* Opcional: da un poco de margen a los lados */
+  padding-left: 5%;
+  padding-right: 5%;
+}
+.main-container {
+  /* Esta es la línea clave: anula el ancho fijo */
+  max-width: 95% !important;
+}
+</style>
+
+# Evolución de Características a lo Largo del Tiempo
+
+
+## active_quarter_evolucion.png
+![](Plots/active_quarter_evolucion.png)
+
+
+## cliente_vip_evolucion.png
+![](Plots/cliente_vip_evolucion.png)
+
+
+## internet_evolucion.png
+![](Plots/internet_evolucion.png)
+
+
+## cliente_edad_evolucion.png
+![](Plots/cliente_edad_evolucion.png)
+
+
+## cliente_antiguedad_evolucion.png
+![](Plots/cliente_antiguedad_evolucion.png)
+
+
+## mrentabilidad_evolucion.png
+![](Plots/mrentabilidad_evolucion.png)
+
+
+## mrentabilidad_annual_evolucion.png
+![](Plots/mrentabilidad_annual_evolucion.png)
+
+
+## mcomisiones_evolucion.png
+![](Plots/mcomisiones_evolucion.png)
+
+
+## mactivos_margen_evolucion.png
+![](Plots/mactivos_margen_evolucion.png)
+
+
+## mpasivos_margen_evolucion.png
+![](Plots/mpasivos_margen_evolucion.png)
+
+
+## cproductos_evolucion.png
+![](Plots/cproductos_evolucion.png)
+
+
+## tcuentas_evolucion.png
+![](Plots/tcuentas_evolucion.png)
+
+
+## ccuenta_corriente_evolucion.png
+![](Plots/ccuenta_corriente_evolucion.png)
+
+
+## mcuenta_corriente_adicional_evolucion.png
+![](Plots/mcuenta_corriente_adicional_evolucion.png)
+
+
+## mcuenta_corriente_evolucion.png
+![](Plots/mcuenta_corriente_evolucion.png)
+
+
+## ccaja_ahorro_evolucion.png
+![](Plots/ccaja_ahorro_evolucion.png)
+
+
+## mcaja_ahorro_evolucion.png
+![](Plots/mcaja_ahorro_evolucion.png)
+
+
+## mcaja_ahorro_adicional_evolucion.png
+![](Plots/mcaja_ahorro_adicional_evolucion.png)
+
+
+## mcaja_ahorro_dolares_evolucion.png
+![](Plots/mcaja_ahorro_dolares_evolucion.png)
+
+
+## cdescubierto_preacordado_evolucion.png
+![](Plots/cdescubierto_preacordado_evolucion.png)
+
+
+## mcuentas_saldo_evolucion.png
+![](Plots/mcuentas_saldo_evolucion.png)
+
+
+## ctarjeta_debito_evolucion.png
+![](Plots/ctarjeta_debito_evolucion.png)
+
+
+## ctarjeta_debito_transacciones_evolucion.png
+![](Plots/ctarjeta_debito_transacciones_evolucion.png)
+
+
+## mautoservicio_evolucion.png
+![](Plots/mautoservicio_evolucion.png)
+
+
+## ctarjeta_visa_evolucion.png
+![](Plots/ctarjeta_visa_evolucion.png)
+
+
+## ctarjeta_visa_transacciones_evolucion.png
+![](Plots/ctarjeta_visa_transacciones_evolucion.png)
+
+
+## mtarjeta_visa_consumo_evolucion.png
+![](Plots/mtarjeta_visa_consumo_evolucion.png)
+
+
+## ctarjeta_master_evolucion.png
+![](Plots/ctarjeta_master_evolucion.png)
+
+
+## ctarjeta_master_transacciones_evolucion.png
+![](Plots/ctarjeta_master_transacciones_evolucion.png)
+
+
+## mtarjeta_master_consumo_evolucion.png
+![](Plots/mtarjeta_master_consumo_evolucion.png)
+
+
+## cprestamos_personales_evolucion.png
+![](Plots/cprestamos_personales_evolucion.png)
+
+
+## mprestamos_personales_evolucion.png
+![](Plots/mprestamos_personales_evolucion.png)
+
+
+## cprestamos_prendarios_evolucion.png
+![](Plots/cprestamos_prendarios_evolucion.png)
+
+
+## mprestamos_prendarios_evolucion.png
+![](Plots/mprestamos_prendarios_evolucion.png)
+
+
+## cprestamos_hipotecarios_evolucion.png
+![](Plots/cprestamos_hipotecarios_evolucion.png)
+
+
+## mprestamos_hipotecarios_evolucion.png
+![](Plots/mprestamos_hipotecarios_evolucion.png)
+
+
+## cplazo_fijo_evolucion.png
+![](Plots/cplazo_fijo_evolucion.png)
+
+
+## mplazo_fijo_dolares_evolucion.png
+![](Plots/mplazo_fijo_dolares_evolucion.png)
+
+
+## mplazo_fijo_pesos_evolucion.png
+![](Plots/mplazo_fijo_pesos_evolucion.png)
+
+
+## cinversion1_evolucion.png
+![](Plots/cinversion1_evolucion.png)
+
+
+## minversion1_pesos_evolucion.png
+![](Plots/minversion1_pesos_evolucion.png)
+
+
+## minversion1_dolares_evolucion.png
+![](Plots/minversion1_dolares_evolucion.png)
+
+
+## cinversion2_evolucion.png
+![](Plots/cinversion2_evolucion.png)
+
+
+## minversion2_evolucion.png
+![](Plots/minversion2_evolucion.png)
+
+
+## cseguro_vida_evolucion.png
+![](Plots/cseguro_vida_evolucion.png)
+
+
+## cseguro_auto_evolucion.png
+![](Plots/cseguro_auto_evolucion.png)
+
+
+## cseguro_vivienda_evolucion.png
+![](Plots/cseguro_vivienda_evolucion.png)
+
+
+## cseguro_accidentes_personales_evolucion.png
+![](Plots/cseguro_accidentes_personales_evolucion.png)
+
+
+## ccaja_seguridad_evolucion.png
+![](Plots/ccaja_seguridad_evolucion.png)
+
+
+## cpayroll_trx_evolucion.png
+![](Plots/cpayroll_trx_evolucion.png)
+
+
+## mpayroll_evolucion.png
+![](Plots/mpayroll_evolucion.png)
+
+
+## mpayroll2_evolucion.png
+![](Plots/mpayroll2_evolucion.png)
+
+
+## cpayroll2_trx_evolucion.png
+![](Plots/cpayroll2_trx_evolucion.png)
+
+
+## ccuenta_debitos_automaticos_evolucion.png
+![](Plots/ccuenta_debitos_automaticos_evolucion.png)
+
+
+## mcuenta_debitos_automaticos_evolucion.png
+![](Plots/mcuenta_debitos_automaticos_evolucion.png)
+
+
+## ctarjeta_visa_debitos_automaticos_evolucion.png
+![](Plots/ctarjeta_visa_debitos_automaticos_evolucion.png)
+
+
+## mttarjeta_visa_debitos_automaticos_evolucion.png
+![](Plots/mttarjeta_visa_debitos_automaticos_evolucion.png)
+
+
+## ctarjeta_master_debitos_automaticos_evolucion.png
+![](Plots/ctarjeta_master_debitos_automaticos_evolucion.png)
+
+
+## mttarjeta_master_debitos_automaticos_evolucion.png
+![](Plots/mttarjeta_master_debitos_automaticos_evolucion.png)
+
+
+## cpagodeservicios_evolucion.png
+![](Plots/cpagodeservicios_evolucion.png)
+
+
+## mpagodeservicios_evolucion.png
+![](Plots/mpagodeservicios_evolucion.png)
+
+
+## cpagomiscuentas_evolucion.png
+![](Plots/cpagomiscuentas_evolucion.png)
+
+
+## mpagomiscuentas_evolucion.png
+![](Plots/mpagomiscuentas_evolucion.png)
+
+
+## ccajeros_propios_descuentos_evolucion.png
+![](Plots/ccajeros_propios_descuentos_evolucion.png)
+
+
+## mcajeros_propios_descuentos_evolucion.png
+![](Plots/mcajeros_propios_descuentos_evolucion.png)
+
+
+## ctarjeta_visa_descuentos_evolucion.png
+![](Plots/ctarjeta_visa_descuentos_evolucion.png)
+
+
+## mtarjeta_visa_descuentos_evolucion.png
+![](Plots/mtarjeta_visa_descuentos_evolucion.png)
+
+
+## ctarjeta_master_descuentos_evolucion.png
+![](Plots/ctarjeta_master_descuentos_evolucion.png)
+
+
+## mtarjeta_master_descuentos_evolucion.png
+![](Plots/mtarjeta_master_descuentos_evolucion.png)
+
+
+## ccomisiones_mantenimiento_evolucion.png
+![](Plots/ccomisiones_mantenimiento_evolucion.png)
+
+
+## mcomisiones_mantenimiento_evolucion.png
+![](Plots/mcomisiones_mantenimiento_evolucion.png)
+
+
+## ccomisiones_otras_evolucion.png
+![](Plots/ccomisiones_otras_evolucion.png)
+
+
+## mcomisiones_otras_evolucion.png
+![](Plots/mcomisiones_otras_evolucion.png)
+
+
+## cforex_evolucion.png
+![](Plots/cforex_evolucion.png)
+
+
+## cforex_buy_evolucion.png
+![](Plots/cforex_buy_evolucion.png)
+
+
+## mforex_buy_evolucion.png
+![](Plots/mforex_buy_evolucion.png)
+
+
+## cforex_sell_evolucion.png
+![](Plots/cforex_sell_evolucion.png)
+
+
+## mforex_sell_evolucion.png
+![](Plots/mforex_sell_evolucion.png)
+
+
+## ctransferencias_recibidas_evolucion.png
+![](Plots/ctransferencias_recibidas_evolucion.png)
+
+
+## mtransferencias_recibidas_evolucion.png
+![](Plots/mtransferencias_recibidas_evolucion.png)
+
+
+## ctransferencias_emitidas_evolucion.png
+![](Plots/ctransferencias_emitidas_evolucion.png)
+
+
+## mtransferencias_emitidas_evolucion.png
+![](Plots/mtransferencias_emitidas_evolucion.png)
+
+
+## cextraccion_autoservicio_evolucion.png
+![](Plots/cextraccion_autoservicio_evolucion.png)
+
+
+## mextraccion_autoservicio_evolucion.png
+![](Plots/mextraccion_autoservicio_evolucion.png)
+
+
+## ccheques_depositados_evolucion.png
+![](Plots/ccheques_depositados_evolucion.png)
+
+
+## mcheques_depositados_evolucion.png
+![](Plots/mcheques_depositados_evolucion.png)
+
+
+## ccheques_emitidos_evolucion.png
+![](Plots/ccheques_emitidos_evolucion.png)
+
+
+## mcheques_emitidos_evolucion.png
+![](Plots/mcheques_emitidos_evolucion.png)
+
+
+## ccheques_depositados_rechazados_evolucion.png
+![](Plots/ccheques_depositados_rechazados_evolucion.png)
+
+
+## mcheques_depositados_rechazados_evolucion.png
+![](Plots/mcheques_depositados_rechazados_evolucion.png)
+
+
+## ccheques_emitidos_rechazados_evolucion.png
+![](Plots/ccheques_emitidos_rechazados_evolucion.png)
+
+
+## mcheques_emitidos_rechazados_evolucion.png
+![](Plots/mcheques_emitidos_rechazados_evolucion.png)
+
+
+## tcallcenter_evolucion.png
+![](Plots/tcallcenter_evolucion.png)
+
+
+## ccallcenter_transacciones_evolucion.png
+![](Plots/ccallcenter_transacciones_evolucion.png)
+
+
+## thomebanking_evolucion.png
+![](Plots/thomebanking_evolucion.png)
+
+
+## chomebanking_transacciones_evolucion.png
+![](Plots/chomebanking_transacciones_evolucion.png)
+
+
+## ccajas_transacciones_evolucion.png
+![](Plots/ccajas_transacciones_evolucion.png)
+
+
+## ccajas_consultas_evolucion.png
+![](Plots/ccajas_consultas_evolucion.png)
+
+
+## ccajas_depositos_evolucion.png
+![](Plots/ccajas_depositos_evolucion.png)
+
+
+## ccajas_extracciones_evolucion.png
+![](Plots/ccajas_extracciones_evolucion.png)
+
+
+## ccajas_otras_evolucion.png
+![](Plots/ccajas_otras_evolucion.png)
+
+
+## catm_trx_evolucion.png
+![](Plots/catm_trx_evolucion.png)
+
+
+## matm_evolucion.png
+![](Plots/matm_evolucion.png)
+
+
+## catm_trx_other_evolucion.png
+![](Plots/catm_trx_other_evolucion.png)
+
+
+## matm_other_evolucion.png
+![](Plots/matm_other_evolucion.png)
+
+
+## ctrx_quarter_evolucion.png
+![](Plots/ctrx_quarter_evolucion.png)
+
+
+## tmobile_app_evolucion.png
+![](Plots/tmobile_app_evolucion.png)
+
+
+## cmobile_app_trx_evolucion.png
+![](Plots/cmobile_app_trx_evolucion.png)
+
+
+## Master_delinquency_evolucion.png
+![](Plots/Master_delinquency_evolucion.png)
+
+
+## Master_status_evolucion.png
+![](Plots/Master_status_evolucion.png)
+
+
+## Master_mfinanciacion_limite_evolucion.png
+![](Plots/Master_mfinanciacion_limite_evolucion.png)
+
+
+## Master_Fvencimiento_evolucion.png
+![](Plots/Master_Fvencimiento_evolucion.png)
+
+
+## Master_Finiciomora_evolucion.png
+![](Plots/Master_Finiciomora_evolucion.png)
+
+
+## Master_msaldototal_evolucion.png
+![](Plots/Master_msaldototal_evolucion.png)
+
+
+## Master_msaldopesos_evolucion.png
+![](Plots/Master_msaldopesos_evolucion.png)
+
+
+## Master_msaldodolares_evolucion.png
+![](Plots/Master_msaldodolares_evolucion.png)
+
+
+## Master_mconsumospesos_evolucion.png
+![](Plots/Master_mconsumospesos_evolucion.png)
+
+
+## Master_mconsumosdolares_evolucion.png
+![](Plots/Master_mconsumosdolares_evolucion.png)
+
+
+## Master_mlimitecompra_evolucion.png
+![](Plots/Master_mlimitecompra_evolucion.png)
+
+
+## Master_madelantopesos_evolucion.png
+![](Plots/Master_madelantopesos_evolucion.png)
+
+
+## Master_madelantodolares_evolucion.png
+![](Plots/Master_madelantodolares_evolucion.png)
+
+
+## Master_fultimo_cierre_evolucion.png
+![](Plots/Master_fultimo_cierre_evolucion.png)
+
+
+## Master_mpagado_evolucion.png
+![](Plots/Master_mpagado_evolucion.png)
+
+
+## Master_mpagospesos_evolucion.png
+![](Plots/Master_mpagospesos_evolucion.png)
+
+
+## Master_mpagosdolares_evolucion.png
+![](Plots/Master_mpagosdolares_evolucion.png)
+
+
+## Master_fechaalta_evolucion.png
+![](Plots/Master_fechaalta_evolucion.png)
+
+
+## Master_mconsumototal_evolucion.png
+![](Plots/Master_mconsumototal_evolucion.png)
+
+
+## Master_cconsumos_evolucion.png
+![](Plots/Master_cconsumos_evolucion.png)
+
+
+## Master_cadelantosefectivo_evolucion.png
+![](Plots/Master_cadelantosefectivo_evolucion.png)
+
+
+## Master_mpagominimo_evolucion.png
+![](Plots/Master_mpagominimo_evolucion.png)
+
+
+## Visa_delinquency_evolucion.png
+![](Plots/Visa_delinquency_evolucion.png)
+
+
+## Visa_status_evolucion.png
+![](Plots/Visa_status_evolucion.png)
+
+
+## Visa_mfinanciacion_limite_evolucion.png
+![](Plots/Visa_mfinanciacion_limite_evolucion.png)
+
+
+## Visa_Fvencimiento_evolucion.png
+![](Plots/Visa_Fvencimiento_evolucion.png)
+
+
+## Visa_Finiciomora_evolucion.png
+![](Plots/Visa_Finiciomora_evolucion.png)
+
+
+## Visa_msaldototal_evolucion.png
+![](Plots/Visa_msaldototal_evolucion.png)
+
+
+## Visa_msaldopesos_evolucion.png
+![](Plots/Visa_msaldopesos_evolucion.png)
+
+
+## Visa_msaldodolares_evolucion.png
+![](Plots/Visa_msaldodolares_evolucion.png)
+
+
+## Visa_mconsumospesos_evolucion.png
+![](Plots/Visa_mconsumospesos_evolucion.png)
+
+
+## Visa_mconsumosdolares_evolucion.png
+![](Plots/Visa_mconsumosdolares_evolucion.png)
+
+
+## Visa_mlimitecompra_evolucion.png
+![](Plots/Visa_mlimitecompra_evolucion.png)
+
+
+## Visa_madelantopesos_evolucion.png
+![](Plots/Visa_madelantopesos_evolucion.png)
+
+
+## Visa_madelantodolares_evolucion.png
+![](Plots/Visa_madelantodolares_evolucion.png)
+
+
+## Visa_fultimo_cierre_evolucion.png
+![](Plots/Visa_fultimo_cierre_evolucion.png)
+
+
+## Visa_mpagado_evolucion.png
+![](Plots/Visa_mpagado_evolucion.png)
+
+
+## Visa_mpagospesos_evolucion.png
+![](Plots/Visa_mpagospesos_evolucion.png)
+
+
+## Visa_mpagosdolares_evolucion.png
+![](Plots/Visa_mpagosdolares_evolucion.png)
+
+
+## Visa_fechaalta_evolucion.png
+![](Plots/Visa_fechaalta_evolucion.png)
+
+
+## Visa_mconsumototal_evolucion.png
+![](Plots/Visa_mconsumototal_evolucion.png)
+
+
+## Visa_cconsumos_evolucion.png
+![](Plots/Visa_cconsumos_evolucion.png)
+
+
+## Visa_cadelantosefectivo_evolucion.png
+![](Plots/Visa_cadelantosefectivo_evolucion.png)
+
+
+## Visa_mpagominimo_evolucion.png
+![](Plots/Visa_mpagominimo_evolucion.png)
+
+
