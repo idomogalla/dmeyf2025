@@ -1,14 +1,15 @@
 #!/usr/bin/env Rscript
 # limpio la memoria
-rm(list=ls(all.names=TRUE)) # remove all objects
-gc(full=TRUE, verbose=FALSE) # garbage collection
+rm(list = ls(all.names = TRUE)) # remove all objects
+gc(full = TRUE, verbose = FALSE) # garbage collection
 
 # Instalo y cargo las librerías que se usan en el workflow
 if (!require("data.table")) install.packages("data.table")
 if (!require("Rcpp")) install.packages("Rcpp")
 if (!require("zlightgbm")) {
   install.packages("https://storage.googleapis.com/open-courses/dmeyf2025-e4a2/zlightgbm_4.6.0.99.tar.gz",
-                   repos = NULL, type = "source")
+    repos = NULL, type = "source"
+  )
 }
 if (!require("DiceKriging")) install.packages("DiceKriging")
 if (!require("mlrMBO")) install.packages("mlrMBO")
@@ -38,8 +39,8 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "competencia02"
-PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
+PARAM$experimento <- "main"
+PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -53,13 +54,20 @@ PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 # Path a la carpeta de salida del experimento
 PARAM$output_folder <- "~/buckets/b1/exp"
 PARAM$experimento_folder <- file.path(PARAM$output_folder, PARAM$experimento)
-dir.create(PARAM$experimento_folder, showWarnings=FALSE)
+dir.create(PARAM$experimento_folder, showWarnings = FALSE)
 
 PARAM$carpeta_bayesiana <- "Bayesiana" # Aunque no la usemos, los scripts la referencian
 PARAM$carpeta_evaluacion <- "Evaluacion"
 PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 PARAM$modelos_folder <- "Modelos"
+
+# FE Intra Mes
+PARAM$intra_mes$ejecutar_originales <- TRUE # Las del script base (kmes, vm_status, etc)
+PARAM$intra_mes$ejecutar_ratios <- TRUE # Nuevos ratios
+PARAM$intra_mes$ejecutar_totales <- FALSE # Apagado (ejemplo)
+PARAM$intra_mes$ejecutar_comportamiento <- TRUE # Intensidad y diversificación
+PARAM$intra_mes$ejecutar_riesgo <- TRUE # Flags y scores
 
 # Parámetros de Feature Engineering Histórico
 # Lags
@@ -79,7 +87,7 @@ PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
 PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
-PARAM$FE_hist$MovingAverages$vs_actual <- TRUE #Media móvil vs valor actual
+PARAM$FE_hist$MovingAverages$vs_actual <- TRUE # Media móvil vs valor actual
 
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
@@ -129,70 +137,85 @@ PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar",
 
 # Parámetros fijos de zLightGBM
 PARAM$lgbm_z <- list(
-  boosting= "gbdt",
-  objective= "binary",
-  metric= "custom",
-  first_metric_only= FALSE,
-  boost_from_average= TRUE,
-  feature_pre_filter= FALSE,
-  force_row_wise= TRUE,
-  verbosity= -100,
+  boosting = "gbdt",
+  objective = "binary",
+  metric = "custom",
+  first_metric_only = FALSE,
+  boost_from_average = TRUE,
+  feature_pre_filter = FALSE,
+  force_row_wise = TRUE,
+  verbosity = -100,
+  seed = PARAM$semilla_primigenia,
+  max_bin = 31L,
+  min_data_in_leaf = 20L, # este ya es el valor default de LightGBM
 
-  seed= PARAM$semilla_primigenia,
+  num_iterations = 9999L, # dejo libre la cantidad de arboles, zLightGBM se detiene solo
+  num_leaves = 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
+  learning_rate = 1.0, # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
 
-  max_bin= 31L,
-  min_data_in_leaf= 20L,  #este ya es el valor default de LightGBM
+  feature_fraction = 0.50, # un valor equilibrado, habra que probar alternativas ...
 
-  num_iterations= 9999L, # dejo libre la cantidad de arboles, zLightGBM se detiene solo
-  num_leaves= 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
-  learning_rate= 1.0,  # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
-    
-  feature_fraction= 0.50, # un valor equilibrado, habra que probar alternativas ...
-    
-  canaritos= PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
-  gradient_bound= 0.1   # default de zLightGBM
+  canaritos = PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
+  gradient_bound = 0.1 # default de zLightGBM
 )
 
-# Parámetros para el entrenamiento final y predicción (Script 12)
+# Parámetros para la evaluación
+PARAM$evaluacion <- list()
+PARAM$evaluacion$produccion <- FALSE # Se activa para generar un archivo final con clase desconocida
+PARAM$evaluacion$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
+PARAM$evaluacion$future <- c(202107) # Mes para predecir (ej: 202108)
+PARAM$evaluacion$training <- c(
+  201901, 201902, 201903, 201904, 201905, 201906,
+  201907, 201908, 201909, 201910, 201911, 201912,
+  202001, 202002, 202003, 202004, 202005, 202006,
+  202007, 202008, 202009, 202010, 202011, 202012,
+  202101, 202102, 202103, 202104, 202105, 202105
+)
+PARAM$evaluacion$undersampling <- 0.10
+PARAM$evaluacion$iter <- 5
+PARAM$evaluacion$ksemillerio <- 10
+PARAM$evaluacion$cortes_evaluacion <- seq(0, 20000, by = 500)
+
+# Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()
-PARAM$train_final$produccion <- TRUE # Se activa para generar un archivo final con clase desconocida
-PARAM$train_final$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
-PARAM$train_final$future <- c(202108) # Mes para predecir (ej: 202108)
+PARAM$train_final$envios_a_generar <- c(10500, 11000)
+PARAM$train_final$future <- c(202107)
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104, 202105, 202106
+  202101, 202102, 202103, 202104, 202105, 202105
 )
-PARAM$train_final$undersampling <- 0.1 # Undersampling
-PARAM$train_final$ksemillerio <- 15 # Semillerio para modelo final
+PARAM$train_final$undersampling <- 0.10
+PARAM$train_final$ksemillerio <- 50
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
 #------------------------------------------------------------------------------
 source_con_log <- function(script_path, script_name) {
-  
   log_info(paste("--- Iniciando:", script_name, "---"))
   t_inicio <- Sys.time()
-  
-  tryCatch({
-    source(script_path, local = FALSE) 
-    
-    t_fin <- Sys.time()
-    duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
-    
-    log_info(paste("--- Fin:", script_name, ". Duración:", duracion, "segundos. ---"))
-    
-  }, error = function(e) {
-    t_fin <- Sys.time()
-    duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
-    log_error(paste("--- ERROR en:", script_name, "tras", duracion, "segundos. ---"))
-    log_error(paste("Mensaje de R:", e$message))
-    
-    stop("Error en el script: ", script_name, ". Deteniendo el workflow.") 
-  })
-  
+
+  tryCatch(
+    {
+      source(script_path, local = FALSE)
+
+      t_fin <- Sys.time()
+      duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
+
+      log_info(paste("--- Fin:", script_name, ". Duración:", duracion, "segundos. ---"))
+    },
+    error = function(e) {
+      t_fin <- Sys.time()
+      duracion <- round(as.numeric(difftime(t_fin, t_inicio, units = "secs")), 2)
+      log_error(paste("--- ERROR en:", script_name, "tras", duracion, "segundos. ---"))
+      log_error(paste("Mensaje de R:", e$message))
+
+      stop("Error en el script: ", script_name, ". Deteniendo el workflow.")
+    }
+  )
+
   log_info("--------------------------------------------------") # Separador
 }
 
@@ -208,13 +231,15 @@ log_info(paste("La salida del experimento se guardará en:", PARAM$experimento_f
 log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
-source_con_log(file.path(home_dir, "1_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "2_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
-source_con_log(file.path(home_dir, "3_Data_Quality.R"), "3_Data_Quality.R")
-source_con_log(file.path(home_dir, "4_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
-source_con_log(file.path(home_dir, "5_Data_Drifting.R"), "5_Data_Drifting.R")
-source_con_log(file.path(home_dir, "6_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
-source_con_log(file.path(home_dir, "7_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
-source_con_log(file.path(home_dir, "8_Modelo_Final.R"), "12_Modelo_Final.R")
+source_con_log(file.path(home_dir, "01_Preprocesamiento.R"), "1_Preprocesamiento.R")
+source_con_log(file.path(home_dir, "02_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
+source_con_log(file.path(home_dir, "03_Data_Quality.R"), "3_Data_Quality.R")
+source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
+source_con_log(file.path(home_dir, "05_Data_Drifting.R"), "5_Data_Drifting.R")
+source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
+source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "08_Evaluacion.R"), "8_Evaluacion.R")
+source_con_log(file.path(home_dir, "09_Evaluacion_APO.R"), "9_Evaluacion_APO.R")
+source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")
