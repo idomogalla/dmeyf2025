@@ -172,9 +172,9 @@ PARAM$evaluacion$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104, 202105, 202105
 )
-PARAM$evaluacion$undersampling <- 0.10
-PARAM$evaluacion$iter <- 5
-PARAM$evaluacion$ksemillerio <- 10
+PARAM$evaluacion$undersampling <- 0.05
+PARAM$evaluacion$iter <- 1
+PARAM$evaluacion$ksemillerio <- 1
 PARAM$evaluacion$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción
@@ -189,7 +189,7 @@ PARAM$train_final$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104, 202105, 202105
 )
-PARAM$train_final$undersampling <- 0.10
+PARAM$train_final$undersampling <- 0.05
 PARAM$train_final$ksemillerio <- 50
 
 #------------------------------------------------------------------------------
@@ -242,6 +242,6 @@ source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Fea
 source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "08_Evaluacion.R"), "8_Evaluacion.R")
 source_con_log(file.path(home_dir, "09_Evaluacion_APO.R"), "9_Evaluacion_APO.R")
-source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
+# source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")
