@@ -9,7 +9,7 @@
 #    * UVA  Unidad de Valor Adquisitivo
 setorder(dataset, numero_de_cliente, foto_mes)
 
-# --- 1. Definir la función de ranking ---
+# --- Definir la función de ranking ---
 rank_cero_fijo <- function(x) {
     resultado <- numeric(length(x))
     is_na <- is.na(x)

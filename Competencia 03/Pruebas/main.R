@@ -46,9 +46,12 @@ PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 PARAM$qcanaritos <- 5L
 
 # Path a los datos de entrada
-PARAM$generar_ternaria <- TRUE
+PARAM$generar_ternaria <- FALSE
 PARAM$dir_dataset <- "~/buckets/b1/datasets"
-PARAM$dataset_name <- "competencia_02_crudo.csv.gz"
+# PARAM$dataset_name <- "competencia_03_crudo.csv.gz"
+PARAM$dataset_hist_name <- "competencia_02_crudo.csv.gz"
+PARAM$dataset_ternaria_name <- "competencia_03_ternaria.csv.gz"
+PARAM$dataset_name <- "competencia_03_ternaria.csv.gz"
 PARAM$input_dataset <- file.path(PARAM$dir_dataset, PARAM$dataset_name)
 
 # Path a la carpeta de salida del experimento
@@ -63,11 +66,11 @@ PARAM$carpeta_entregables <- "Entregables"
 PARAM$modelos_folder <- "Modelos"
 
 # FE Intra Mes
-PARAM$intra_mes$ejecutar_originales <- TRUE # Las del script base (kmes, vm_status, etc)
-PARAM$intra_mes$ejecutar_ratios <- TRUE # Nuevos ratios
-PARAM$intra_mes$ejecutar_totales <- FALSE # Apagado (ejemplo)
-PARAM$intra_mes$ejecutar_comportamiento <- TRUE # Intensidad y diversificación
-PARAM$intra_mes$ejecutar_riesgo <- TRUE # Flags y scores
+PARAM$intra_mes$ejecutar_originales <- TRUE
+PARAM$intra_mes$ejecutar_ratios <- FALSE
+PARAM$intra_mes$ejecutar_totales <- FALSE
+PARAM$intra_mes$ejecutar_comportamiento <- FALSE
+PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Feature Engineering Histórico
 # Lags
@@ -161,9 +164,7 @@ PARAM$lgbm_z <- list(
 
 # Parámetros para la evaluación
 PARAM$evaluacion <- list()
-PARAM$evaluacion$produccion <- FALSE # Se activa para generar un archivo final con clase desconocida
-PARAM$evaluacion$envios_a_generar <- c(10500, 11000) # Se debe obtener a partir del análisis previo
-PARAM$evaluacion$future <- c(202107) # Mes para predecir (ej: 202108)
+PARAM$evaluacion$future <- c(202107) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
@@ -178,8 +179,9 @@ PARAM$evaluacion$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()
+PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final sin evaluación previa
 PARAM$train_final$envios_a_generar <- c(10500, 11000)
-PARAM$train_final$future <- c(202107)
+PARAM$train_final$future <- c(202107) # Mes para predecir
 PARAM$train_final$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,

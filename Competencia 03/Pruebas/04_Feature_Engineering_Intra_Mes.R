@@ -49,23 +49,23 @@ AgregarVariables_IntraMes <- function(dataset,
   # Tracking de columnas
   columnas_originales <- copy(colnames(dataset))
 
+  log_info("Agregando variables extraídas del workflow jueves.")
+
+  dataset[, kmes := foto_mes %% 100]
+
+  dataset[, ctrx_quarter_normalizado := as.numeric(ctrx_quarter)]
+  dataset[cliente_antiguedad == 1, ctrx_quarter_normalizado := ctrx_quarter * 5.0]
+  dataset[cliente_antiguedad == 2, ctrx_quarter_normalizado := ctrx_quarter * 2.0]
+  dataset[cliente_antiguedad == 3, ctrx_quarter_normalizado := ctrx_quarter * 1.2]
+
+  # Variable extraída de tesis de maestría - Usar versión rankeada si existe
+  mpayroll_col <- get_col_name("mpayroll", colnames(dataset))
+  if (!is.null(mpayroll_col)) {
+    dataset[, mpayroll_sobre_edad := get(mpayroll_col) / cliente_edad]
+  }
+
   # BLOQUE 1: VARIABLES ORIGINALES DEL SCRIPT
   if (run_originales) {
-    log_info("Variables Originales (Base)")
-
-    dataset[, kmes := foto_mes %% 100]
-
-    dataset[, ctrx_quarter_normalizado := as.numeric(ctrx_quarter)]
-    dataset[cliente_antiguedad == 1, ctrx_quarter_normalizado := ctrx_quarter * 5.0]
-    dataset[cliente_antiguedad == 2, ctrx_quarter_normalizado := ctrx_quarter * 2.0]
-    dataset[cliente_antiguedad == 3, ctrx_quarter_normalizado := ctrx_quarter * 1.2]
-
-    # Variable extraída de tesis de maestría - Usar versión rankeada si existe
-    mpayroll_col <- get_col_name("mpayroll", colnames(dataset))
-    if (!is.null(mpayroll_col)) {
-      dataset[, mpayroll_sobre_edad := get(mpayroll_col) / cliente_edad]
-    }
-
     if (atributos_presentes(c("Master_status", "Visa_status"))) {
       dataset[, vm_status01 := pmax(Master_status, Visa_status, na.rm = TRUE)]
       dataset[, vm_status02 := Master_status + Visa_status]
