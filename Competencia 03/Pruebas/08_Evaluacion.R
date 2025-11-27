@@ -272,31 +272,6 @@ tryCatch(
     log_info(paste("Directorio de Gráficos creado en:", dir_graficos))
     log_info(paste("Directorio de Evaluación creado en:", dir_evaluacion))
 
-    # Feature Importance de la Semilla Primigenia
-    log_info(paste("Generando Feature Importance para la semilla primigenia:", PARAM$semilla_primigenia))
-
-    param_primigenia <- copy(param_mejores)
-    param_primigenia$seed <- PARAM$semilla_primigenia
-
-    modelo_primigenia <- lgb.train(data = dtrain, param = param_primigenia)
-
-    imp_primigenia <- lgb.importance(modelo_primigenia, percentage = TRUE)
-    imp_ordenada_primigenia <- imp_primigenia[order(-Gain)]
-
-    ruta_csv_imp_pri <- file.path(dir_evaluacion, "fi_primigenia.csv")
-    fwrite(imp_ordenada_primigenia, file = ruta_csv_imp_pri)
-    log_info(paste("Importancia de features (primigenia) guardada en:", ruta_csv_imp_pri))
-
-    ruta_grafico_imp_pri <- file.path(dir_graficos, "fi_primigenia.png")
-    GraficarImportancia(imp_ordenada_primigenia,
-      top_n = PARAM$trainingstrategy$importancias,
-      ruta_grafico = ruta_grafico_imp_pri,
-      subtitulo = paste(PARAM$experimento, "- Semilla Primigenia:", PARAM$semilla_primigenia)
-    )
-
-    rm(modelo_primigenia, imp_primigenia, imp_ordenada_primigenia)
-    gc()
-
     # Bucle de Entrenamiento y Evaluación del Ensamble
     total_semillas <- PARAM$evaluacion$ksemillerio * PARAM$evaluacion$iter
 
