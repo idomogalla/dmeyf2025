@@ -272,6 +272,10 @@ tryCatch(
     log_info(paste("Directorio de Gráficos creado en:", dir_graficos))
     log_info(paste("Directorio de Evaluación creado en:", dir_evaluacion))
 
+    dir_modelos <- file.path(PARAM$experimento_folder, PARAM$modelos_folder)
+    dir.create(dir_modelos, recursive = TRUE, showWarnings = FALSE)
+    log_info(paste("Directorio de Modelos creado en:", dir_modelos))
+
     # Bucle de Entrenamiento y Evaluación del Ensamble
     total_semillas <- PARAM$evaluacion$ksemillerio * PARAM$evaluacion$iter
 
@@ -312,8 +316,21 @@ tryCatch(
     for (semilla_actual in semillas_a_evaluar) {
       log_info(paste0("--- Procesando semilla: ", semilla_actual, " ---"))
 
-      param_entrenamiento$seed <- semilla_actual
-      modelo <- lgb.train(data = dtrain, param = param_entrenamiento)
+      # Verificar si el modelo ya existe
+      ruta_modelo <- file.path(dir_modelos, paste0("mod_", semilla_actual, ".txt"))
+
+      if (file.exists(ruta_modelo)) {
+        log_info(paste("Modelo existente encontrado. Cargando desde:", ruta_modelo))
+        modelo <- lgb.load(filename = ruta_modelo)
+      } else {
+        log_info(paste("Modelo no encontrado. Entrenando nuevo modelo para semilla:", semilla_actual))
+        param_entrenamiento$seed <- semilla_actual
+        modelo <- lgb.train(data = dtrain, param = param_entrenamiento)
+
+        # Guardar el modelo
+        lgb.save(modelo, filename = ruta_modelo)
+        log_info(paste("Modelo guardado en:", ruta_modelo))
+      }
 
       imp <- lgb.importance(modelo, percentage = TRUE)
       lista_importancia[[as.character(semilla_actual)]] <- imp
@@ -542,10 +559,25 @@ tryCatch(
     )
     log_info(paste0("Resumen de ganancias (Gran Ensamble) guardado en: ", ruta_resumen_txt))
 
-    rm(resultados_ensamble, tb_prediccion_ensamble)
+    # --- Limpieza de Memoria ---
+    log_info("Limpiando memoria de objetos locales de 08_Evaluacion.R")
+    rm(
+      resultados_ensamble,
+      tb_prediccion_ensamble,
+      drealidad,
+      lista_resultados_individuales,
+      resumen_ganancias,
+      imp_ordenada,
+      cortes_evaluacion,
+      param_mejores,
+      param_entrenamiento,
+      primos,
+      semillas_a_evaluar,
+      dir_graficos,
+      dir_evaluacion,
+      dir_modelos
+    )
     gc()
-
-    # APO logic removed as per requirements
   },
   error = function(e) {
     log_error("######################################################")
