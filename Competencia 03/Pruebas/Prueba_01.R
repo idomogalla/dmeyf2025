@@ -134,9 +134,10 @@ PARAM$FE_rf$lgb_param <- list(
   gradient_bound = 0 # Me aseguro que es un LGBM común
 )
 
-# Parámetros de Training Strategy (para Script 11 - Evaluación)
+# Parámetros de Training Strategy
 PARAM$trainingstrategy <- list()
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
+PARAM$trainingstrategy$importancias <- 100
 
 # Parámetros fijos de zLightGBM
 PARAM$lgbm_z <- list(
@@ -217,7 +218,7 @@ source_con_log <- function(script_path, script_name) {
     }
   )
 
-  log_info("--------------------------------------------------") # Separador
+  log_info("--------------------------------------------------")
 }
 
 #------------------------------------------------------------------------------
