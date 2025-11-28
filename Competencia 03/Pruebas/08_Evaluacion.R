@@ -342,7 +342,7 @@ tryCatch(
 
       ruta_grafico_ind <- file.path(dir_graficos, paste0("fi_semilla_", semilla_actual, ".png"))
       GraficarImportancia(imp_ordenada_ind,
-        top_n = PARAM$trainingstrategy$importancias,
+        top_n = PARAM$evaluacion$importancias,
         ruta_grafico = ruta_grafico_ind,
         subtitulo = paste(PARAM$experimento, "- Semilla:", semilla_actual)
       )
@@ -423,7 +423,7 @@ tryCatch(
 
     ruta_grafico_imp <- file.path(dir_graficos, "fi_ensemble.png")
     GraficarImportancia(imp_ordenada,
-      top_n = PARAM$trainingstrategy$importancias,
+      top_n = PARAM$evaluacion$importancias,
       ruta_grafico = ruta_grafico_imp,
       subtitulo = paste(PARAM$experimento, "- Promedio de", length(semillas_a_evaluar), "semillas")
     )

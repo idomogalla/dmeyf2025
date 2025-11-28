@@ -137,7 +137,6 @@ PARAM$FE_rf$lgb_param <- list(
 # Parámetros de Training Strategy
 PARAM$trainingstrategy <- list()
 PARAM$trainingstrategy$campos_entrenar <- c("clase_ternaria", "clase01", "azar", "training")
-PARAM$trainingstrategy$importancias <- 100
 
 # Parámetros fijos de zLightGBM
 PARAM$lgbm_z <- list(
@@ -164,6 +163,7 @@ PARAM$lgbm_z <- list(
 
 # Parámetros para la evaluación
 PARAM$evaluacion <- list()
+PARAM$evaluacion$importancias <- 100
 PARAM$evaluacion$future <- c(202107) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
