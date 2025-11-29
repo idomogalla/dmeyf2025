@@ -290,18 +290,18 @@ tryCatch(
       log_info("--- Muestra de los datos creados en el proceso de Lags ---")
       tryCatch(
         {
-          # 1. Seleccionar la PRIMERA columna lagueable como ejemplo
-          col_ejemplo <- cols_lagueables[6] # (o la que prefieras)
+          # Seleccionar la columna lagueable como ejemplo
+          col_ejemplo <- "mpayroll"
           log_info(paste("Mostrando ejemplos para la columna:", col_ejemplo))
 
-          # 2. Seleccionar 5 IDs de cliente al azar
+          # Seleccionar 5 IDs de cliente al azar
           ids_unicos <- unique(dataset$numero_de_cliente)
           n_sample <- min(5, length(ids_unicos)) # Tomar 5 (o menos, si hay menos de 5 IDs)
           ids_sample <- sample(ids_unicos, n_sample)
 
           log_info(paste("Mostrando IDs de muestra:", paste(ids_sample, collapse = ", ")))
 
-          # 3. Definir todas las columnas que queremos mostrar
+          # Definir todas las columnas que queremos mostrar
           lags_a_mostrar <- paste0(col_ejemplo, "_lag", PARAM$FE_hist$lags$n_lags)
           deltas_a_mostrar <- paste0(col_ejemplo, "_delta", PARAM$FE_hist$lags$n_lags)
 
@@ -317,7 +317,7 @@ tryCatch(
             lags_a_mostrar, deltas_a_mostrar, accel_a_mostrar
           )
 
-          # 4. Crear la tabla de muestra
+          # Crear la tabla de muestra
           # Tomamos las últimas 6 filas por cada cliente
           dt_sample <- dataset[numero_de_cliente %in% ids_sample,
             tail(.SD, 6L),
@@ -325,7 +325,7 @@ tryCatch(
             .SDcols = intersect(cols_a_mostrar, colnames(dataset))
           ] # Intersect previene errores si una col no se creó
 
-          # 5. Capturar el 'print' de la tabla y mandarlo al log
+          # Capturar el 'print' de la tabla y mandarlo al log
           if (nrow(dt_sample) > 0) {
             log_info(
               paste(
@@ -337,7 +337,7 @@ tryCatch(
             log_info("No se pudo generar la tabla de muestra (dt_sample está vacía).")
           }
 
-          # 6. Verificación de borrado de lags temporales
+          # Verificación de borrado de lags temporales
           if (PARAM$FE_hist$lags$aceleracion && length(k_aceleracion_log) > 0) {
             log_info("--- Verificación de borrado de lags temporales ---")
             k_dobles_necesarios_log <- unique(k_aceleracion_log * 2)

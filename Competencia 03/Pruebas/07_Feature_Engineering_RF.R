@@ -38,18 +38,15 @@ AgregaVarRandomForest <- function() {
 
   for (periodo in periodos)
   {
-    log_info(paste("Periodo:", periodo))
     datamatrix <- data.matrix(dataset[foto_mes == periodo, campos_buenos, with = FALSE])
 
-    log_info("Inicio prediccion.")
     prediccion <- predict(
       modelo,
       datamatrix,
       type = "leaf"
     )
-    log_info("Fin prediccion.")
 
-    log_info(paste("Creando", qarbolitos, "arbolitos."))
+    log_info(paste("Creando", qarbolitos, "arbolitos para el periodo", periodo))
     for (arbolito in 1:qarbolitos)
     {
       hojas_arbol <- unique(prediccion[, arbolito])

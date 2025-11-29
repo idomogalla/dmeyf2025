@@ -290,8 +290,9 @@ tryCatch(
     PARAM$evaluacion$semillas <- sample(primos)[seq(total_semillas)]
 
     semillas_a_evaluar <- PARAM$evaluacion$semillas
+    numero_de_semillas <- length(semillas_a_evaluar)
 
-    log_info(paste0("Evaluando ", length(semillas_a_evaluar), " semilla(s)."))
+    log_info(paste0("Evaluando ", numero_de_semillas, " semilla(s)."))
     log_info(paste("Semillas a evaluar:", paste(semillas_a_evaluar, collapse = ", ")))
 
     # Guardar las semillas a evaluar para que el script APO las pueda usar (si fuera necesario)
@@ -311,10 +312,11 @@ tryCatch(
 
     param_entrenamiento <- copy(param_mejores)
 
-    log_info(paste0("Iniciando evaluación de ", length(semillas_a_evaluar), " semillas..."))
+    log_info(paste0("Iniciando evaluación de ", numero_de_semillas, " semillas..."))
 
-    for (semilla_actual in semillas_a_evaluar) {
-      log_info(paste0("--- Procesando semilla: ", semilla_actual, " ---"))
+    for (i in seq_along(semillas_a_evaluar)) {
+      semilla_actual <- semillas_a_evaluar[i]
+      log_info(paste0("--- Procesando semilla: ", semilla_actual, " (", i, "/", numero_de_semillas, ") ---"))
 
       # Verificar si el modelo ya existe
       ruta_modelo <- file.path(dir_modelos, paste0("mod_", semilla_actual, ".txt"))
@@ -425,7 +427,7 @@ tryCatch(
     GraficarImportancia(imp_ordenada,
       top_n = PARAM$evaluacion$importancias,
       ruta_grafico = ruta_grafico_imp,
-      subtitulo = paste(PARAM$experimento, "- Promedio de", length(semillas_a_evaluar), "semillas")
+      subtitulo = paste(PARAM$experimento, "- Promedio de", numero_de_semillas, "semillas")
     )
 
     # Evaluación del Ensamble Promediado
@@ -575,7 +577,8 @@ tryCatch(
       semillas_a_evaluar,
       dir_graficos,
       dir_evaluacion,
-      dir_modelos
+      dir_modelos,
+      numero_de_semillas
     )
     gc()
   },
