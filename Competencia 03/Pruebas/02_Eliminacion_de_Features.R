@@ -1,5 +1,3 @@
-log_info("")
-
 if (isTRUE(PARAM$eliminacion$prestamos_personales)) {
     log_info("Eliminando las variables mprestamos_personales, cprestamos_personales")
     dataset[, mprestamos_personales := NULL]
