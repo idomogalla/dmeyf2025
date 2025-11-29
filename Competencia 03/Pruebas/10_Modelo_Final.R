@@ -149,7 +149,7 @@ tryCatch(
     log_info(paste("Tabla de predicción guardada en:", file_prediccion))
 
     # Generar archivo con probabilidades (numero_de_cliente, prob)
-    file_probabilidades <- file.path(PARAM$experimento_folder, "prediccion_probabilidades_final.csv")
+    file_probabilidades <- file.path(PARAM$experimento_folder, paste0("prediccion_probabilidades_final_", PARAM$experimento, ".csv"))
     fwrite(tb_prediccion[, .(numero_de_cliente, prob)],
       file = file_probabilidades,
       sep = ",",

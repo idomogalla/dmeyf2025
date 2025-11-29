@@ -65,6 +65,11 @@ PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 PARAM$modelos_folder <- "Modelos"
 
+# Parámetros de eliminación de features
+PARAM$eliminacion$prestamos_personales <- TRUE
+PARAM$eliminacion$flip_internet <- FALSE
+PARAM$eliminacion$internet <- FALSE
+
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_monetarias <- FALSE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
@@ -176,7 +181,7 @@ PARAM$evaluacion$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104, 202105
 )
-PARAM$evaluacion$undersampling <- 0.1
+PARAM$evaluacion$undersampling <- 0.05
 PARAM$evaluacion$iter <- 10
 PARAM$evaluacion$ksemillerio <- 10
 PARAM$evaluacion$cortes_evaluacion <- seq(0, 20000, by = 500)

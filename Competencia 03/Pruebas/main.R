@@ -65,6 +65,11 @@ PARAM$carpeta_graficos <- "Plots"
 PARAM$carpeta_entregables <- "Entregables"
 PARAM$modelos_folder <- "Modelos"
 
+# Parámetros de eliminación de features
+PARAM$eliminacion$prestamos_personales <- TRUE
+PARAM$eliminacion$flip_internet <- FALSE
+PARAM$eliminacion$internet <- FALSE
+
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
