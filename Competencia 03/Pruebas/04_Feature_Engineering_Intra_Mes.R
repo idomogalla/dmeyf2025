@@ -31,7 +31,7 @@ col_exists <- function(base_name, dataset_cols) {
 # FUNCIÓN PRINCIPAL: Feature Engineering Intra-Mes
 #------------------------------------------------------------------------------
 AgregarVariables_IntraMes <- function(dataset,
-                                      run_originales = TRUE,
+                                      run_combinaciones_monetarias = TRUE,
                                       run_ratios = TRUE,
                                       run_totales = TRUE,
                                       run_comportamiento = TRUE,
@@ -40,7 +40,7 @@ AgregarVariables_IntraMes <- function(dataset,
   gc(verbose = FALSE)
 
   # Sanitización rápida (por si llegan NULLs)
-  if (is.null(run_originales)) run_originales <- TRUE
+  if (is.null(run_combinaciones_monetarias)) run_combinaciones_monetarias <- TRUE
   if (is.null(run_ratios)) run_ratios <- TRUE
   if (is.null(run_totales)) run_totales <- TRUE
   if (is.null(run_comportamiento)) run_comportamiento <- TRUE
@@ -64,8 +64,8 @@ AgregarVariables_IntraMes <- function(dataset,
     dataset[, mpayroll_sobre_edad := get(mpayroll_col) / cliente_edad]
   }
 
-  # BLOQUE 1: VARIABLES ORIGINALES DEL SCRIPT
-  if (run_originales) {
+  # Combinaciones monetarias
+  if (run_combinaciones_monetarias) {
     if (atributos_presentes(c("Master_status", "Visa_status"))) {
       dataset[, vm_status01 := pmax(Master_status, Visa_status, na.rm = TRUE)]
       dataset[, vm_status02 := Master_status + Visa_status]
@@ -396,7 +396,7 @@ AgregarVariables_IntraMes <- function(dataset,
 # Agrego variables
 AgregarVariables_IntraMes(
   dataset,
-  PARAM$intra_mes$ejecutar_originales,
+  PARAM$intra_mes$ejecutar_combinaciones_monetarias,
   PARAM$intra_mes$ejecutar_ratios,
   PARAM$intra_mes$ejecutar_totales,
   PARAM$intra_mes$ejecutar_comportamiento,

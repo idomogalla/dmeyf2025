@@ -66,7 +66,7 @@ PARAM$carpeta_entregables <- "Entregables"
 PARAM$modelos_folder <- "Modelos"
 
 # FE Intra Mes
-PARAM$intra_mes$ejecutar_originales <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
 PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE

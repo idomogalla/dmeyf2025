@@ -66,7 +66,7 @@ PARAM$carpeta_entregables <- "Entregables"
 PARAM$modelos_folder <- "Modelos"
 
 # FE Intra Mes
-PARAM$intra_mes$ejecutar_originales <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_monetarias <- FALSE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
 PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE
@@ -150,10 +150,13 @@ PARAM$lgbm_z <- list(
   verbosity = -100,
   seed = PARAM$semilla_primigenia,
   max_bin = 31L,
-  min_data_in_leaf = 200L,
+  min_data_in_leaf = 200L, # Default 20
+
   num_iterations = 64L,
-  num_leaves = 9999L,
-  learning_rate = 1.0,
+  num_leaves = 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
+  learning_rate = 1.0, # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
+
+  feature_fraction = 0.5,
   canaritos = PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
   gradient_bound = 0.4
 )
