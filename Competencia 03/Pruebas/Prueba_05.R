@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "Prueba_I05"
-PARAM$semilla_primigenia <- 102191
+PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -93,8 +93,8 @@ PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
-PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
-PARAM$FE_hist$MovingAverages$vs_actual <- FALSE # Media móvil vs valor actual
+PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
+PARAM$FE_hist$MovingAverages$vs_actual <- TRUE # Media móvil vs valor actual
 
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
@@ -162,7 +162,7 @@ PARAM$lgbm_z <- list(
 
   feature_fraction = 0.5,
   canaritos = PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
-  gradient_bound = 0.6
+  gradient_bound = 0.4
 )
 
 # Parámetros para la evaluación
@@ -176,7 +176,7 @@ PARAM$evaluacion$training <- c(
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104, 202105
 )
-PARAM$evaluacion$undersampling <- 0.1
+PARAM$evaluacion$undersampling <- 0.05
 PARAM$evaluacion$iter <- 10
 PARAM$evaluacion$ksemillerio <- 10
 PARAM$evaluacion$cortes_evaluacion <- seq(0, 20000, by = 500)
@@ -194,7 +194,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104, 202105
 )
 PARAM$train_final$undersampling <- 0.05
-PARAM$train_final$ksemillerio <- 50
+PARAM$train_final$ksemillerio <- 100
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
