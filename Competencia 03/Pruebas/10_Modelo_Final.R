@@ -1,4 +1,3 @@
-#!/usr/bin/env Rscript
 tryCatch(
   {
     # se filtran los meses donde se entrena el modelo final
@@ -155,7 +154,7 @@ tryCatch(
       sep = ",",
       col.names = FALSE
     )
-    log_info(paste("Tabla de probabilidades guardada en:", file_probabilidades))
+    log_info(paste("Archivo de predicción con probabilidades guardado en:", file_probabilidades))
 
     # Clasificación
     log_info("Generando archivo para entregar.")
