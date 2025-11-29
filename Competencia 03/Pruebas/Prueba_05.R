@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "Prueba_I05"
-PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
+PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -93,8 +93,8 @@ PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
-PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
-PARAM$FE_hist$MovingAverages$vs_actual <- TRUE # Media móvil vs valor actual
+PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
+PARAM$FE_hist$MovingAverages$vs_actual <- FALSE # Media móvil vs valor actual
 
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()

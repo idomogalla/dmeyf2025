@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "main"
-PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
+PARAM$semilla_primigenia <- 200003
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
