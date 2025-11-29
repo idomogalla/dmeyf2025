@@ -83,7 +83,7 @@ PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias

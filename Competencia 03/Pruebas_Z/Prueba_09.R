@@ -89,7 +89,7 @@ PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (der
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
-PARAM$FE_hist$Tendencias$tendencia <- FALSE
+PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- TRUE
@@ -177,7 +177,7 @@ PARAM$evaluacion$future <- c(202107) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
-  202001, 202002, 202003, 202004, 202005, #202006,
+  202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104, 202105
 )

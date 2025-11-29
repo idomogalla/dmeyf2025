@@ -61,11 +61,11 @@ PARAM$modelos_folder <- "Modelos"
 
 # Parámetros de eliminación de features
 PARAM$eliminacion$prestamos_personales <- TRUE
-PARAM$eliminacion$flip_internet <- TRUE
+PARAM$eliminacion$flip_internet <- FALSE
 PARAM$eliminacion$internet <- FALSE
 
 # FE Intra Mes
-PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_monetarias <- FALSE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
 PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE
@@ -266,10 +266,10 @@ log_info("==================================================")
 source_con_log(file.path(home_dir, "01_Preprocesamiento.R"), "01_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "02_Eliminacion_de_Features.R"), "02_Eliminacion_de_Features")
 source_con_log(file.path(home_dir, "03_Data_Quality.R"), "03_Data_Quality.R")
-source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "04_Feature_Engineering_Intra_Mes")
+#source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "04_Feature_Engineering_Intra_Mes")
 source_con_log(file.path(home_dir, "05_Data_Drifting.R"), "05_Data_Drifting")
 source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "06_Feature_Engineering_Historico")
-source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "07_Feature_Engineering_RF")
+#source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "07_Feature_Engineering_RF")
 source_con_log(file.path(home_dir, "08_Modelado.R"), "08_Modelado")
 source_con_log(file.path(home_dir, "09_Optimizacion_Bayesiana.R"), "09_Optimizacion_Bayesiana")
 source_con_log(file.path(home_dir, "10_Evaluacion.R"), "10_Evaluacion")
