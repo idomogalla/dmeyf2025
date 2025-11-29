@@ -39,7 +39,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Prueba_I06"
+PARAM$experimento <- "Prueba_I07"
 PARAM$semilla_primigenia <- 200003
 
 # Parámetro de Canaritos
@@ -83,16 +83,16 @@ PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
-PARAM$FE_hist$Tendencias$tendencia <- FALSE
+PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
-PARAM$FE_hist$Tendencias$promedio <- FALSE
+PARAM$FE_hist$Tendencias$promedio <- TRUE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
@@ -167,7 +167,7 @@ PARAM$lgbm_z <- list(
 
   feature_fraction = 0.5,
   canaritos = PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
-  gradient_bound = 0.2
+  gradient_bound = 0.4
 )
 
 # Parámetros para la evaluación
@@ -177,7 +177,7 @@ PARAM$evaluacion$future <- c(202107) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
-  202001, 202002, 202003, 202004, 202005, #202006,
+  202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
   202101, 202102, 202103, 202104, 202105
 )
