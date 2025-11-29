@@ -72,6 +72,10 @@ PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE
 PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
+# Parámetros de Data Drifting
+PARAM$drifting$rank_cero_fijo <- TRUE
+PARAM$drifting$ipc <- FALSE
+
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags

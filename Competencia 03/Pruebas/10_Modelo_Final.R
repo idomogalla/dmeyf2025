@@ -196,7 +196,7 @@ tryCatch(
       tb_prediccion[, Predicted := 0L]
       tb_prediccion[1:envio, Predicted := 1L]
 
-      archivo_kaggle <- file.path(dir_kaggle, paste0("KA", PARAM$experimento, "_", envio, ".csv"))
+      archivo_kaggle <- file.path(dir_kaggle, paste0("IDs_", PARAM$experimento, "_", envio, ".csv"))
 
       # Grabo el archivo
       fwrite(tb_prediccion[Predicted == 1L, .(numero_de_cliente)],
@@ -204,6 +204,22 @@ tryCatch(
         col.names = FALSE
       )
 
+      log_info(paste("Archivo con los IDs seleccionados guardado en:", archivo_kaggle))
+    }
+
+    log_info("Generando un archivo de entrega tipo Kaggle...")
+
+    for (envio in envios) {
+      tb_prediccion[, Predicted := 0L]
+      tb_prediccion[1:envio, Predicted := 1L]
+
+      archivo_kaggle <- file.path(dir_kaggle, paste0("KA_", PARAM$experimento, "_", envio, ".csv"))
+
+      # grabo el archivo
+      fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
+        file = archivo_kaggle,
+        sep = ","
+      )
       log_info(paste("Archivo para Kaggle guardado en:", archivo_kaggle))
     }
   },
