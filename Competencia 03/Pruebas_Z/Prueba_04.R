@@ -78,7 +78,7 @@ PARAM$intra_mes$ejecutar_comportamiento <- FALSE
 PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Data Drifting
-PARAM$drifting$rank_cero_fijo <- TRUE
+PARAM$drifting$rank_cero_fijo <- FALSE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
@@ -243,7 +243,7 @@ log_info("Inciando el workflow")
 log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "01_Preprocesamiento.R"), "1_Preprocesamiento.R")
-source_con_log(file.path(home_dir, "02_Eliminacion_de_Feature.R"), "2_Eliminacion_de_Features.R")
+source_con_log(file.path(home_dir, "02_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features.R")
 # source_con_log(file.path(home_dir, "03_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 # source_con_log(file.path(home_dir, "05_Data_Drifting.R"), "5_Data_Drifting.R")

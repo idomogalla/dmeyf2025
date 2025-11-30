@@ -37,14 +37,6 @@ AgregarVariables_IntraMes <- function(dataset,
                                       run_comportamiento = TRUE,
                                       run_riesgo = TRUE) {
   log_info("inicio AgregarVariables_IntraMes()")
-  gc(verbose = FALSE)
-
-  # Sanitización rápida (por si llegan NULLs)
-  if (is.null(run_combinaciones_monetarias)) run_combinaciones_monetarias <- TRUE
-  if (is.null(run_ratios)) run_ratios <- TRUE
-  if (is.null(run_totales)) run_totales <- TRUE
-  if (is.null(run_comportamiento)) run_comportamiento <- TRUE
-  if (is.null(run_riesgo)) run_riesgo <- TRUE
 
   # Tracking de columnas
   columnas_originales <- copy(colnames(dataset))
