@@ -31,11 +31,12 @@ col_exists <- function(base_name, dataset_cols) {
 # FUNCIÓN PRINCIPAL: Feature Engineering Intra-Mes
 #------------------------------------------------------------------------------
 AgregarVariables_IntraMes <- function(dataset,
-                                      run_combinaciones_monetarias = TRUE,
-                                      run_ratios = TRUE,
-                                      run_totales = TRUE,
-                                      run_comportamiento = TRUE,
-                                      run_riesgo = TRUE) {
+                                      run_combinaciones_moreira = FALSE,
+                                      run_combinaciones_monetarias = FALSE,
+                                      run_ratios = FALSE,
+                                      run_totales = FALSE,
+                                      run_comportamiento = FALSE,
+                                      run_riesgo = FALSE) {
   log_info("inicio AgregarVariables_IntraMes()")
 
   # Tracking de columnas
@@ -54,6 +55,18 @@ AgregarVariables_IntraMes <- function(dataset,
   mpayroll_col <- get_col_name("mpayroll", colnames(dataset))
   if (!is.null(mpayroll_col)) {
     dataset[, mpayroll_sobre_edad := get(mpayroll_col) / cliente_edad]
+  }
+
+  if (run_combinaciones_moreira) {
+    dataset[, x_trx_visa_por_cuenta := ctarjeta_visa_transacciones / pmax(ctarjeta_visa, 1)]
+    dataset[, x_margen_total := mactivos_margen + mpasivos_margen] 
+    dataset[, x_pct_margen_activos := mactivos_margen / pmax(x_margen_total, 1)]# No sigue
+    dataset[, x_liquidity_stress := (Master_delinquency + Visa_delinquency + mcomisiones_mantenimiento + mcomisiones_otras) / pmax(mcuentas_saldo, 1)] # No sigue
+    dataset[, x_lifecycle_stage := cliente_antiguedad / pmax(cliente_edad * 12, 1)] # No sigue
+    dataset[, x_ticket_visa := mtarjeta_visa_consumo / pmax(ctarjeta_visa_transacciones, 1)]
+    dataset[, x_air_bike := mtarjeta_visa_consumo / pmax((mcuentas_saldo), 1)]
+    dataset[, x_air_bike_2 := Visa_msaldototal / pmax((mcuentas_saldo), 1)]
+    dataset[, x_bonzo := (mtarjeta_visa_consumo * pmax(Visa_status, 1))/100]
   }
 
   # Combinaciones monetarias
