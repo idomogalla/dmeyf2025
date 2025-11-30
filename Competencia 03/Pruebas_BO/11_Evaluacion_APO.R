@@ -223,8 +223,9 @@ tryCatch(
         gc()
     },
     error = function(e) {
-        log_error("Error en 9_Evaluacion_APO.R")
-        log_error(e$message)
-        stop(e)
+        log_error("######################################################")
+        log_error("Se ha producido un error fatal en la Sección 11: Evaluación APO.")
+        log_error(paste("Mensaje de R:", e$message))
+        log_error("######################################################")
     }
 )
