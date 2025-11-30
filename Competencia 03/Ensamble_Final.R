@@ -16,7 +16,7 @@ archivos_probabilidades <- c(
     "prob1.csv",
     "prob2.csv"
 )
-cortes <- c(10000, 10500, 11000, 11500, 12000) # Cortes a generar
+cortes <- c(10500, 11000) # Cortes a generar
 
 carpeta_salida <- file.path(carpeta_experimento, experimento)
 dir.create(carpeta_salida, showWarnings = FALSE, recursive = TRUE)
@@ -74,14 +74,9 @@ for (envio in cortes) {
     log_info(paste("Generando corte:", envio))
 
     tb_prediccion_ensamble[, Predicted := 0L]
-    if (envio <= nrow(tb_prediccion_ensamble)) {
-        tb_prediccion_ensamble[1:envio, Predicted := 1L]
-    } else {
-        log_warn(paste("El corte", envio, "es mayor que la cantidad de clientes."))
-        tb_prediccion_ensamble[, Predicted := 1L]
-    }
+    tb_prediccion_ensamble[1:envio, Predicted := 1L]
 
-    archivo_kaggle <- file.path(carpeta_salida, paste0("KA_Ensamble_", envio, ".csv"))
+    archivo_kaggle <- file.path(carpeta_salida, paste0("IDs_Ensamble_", envio, ".csv"))
 
     # Grabo el archivo (Solo numero_de_cliente donde Predicted == 1)
     fwrite(tb_prediccion_ensamble[Predicted == 1L, .(numero_de_cliente)],
@@ -89,7 +84,26 @@ for (envio in cortes) {
         col.names = FALSE
     )
 
-    log_info(paste("Archivo guardado en:", archivo_kaggle))
+    log_info(paste("Archivo con los IDs seleccionados guardado en:", archivo_kaggle))
+}
+
+log_info("Generando un archivo de entrega tipo Kaggle...")
+
+for (envio in cortes) {
+    log_info(paste("Generando corte:", envio))
+
+    tb_prediccion_ensamble[, Predicted := 0L]
+    tb_prediccion_ensamble[1:envio, Predicted := 1L]
+
+    archivo_kaggle <- file.path(carpeta_salida, paste0("KA_Ensamble_", envio, ".csv"))
+
+    # Grabo el archivo (Solo numero_de_cliente donde Predicted == 1)
+    fwrite(tb_prediccion_ensamble[, list(numero_de_cliente, Predicted)],
+        file = archivo_kaggle,
+        sep = ","
+    )
+
+    log_info(paste("Archivo para Kaggle guardado en:", archivo_kaggle))
 }
 
 log_info("Proceso finalizado.")

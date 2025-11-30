@@ -23,6 +23,7 @@ semilla_azar <- 102191
 
 # Cortes para evaluar la ganancia
 cortes_evaluacion <- seq(from = 500, to = 20000, by = 500)
+cortes_salida <- c(10500, 11000)
 
 carpeta_salida <- file.path(carpeta_experimento, experimento)
 dir.create(carpeta_salida, showWarnings = FALSE, recursive = TRUE)
@@ -302,5 +303,40 @@ GraficarCurvasEnsemble(
     carpeta_salida,
     experimento
 )
+
+log_info(paste("Envíos finales a generar:", paste(cortes_salida, collapse = ", ")))
+setorder(tb_prediccion_ensamble, -prob)
+
+for (envio in cortes_salida) {
+    # Asignación de la clase predicha
+    tb_prediccion_ensamble[, Predicted := 0L]
+    tb_prediccion_ensamble[1:envio, Predicted := 1L]
+
+    archivo_kaggle <- file.path(carpeta_salida, paste0("IDs_Ensamble_", envio, ".csv"))
+
+    # Grabo el archivo
+    fwrite(tb_prediccion_ensamble[Predicted == 1L, .(numero_de_cliente)],
+        file = archivo_kaggle,
+        col.names = FALSE
+    )
+
+    log_info(paste("Archivo con los IDs seleccionados guardado en:", archivo_kaggle))
+}
+
+log_info("Generando un archivo de entrega tipo Kaggle...")
+
+for (envio in cortes_salida) {
+    tb_prediccion_ensamble[, Predicted := 0L]
+    tb_prediccion_ensamble[1:envio, Predicted := 1L]
+
+    archivo_kaggle <- file.path(dir_kaggle, paste0("KA_Ensamble_", envio, ".csv"))
+
+    # grabo el archivo
+    fwrite(tb_prediccion_ensamble[, list(numero_de_cliente, Predicted)],
+        file = archivo_kaggle,
+        sep = ","
+    )
+    log_info(paste("Archivo para Kaggle guardado en:", archivo_kaggle))
+}
 
 log_info("Proceso finalizado.")
