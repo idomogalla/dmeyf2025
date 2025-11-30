@@ -39,7 +39,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Prueba_I11"
+PARAM$experimento <- "Prueba_I12"
 PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
@@ -79,7 +79,7 @@ PARAM$intra_mes$ejecutar_comportamiento <- FALSE
 PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Data Drifting
-PARAM$drifting$rank_cero_fijo <- TRUE
+PARAM$drifting$rank_cero_fijo <- FALSE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
