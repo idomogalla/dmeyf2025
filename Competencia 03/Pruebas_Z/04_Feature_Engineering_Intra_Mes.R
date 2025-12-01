@@ -522,7 +522,7 @@ AgregarVariables_IntraMes <- function(dataset,
 # Agrego variables
 AgregarVariables_IntraMes(
   dataset,
-  PARAM$intra_mes$run_combinaciones_moreira,
+  PARAM$intra_mes$ejecutar_combinaciones_moreira,
   PARAM$intra_mes$ejecutar_combinaciones_monetarias,
   PARAM$intra_mes$ejecutar_ratios,
   PARAM$intra_mes$ejecutar_totales,

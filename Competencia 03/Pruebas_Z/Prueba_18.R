@@ -71,7 +71,7 @@ PARAM$eliminacion$flip_internet <- TRUE
 PARAM$eliminacion$internet <- FALSE
 
 # FE Intra Mes
-PARAM$intra_mes$run_combinaciones_moreira <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_moreira <- TRUE
 PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
 PARAM$intra_mes$ejecutar_ratios <- TRUE
 PARAM$intra_mes$ejecutar_totales <- TRUE
