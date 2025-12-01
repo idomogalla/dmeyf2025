@@ -190,6 +190,20 @@ tryCatch(
     # Ordeno todo para hacer el FE Histórico
     setorder(dataset, numero_de_cliente, foto_mes)
 
+    if(isTRUE(PARAM$eliminacion$dummies)){
+        
+        # Lista de variables que sufren el cambio estructural
+        cols_cambio <- c("internet", "cmobile_app_trx", "tmobile_app")
+        
+        # Creamos dinamicamente los nombres de las nuevas columnas (ej: internet_dummy)
+        cols_nuevas <- paste0(cols_cambio, "_dummy")
+        
+        # Asignamos 1 si foto_mes >= 202010, 0 en caso contrario
+        # Usamos as.integer para garantizar que sea numérico (0/1) y no lógico (FALSE/TRUE)
+        dataset[, (cols_nuevas) := as.integer(foto_mes >= 202010)]
+        
+    }
+    
     # todo es lagueable, menos la primary key y la clase
     cols_lagueables <- copy(setdiff(
       colnames(dataset),
