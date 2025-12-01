@@ -69,6 +69,7 @@ PARAM$modelos_folder <- "Modelos"
 PARAM$eliminacion$prestamos_personales <- TRUE
 PARAM$eliminacion$flip_internet <- FALSE
 PARAM$eliminacion$internet <- FALSE
+PARAM$eliminacion$mobile <- FALSE
 
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_moreira <- TRUE

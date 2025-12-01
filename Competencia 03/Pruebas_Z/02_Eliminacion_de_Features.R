@@ -20,6 +20,15 @@ if (isTRUE(PARAM$eliminacion$internet)) {
     eliminar_variables <- TRUE
 } 
 
+if (isTrue(PARAM$eliminacion$mobile)){
+    log_info("Eliminando la variable mobile")
+    dataset[, cmobile_app_trx := NULL]
+    dataset[, tmobile_app := NULL]
+    eliminar_variables <- TRUE
+}
+
 if (!eliminar_variables) {
     log_info("No se han eliminado o modificado variables.")
+}else{
+    log_info("Se han eliminado o modificado variables.")
 }

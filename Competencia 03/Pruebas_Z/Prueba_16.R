@@ -67,8 +67,9 @@ PARAM$modelos_folder <- "Modelos"
 
 # Parámetros de eliminación de features
 PARAM$eliminacion$prestamos_personales <- TRUE
-PARAM$eliminacion$flip_internet <- TRUE
-PARAM$eliminacion$internet <- FALSE
+PARAM$eliminacion$flip_internet <- FALSE
+PARAM$eliminacion$internet <- TRUE
+PARAM$eliminacion$mobile <- TRUE
 
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_moreira <- FALSE
@@ -88,16 +89,16 @@ PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
-PARAM$FE_hist$Tendencias$tendencia <- FALSE
+PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- FALSE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
-PARAM$FE_hist$MovingAverages$run <- TRUE # Activar o desactivar Moving Averages
+PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
 PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
 PARAM$FE_hist$MovingAverages$vs_actual <- FALSE # Media móvil vs valor actual

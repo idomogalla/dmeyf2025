@@ -69,6 +69,7 @@ PARAM$modelos_folder <- "Modelos"
 PARAM$eliminacion$prestamos_personales <- TRUE
 PARAM$eliminacion$flip_internet <- TRUE
 PARAM$eliminacion$internet <- FALSE
+PARAM$eliminacion$mobile <- FALSE
 
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_moreira <- FALSE
@@ -160,15 +161,15 @@ PARAM$lgbm_z <- list(
   verbosity = -100,
   seed = PARAM$semilla_primigenia,
   max_bin = 31L,
-  min_data_in_leaf = 200L, # 20L es del default
+  min_data_in_leaf = 500L, # 20L es del default
 
   num_iterations = 64L,
   num_leaves = 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
   learning_rate = 1.0, # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
 
-  feature_fraction = 0.3,
+  feature_fraction = 0.5,
   canaritos = PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
-  gradient_bound = 0.6
+  gradient_bound = 0.4
 )
 
 # Parámetros para la evaluación
