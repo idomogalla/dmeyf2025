@@ -20,7 +20,7 @@ if (isTRUE(PARAM$eliminacion$internet)) {
     eliminar_variables <- TRUE
 } 
 
-if (isTrue(PARAM$eliminacion$mobile)){
+if (isTRUE(PARAM$eliminacion$mobile)){
     log_info("Eliminando la variable mobile")
     dataset[, cmobile_app_trx := NULL]
     dataset[, tmobile_app := NULL]
