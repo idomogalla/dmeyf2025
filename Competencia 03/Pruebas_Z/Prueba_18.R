@@ -39,7 +39,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Prueba_I12"
+PARAM$experimento <- "Prueba_I18"
 PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
@@ -71,15 +71,15 @@ PARAM$eliminacion$flip_internet <- TRUE
 PARAM$eliminacion$internet <- FALSE
 
 # FE Intra Mes
-PARAM$intra_mes$run_combinaciones_moreira <- FALSE
+PARAM$intra_mes$run_combinaciones_moreira <- TRUE
 PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
-PARAM$intra_mes$ejecutar_ratios <- FALSE
-PARAM$intra_mes$ejecutar_totales <- FALSE
-PARAM$intra_mes$ejecutar_comportamiento <- FALSE
-PARAM$intra_mes$ejecutar_riesgo <- FALSE
+PARAM$intra_mes$ejecutar_ratios <- TRUE
+PARAM$intra_mes$ejecutar_totales <- TRUE
+PARAM$intra_mes$ejecutar_comportamiento <- TRUE
+PARAM$intra_mes$ejecutar_riesgo <- TRUE
 
 # Parámetros de Data Drifting
-PARAM$drifting$rank_cero_fijo <- FALSE
+PARAM$drifting$rank_cero_fijo <- TRUE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
@@ -93,7 +93,7 @@ PARAM$FE_hist$Tendencias$ventana <- c(6)
 PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
-PARAM$FE_hist$Tendencias$promedio <- FALSE
+PARAM$FE_hist$Tendencias$promedio <- TRUE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
@@ -105,7 +105,7 @@ PARAM$FE_hist$MovingAverages$vs_actual <- FALSE # Media móvil vs valor actual
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
 # Los siguientes parámetros se deben modificar
-PARAM$FE_rf$arbolitos <- 20
+PARAM$FE_rf$arbolitos <- 10
 PARAM$FE_rf$hojas_por_arbol <- 16
 PARAM$FE_rf$datos_por_hoja <- 100
 PARAM$FE_rf$mtry_ratio <- 0.2
@@ -249,7 +249,7 @@ source_con_log(file.path(home_dir, "03_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "05_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
-#source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "08_Evaluacion.R"), "8_Evaluacion.R")
 source_con_log(file.path(home_dir, "09_Evaluacion_APO.R"), "9_Evaluacion_APO.R")
 #source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")

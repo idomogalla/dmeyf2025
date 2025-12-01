@@ -252,6 +252,6 @@ source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Fea
 #source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "08_Evaluacion.R"), "8_Evaluacion.R")
 source_con_log(file.path(home_dir, "09_Evaluacion_APO.R"), "9_Evaluacion_APO.R")
-source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
+#source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")

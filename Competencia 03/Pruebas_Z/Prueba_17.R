@@ -39,7 +39,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Prueba_I12"
+PARAM$experimento <- "Prueba_I17"
 PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
@@ -72,7 +72,7 @@ PARAM$eliminacion$internet <- FALSE
 
 # FE Intra Mes
 PARAM$intra_mes$run_combinaciones_moreira <- FALSE
-PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_monetarias <- FALSE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
 PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE
@@ -80,11 +80,11 @@ PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Data Drifting
 PARAM$drifting$rank_cero_fijo <- FALSE
-PARAM$drifting$ipc <- FALSE
+PARAM$drifting$ipc <- TRUE
 
 # Parámetros de Feature Engineering Histórico
 # Lags
-PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
+PARAM$FE_hist$lags$run <- FALSE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
@@ -94,7 +94,7 @@ PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- FALSE
-PARAM$FE_hist$Tendencias$ratioavg <- FALSE
+PARAM$FE_hist$Tendencias$ratioavg <- TRUE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages

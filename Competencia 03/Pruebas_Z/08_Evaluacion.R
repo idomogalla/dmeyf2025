@@ -443,7 +443,7 @@ tryCatch(
     setorder(tb_prediccion_ensamble, -prob)
 
     # Generar archivo con probabilidades (numero_de_cliente, prob)
-    file_probabilidades <- file.path(dir_evaluacion, paste0("prediccion_probabilidades_evaluacion_", PARAM$experimento, ".csv"))
+    file_probabilidades <- file.path(PARAM$experimento_folder, paste0("prediccion_probabilidades_evaluacion_", PARAM$experimento, ".csv"))
     fwrite(tb_prediccion_ensamble[, .(numero_de_cliente, prob)],
       file = file_probabilidades,
       sep = ",",

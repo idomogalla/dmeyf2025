@@ -39,7 +39,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Prueba_I12"
+PARAM$experimento <- "Prueba_I16"
 PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
@@ -79,7 +79,7 @@ PARAM$intra_mes$ejecutar_comportamiento <- FALSE
 PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Data Drifting
-PARAM$drifting$rank_cero_fijo <- FALSE
+PARAM$drifting$rank_cero_fijo <- TRUE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
@@ -88,16 +88,16 @@ PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
-PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
+PARAM$FE_hist$Tendencias$run <- FALSE # Activar o desactivar Tendencias
 PARAM$FE_hist$Tendencias$ventana <- c(6)
-PARAM$FE_hist$Tendencias$tendencia <- TRUE
+PARAM$FE_hist$Tendencias$tendencia <- FALSE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- FALSE
 PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
-PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
+PARAM$FE_hist$MovingAverages$run <- TRUE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
 PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
 PARAM$FE_hist$MovingAverages$vs_actual <- FALSE # Media móvil vs valor actual
