@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "main"
-PARAM$semilla_primigenia <- 200003
+PARAM$semilla_primigenia <- 450343
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -71,20 +71,21 @@ PARAM$eliminacion$flip_internet <- FALSE
 PARAM$eliminacion$internet <- FALSE
 
 # FE Intra Mes
-PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_moreira <- TRUE
+PARAM$intra_mes$ejecutar_combinaciones_monetarias <- FALSE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
 PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE
 PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Data Drifting
-PARAM$drifting$rank_cero_fijo <- TRUE
+PARAM$drifting$rank_cero_fijo <- FALSE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
@@ -93,13 +94,13 @@ PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- FALSE
-PARAM$FE_hist$Tendencias$ratioavg <- FALSE
+PARAM$FE_hist$Tendencias$ratioavg <- TRUE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
 PARAM$FE_hist$MovingAverages$windows <- c(3, 6) # Ventanas de moving averages
-PARAM$FE_hist$MovingAverages$delta_change <- TRUE # Cambio respecto a periodo anterior (delta entre periodos)
-PARAM$FE_hist$MovingAverages$vs_actual <- TRUE # Media móvil vs valor actual
+PARAM$FE_hist$MovingAverages$delta_change <- FALSE # Cambio respecto a periodo anterior (delta entre periodos)
+PARAM$FE_hist$MovingAverages$vs_actual <- FALSE # Media móvil vs valor actual
 
 # Parámetros de Feature Engineering con Random Forest
 PARAM$FE_rf <- list()
@@ -159,32 +160,31 @@ PARAM$lgbm_z <- list(
   verbosity = -100,
   seed = PARAM$semilla_primigenia,
   max_bin = 31L,
-  min_data_in_leaf = 20L, # 20L es del default
+  min_data_in_leaf = 200L, # 20L es del default
 
-  num_iterations = 9999L, # dejo libre la cantidad de arboles, zLightGBM se detiene solo
+  num_iterations = 64L,
   num_leaves = 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
   learning_rate = 1.0, # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
 
-  feature_fraction = 0.50, # un valor equilibrado, habra que probar alternativas ...
-
+  feature_fraction = 0.5,
   canaritos = PARAM$qcanaritos, # fundamental en zLightGBM, aqui esta el control del overfitting
-  gradient_bound = 0.1 # default de zLightGBM
+  gradient_bound = 0.4
 )
 
 # Parámetros para la evaluación
 PARAM$evaluacion <- list()
 PARAM$evaluacion$importancias <- 100
-PARAM$evaluacion$future <- c(202106) # Mes para testear
+PARAM$evaluacion$future <- c(202107) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104
+  202101, 202102, 202103, 202104, 202105
 )
 PARAM$evaluacion$undersampling <- 0.05
-PARAM$evaluacion$iter <- 1
-PARAM$evaluacion$ksemillerio <- 1
+PARAM$evaluacion$iter <- 10
+PARAM$evaluacion$ksemillerio <- 10
 PARAM$evaluacion$cortes_evaluacion <- seq(0, 20000, by = 500)
 
 # Parámetros para el entrenamiento final y predicción
@@ -197,7 +197,7 @@ PARAM$train_final$training <- c(
   201907, 201908, 201909, 201910, 201911, 201912,
   202001, 202002, 202003, 202004, 202005, 202006,
   202007, 202008, 202009, 202010, 202011, 202012,
-  202101, 202102, 202103, 202104, 202105, 202105
+  202101, 202102, 202103, 202104, 202105
 )
 PARAM$train_final$undersampling <- 0.05
 PARAM$train_final$ksemillerio <- 50
@@ -249,7 +249,7 @@ source_con_log(file.path(home_dir, "03_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "05_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
-source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
+#source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "08_Evaluacion.R"), "8_Evaluacion.R")
 source_con_log(file.path(home_dir, "09_Evaluacion_APO.R"), "9_Evaluacion_APO.R")
 # source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
