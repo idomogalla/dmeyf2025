@@ -70,6 +70,7 @@ PARAM$eliminacion$prestamos_personales <- TRUE
 PARAM$eliminacion$flip_internet <- FALSE
 PARAM$eliminacion$internet <- FALSE
 PARAM$eliminacion$mobile <- FALSE
+PARAM$eliminacion$dummies <- FALSE
 
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_moreira <- FALSE

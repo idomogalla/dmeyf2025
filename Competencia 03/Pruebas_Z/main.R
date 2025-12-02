@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "main"
-PARAM$semilla_primigenia <- 450343
+PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -69,23 +69,25 @@ PARAM$modelos_folder <- "Modelos"
 PARAM$eliminacion$prestamos_personales <- TRUE
 PARAM$eliminacion$flip_internet <- FALSE
 PARAM$eliminacion$internet <- FALSE
+PARAM$eliminacion$mobile <- FALSE
 
 # FE Intra Mes
-PARAM$intra_mes$ejecutar_combinaciones_moreira <- TRUE
-PARAM$intra_mes$ejecutar_combinaciones_monetarias <- FALSE
+PARAM$intra_mes$ejecutar_combinaciones_moreira <- FALSE
+PARAM$intra_mes$ejecutar_combinaciones_monetarias <- TRUE
 PARAM$intra_mes$ejecutar_ratios <- FALSE
 PARAM$intra_mes$ejecutar_totales <- FALSE
 PARAM$intra_mes$ejecutar_comportamiento <- FALSE
 PARAM$intra_mes$ejecutar_riesgo <- FALSE
 
 # Parámetros de Data Drifting
-PARAM$drifting$rank_cero_fijo <- FALSE
+PARAM$drifting$rank_cero_fijo <- TRUE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
+PARAM$eliminacion$dummies <- TRUE
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
-PARAM$FE_hist$lags$n_lags <- c(1, 2) # Número de lags a crear
+PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
 PARAM$FE_hist$lags$aceleracion <- FALSE # Activar o desactivar aceleración (derivada segunda)
 # Tendencias
 PARAM$FE_hist$Tendencias$run <- TRUE # Activar o desactivar Tendencias
@@ -94,7 +96,7 @@ PARAM$FE_hist$Tendencias$tendencia <- TRUE
 PARAM$FE_hist$Tendencias$minimo <- FALSE
 PARAM$FE_hist$Tendencias$maximo <- FALSE
 PARAM$FE_hist$Tendencias$promedio <- FALSE
-PARAM$FE_hist$Tendencias$ratioavg <- TRUE
+PARAM$FE_hist$Tendencias$ratioavg <- FALSE
 PARAM$FE_hist$Tendencias$ratiomax <- FALSE
 # Media Moviles
 PARAM$FE_hist$MovingAverages$run <- FALSE # Activar o desactivar Moving Averages
@@ -160,9 +162,9 @@ PARAM$lgbm_z <- list(
   verbosity = -100,
   seed = PARAM$semilla_primigenia,
   max_bin = 31L,
-  min_data_in_leaf = 200L, # 20L es del default
+  min_data_in_leaf = 500L, # 20L es del default
 
-  num_iterations = 64L,
+  num_iterations = 64,
   num_leaves = 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split
   learning_rate = 1.0, # se lo deja en 1.0 para que si el score esta por debajo de gradient_bound no se lo escale
 
@@ -200,7 +202,7 @@ PARAM$train_final$training <- c(
   202101, 202102, 202103, 202104, 202105
 )
 PARAM$train_final$undersampling <- 0.05
-PARAM$train_final$ksemillerio <- 50
+PARAM$train_final$ksemillerio <- 100
 
 #------------------------------------------------------------------------------
 # Función wrapper para ejecutar y cronometrar scripts
@@ -252,6 +254,6 @@ source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Fea
 #source_con_log(file.path(home_dir, "07_Feature_Engineering_RF.R"), "7_Feature_Engineering_RF.R")
 source_con_log(file.path(home_dir, "08_Evaluacion.R"), "8_Evaluacion.R")
 source_con_log(file.path(home_dir, "09_Evaluacion_APO.R"), "9_Evaluacion_APO.R")
-# source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
+#source_con_log(file.path(home_dir, "10_Modelo_Final.R"), "10_Modelo_Final.R")
 log_info("==================================================")
 log_info("Workflow finalizado")

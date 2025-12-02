@@ -39,7 +39,7 @@ home_dir <- getwd()
 PARAM <- list()
 
 # Parámetros generales
-PARAM$experimento <- "Prueba_I11"
+PARAM$experimento <- "Prueba_I21"
 PARAM$semilla_primigenia <- 102191
 
 # Parámetro de Canaritos
@@ -70,6 +70,7 @@ PARAM$eliminacion$prestamos_personales <- TRUE
 PARAM$eliminacion$flip_internet <- FALSE
 PARAM$eliminacion$internet <- FALSE
 PARAM$eliminacion$mobile <- FALSE
+PARAM$eliminacion$dummies <- TRUE
 
 # FE Intra Mes
 PARAM$intra_mes$ejecutar_combinaciones_moreira <- FALSE
@@ -84,7 +85,6 @@ PARAM$drifting$rank_cero_fijo <- TRUE
 PARAM$drifting$ipc <- FALSE
 
 # Parámetros de Feature Engineering Histórico
-PARAM$eliminacion$dummies <- TRUE
 # Lags
 PARAM$FE_hist$lags$run <- TRUE # Activar o desactivar lags
 PARAM$FE_hist$lags$n_lags <- c(1, 2, 3, 6, 12) # Número de lags a crear
