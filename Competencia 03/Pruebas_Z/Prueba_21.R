@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "Prueba_I21"
-PARAM$semilla_primigenia <- 102191
+PARAM$semilla_primigenia <- 200003
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L

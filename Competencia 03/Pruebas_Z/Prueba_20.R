@@ -176,7 +176,7 @@ PARAM$lgbm_z <- list(
 # Parámetros para la evaluación
 PARAM$evaluacion <- list()
 PARAM$evaluacion$importancias <- 100
-PARAM$evaluacion$future <- c(2021067) # Mes para testear
+PARAM$evaluacion$future <- c(202107) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
