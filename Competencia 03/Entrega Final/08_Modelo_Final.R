@@ -81,7 +81,7 @@ tryCatch(
     for (i in seq_along(PARAM$train_final$semillas)) {
       sem <- PARAM$train_final$semillas[i]
       arch_modelo <- file.path(dir_modelitos, paste0("mod_", sem, ".txt"))
-      log_info(paste0("Entrenando modelo con semilla: ", sem, " (", i, "/", PARAM$train_final$ksemillerio, ") ---"))
+      log_info(paste0("Entrenando modelo con semilla: ", sem, " (", i, "/", PARAM$train_final$ksemillerio, ")"))
       if (!file.exists(arch_modelo)) {
         param_completo$seed <- sem
         modelito <- lgb.train(
