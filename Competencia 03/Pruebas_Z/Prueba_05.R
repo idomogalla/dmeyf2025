@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "Prueba_I05"
-PARAM$semilla_primigenia <- 102191 # Semilla de zLineaMuerte
+PARAM$semilla_primigenia <- 200003 # Semilla de zLineaMuerte
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -162,7 +162,7 @@ PARAM$lgbm_z <- list(
   verbosity = -100,
   seed = PARAM$semilla_primigenia,
   max_bin = 31L,
-  min_data_in_leaf = 200L, # 20L es del default
+  min_data_in_leaf = 500L, # 20L es del default
 
   num_iterations = 64L,
   num_leaves = 9999L, # dejo libre la cantidad de hojas, zLightGBM sabe cuando no hacer un split

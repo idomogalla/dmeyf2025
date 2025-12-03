@@ -40,7 +40,7 @@ PARAM <- list()
 
 # Parámetros generales
 PARAM$experimento <- "Prueba_I20"
-PARAM$semilla_primigenia <- 102191
+PARAM$semilla_primigenia <- 200003
 
 # Parámetro de Canaritos
 PARAM$qcanaritos <- 5L
@@ -176,7 +176,7 @@ PARAM$lgbm_z <- list(
 # Parámetros para la evaluación
 PARAM$evaluacion <- list()
 PARAM$evaluacion$importancias <- 100
-PARAM$evaluacion$future <- c(202107) # Mes para testear
+PARAM$evaluacion$future <- c(2021067) # Mes para testear
 PARAM$evaluacion$training <- c(
   201901, 201902, 201903, 201904, 201905, 201906,
   201907, 201908, 201909, 201910, 201911, 201912,
@@ -247,7 +247,7 @@ log_info("==================================================")
 # Ejecuto los scripts del workflow usando el wrapper
 source_con_log(file.path(home_dir, "01_Preprocesamiento.R"), "1_Preprocesamiento.R")
 source_con_log(file.path(home_dir, "02_Eliminacion_de_Features.R"), "2_Eliminacion_de_Features")
-source_con_log(file.path(home_dir, "03_Data_Quality.R"), "3_Data_Quality.R")
+#source_con_log(file.path(home_dir, "03_Data_Quality.R"), "3_Data_Quality.R")
 source_con_log(file.path(home_dir, "04_Feature_Engineering_Intra_Mes.R"), "4_Feature_Engineering_Intra_Mes.R")
 source_con_log(file.path(home_dir, "05_Data_Drifting.R"), "5_Data_Drifting.R")
 source_con_log(file.path(home_dir, "06_Feature_Engineering_Historico.R"), "6_Feature_Engineering_Historico.R")
