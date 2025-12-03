@@ -78,10 +78,11 @@ tryCatch(
 
     param_completo <- copy(PARAM$train_final$param_mejores)
 
-    for (sem in PARAM$train_final$semillas) {
+    for (i in seq_along(PARAM$train_final$semillas)) {
+      sem <- PARAM$train_final$semillas[i]
       arch_modelo <- file.path(dir_modelitos, paste0("mod_", sem, ".txt"))
+      log_info(paste0("Entrenando modelo con semilla: ", sem, " (", i, "/", PARAM$train_final$ksemillerio, ") ---"))
       if (!file.exists(arch_modelo)) {
-        log_info(paste("Entrenando modelo con semilla:", sem))
         param_completo$seed <- sem
         modelito <- lgb.train(
           data = dtrain_final,
@@ -204,22 +205,6 @@ tryCatch(
       )
 
       log_info(paste("Archivo con los IDs seleccionados guardado en:", archivo_kaggle))
-    }
-
-    log_info("Generando un archivo de entrega tipo Kaggle...")
-
-    for (envio in envios) {
-      tb_prediccion[, Predicted := 0L]
-      tb_prediccion[1:envio, Predicted := 1L]
-
-      archivo_kaggle <- file.path(dir_kaggle, paste0("KA_", PARAM$experimento, "_", envio, ".csv"))
-
-      # grabo el archivo
-      fwrite(tb_prediccion[, list(numero_de_cliente, Predicted)],
-        file = archivo_kaggle,
-        sep = ","
-      )
-      log_info(paste("Archivo para Kaggle guardado en:", archivo_kaggle))
     }
   },
   error = function(e) {

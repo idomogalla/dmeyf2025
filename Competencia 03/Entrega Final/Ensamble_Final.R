@@ -13,10 +13,14 @@ experimento <- "ensamble_final"
 
 dir_dataset <- "~/buckets/b1/datasets/competencia_03_ternaria.csv.gz"
 archivos_probabilidades <- c(
-    "prob1.csv",
-    "prob2.csv"
+    "~/buckets/b1/exp/Modelo_01/prediccion_probabilidades_final_Modelo_01.csv",
+    "~/buckets/b1/exp/Modelo_02/prediccion_probabilidades_final_Modelo_02.csv",
+    "~/buckets/b1/exp/Modelo_03/prediccion_probabilidades_final_Modelo_03.csv",
+    "~/buckets/b1/exp/Modelo_04/prediccion_probabilidades_final_Modelo_04.csv",
+    "~/buckets/b1/exp/Modelo_05/prediccion_probabilidades_final_Modelo_05.csv",
+    "~/buckets/b1/exp/Modelo_06/prediccion_probabilidades_final_Modelo_06.csv"
 )
-cortes <- c(10500, 11000) # Cortes a generar
+cortes <- c(11000) # Cortes a generar
 
 carpeta_salida <- file.path(carpeta_experimento, experimento)
 dir.create(carpeta_salida, showWarnings = FALSE, recursive = TRUE)
@@ -85,25 +89,6 @@ for (envio in cortes) {
     )
 
     log_info(paste("Archivo con los IDs seleccionados guardado en:", archivo_kaggle))
-}
-
-log_info("Generando un archivo de entrega tipo Kaggle...")
-
-for (envio in cortes) {
-    log_info(paste("Generando corte:", envio))
-
-    tb_prediccion_ensamble[, Predicted := 0L]
-    tb_prediccion_ensamble[1:envio, Predicted := 1L]
-
-    archivo_kaggle <- file.path(carpeta_salida, paste0("KA_Ensamble_", envio, ".csv"))
-
-    # Grabo el archivo (Solo numero_de_cliente donde Predicted == 1)
-    fwrite(tb_prediccion_ensamble[, list(numero_de_cliente, Predicted)],
-        file = archivo_kaggle,
-        sep = ","
-    )
-
-    log_info(paste("Archivo para Kaggle guardado en:", archivo_kaggle))
 }
 
 log_info("Proceso finalizado.")

@@ -176,7 +176,7 @@ PARAM$lgbm_z <- list(
 
 # Parámetros para el entrenamiento final y predicción
 PARAM$train_final <- list()
-PARAM$train_final$produccion <- FALSE # Se activa para generar un archivo final sin evaluación previa
+PARAM$train_final$produccion <- TRUE # Se activa para generar un archivo final sin evaluación previa
 PARAM$train_final$envios_a_generar <- c(11000)
 PARAM$train_final$future <- c(202107) # Mes para predecir
 PARAM$train_final$training <- c(
